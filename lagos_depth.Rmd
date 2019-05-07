@@ -1,0 +1,29 @@
+---
+title: "LAGOS lake depth"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE}
+library(LAGOSNE)
+library(ggplot2)
+library(sf)
+library(dplyr)
+
+
+lg       <- lagosne_load("1.087.1")
+lg_depth <- dplyr::select(lg$lakes_limno, 
+                          lagoslakeid, maxdepth, maxdepthsource) %>% 
+  left_join(lg$locus, by = "lagoslakeid") %>%
+  dplyr::filter(!is.na(maxdepth)) %>%
+  coordinatize()
+```
+
+```{r viz}
+hist(lg_depth$maxdepth)
+knitr::kable(t(quantile(lg_depth$maxdepth, c(0, 0.05, 0.5, 0.95, 1))))
+
+```
