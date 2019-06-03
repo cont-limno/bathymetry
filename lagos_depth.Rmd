@@ -18,19 +18,34 @@ lg       <- lagosne_load("1.087.1")
 lg_depth <- dplyr::select(lg$lakes_limno, 
                           lagoslakeid, maxdepth, maxdepthsource) %>% 
   left_join(lg$locus, by = "lagoslakeid") %>%
-  dplyr::filter(!is.na(maxdepth)) %>%
+  mutate(has_limno = lagoslakeid %in% lg$epi_nutr$lagoslakeid) %>%
+  # dplyr::filter(!is.na(maxdepth)) %>%
   coordinatize()
 ```
 
 ```{r viz}
 hist(lg_depth$maxdepth)
-knitr::kable(t(quantile(lg_depth$maxdepth, c(0, 0.05, 0.5, 0.95, 1))))
+knitr::kable(t(quantile(lg_depth$maxdepth, c(0, 0.05, 0.5, 0.95, 1), 
+                        na.rm = TRUE)))
+
+paste0(round(sum(!is.na(lg_depth$maxdepth)) / nrow(lg_depth) * 100, 2),
+       "% of lakes have maxdepth values.")
+
+paste0(round(sum(!is.na(dplyr::filter(lg_depth, has_limno)$maxdepth)) / 
+  length(unique(lg$epi_nutr$lagoslakeid)) * 100, 2), 
+  "% of lakes with limno data have maxdepth values.")
+
+paste0(round(sum(dplyr::filter(lg_depth, !is.na(maxdepth))$lagoslakeid %in% 
+            lg$epi_nutr$lagoslakeid) / 
+        nrow(lg_depth) * 100, 2), 
+       "% of lakes with maxdepth values have limno data.")
 
 ggplot() + 
   geom_sf(data = LAGOSNE::lg_extent) +
   geom_sf(data = dplyr::sample_frac(lg_depth, 0.2), 
-          aes(color = cut(maxdepth, round(quantile(maxdepth)))), 
-          size = 1, alpha = 0.4, shape = 20) +
+          aes(color = cut(maxdepth, round(quantile(maxdepth, c(0, 0.05, 0.5, 0.95, 1), 
+                                                   na.rm = TRUE)))), 
+          size = 1, alpha = 0.4, shape = 21) +
   scale_color_viridis_d(direction = -1) +
   coord_sf(datum = NA) + theme_void() +
   labs(color = "depth (m)")
