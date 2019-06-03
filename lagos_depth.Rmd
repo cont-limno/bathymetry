@@ -4,7 +4,7 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r data, message=FALSE, echo=FALSE}
@@ -29,19 +29,20 @@ lg_depth <- dplyr::select(lg$lakes_limno,
 
 ```{r summary_stats, echo = FALSE}
 paste0(round(sum(!is.na(lg_depth$maxdepth)) / nrow(lg_depth) * 100, 2),
-       "% of lakes have maxdepth values.")
+       "% (n=", sum(!is.na(lg_depth$maxdepth)), ") of lakes have maxdepth values.")
 
 paste0(round(sum(dplyr::filter(lg_depth, !is.na(maxdepth))$lagoslakeid %in% 
             lg$epi_nutr$lagoslakeid) / 
         nrow(lg_depth) * 100, 2), 
-       "% of lakes with maxdepth values have limno data.")
+       "% (n=", sum(dplyr::filter(lg_depth, !is.na(maxdepth))$lagoslakeid %in% 
+            lg$epi_nutr$lagoslakeid), ") of lakes with maxdepth values have limno data.")
 
 paste0(round(sum(!is.na(dplyr::filter(lg_depth, has_limno)$maxdepth)) / 
   length(unique(lg$epi_nutr$lagoslakeid)) * 100, 2), 
-  "% of lakes with limno data have maxdepth values.")
+  "% (n=", sum(!is.na(dplyr::filter(lg_depth, has_limno)$maxdepth)), ") of lakes with limno data have maxdepth values.")
 ```
 
-```{r viz, echo=FALSE, warning=FALSE, message=FALSE, fig.height=4}
+```{r viz, echo=FALSE, warning=FALSE, message=FALSE, fig.height=3}
 knitr::kable(t(quantile(lg_depth$maxdepth, c(0, 0.05, 0.5, 0.95, 1), 
                         na.rm = TRUE)), caption = "Lake depth quantiles")
 knitr::kable(round(t(quantile(lg_depth$lake_area_ha, c(0, 0.05, 0.5, 0.95, 1), 
@@ -67,8 +68,11 @@ cowplot::plot_grid(
 ```
 
 ```{r map, echo=FALSE, message=FALSE, error = FALSE}
+states_base <- jsta::get_intersects(jsta::usa_sf(), lg_depth, 
+                                    threshold = 1500)
+
 ggplot() + 
-  geom_sf(data = LAGOSNE::lg_extent) +
+  geom_sf(data = states_base) +
   geom_sf(data = dplyr::sample_frac(
     dplyr::filter(lg_depth, !is.na(maxdepth)), 0.3), 
           aes(color = color), 
@@ -78,4 +82,17 @@ ggplot() +
   scale_fill_brewer(palette = "Set2") +
   coord_sf(datum = NA) + theme_void() +
   labs(color = "depth (m)")
+```
+
+```{r }
+knitr::kable(
+  data.frame(stringsAsFactors=FALSE,
+  lead_author = c("Hollister", "Heathcote", "Oliver", "Sobek", "Emmerton",
+                    "Johansson", "Neumann"),
+  year = c(2011L, 2015L, 2016L, 2011L, 2007L, 2007L, 1959L),
+  location = c("NE/NY Huc", "Boreal Canada", "LAGOSNE", "Sweden",
+                 "Canadian Arctic", "Sweden", "Global"),
+  lake_numbers = c(133L, 433L, 7347L, 6618L, 81L, 105L, 107L)
+))
+
 ```
