@@ -87,6 +87,11 @@ llids <- llids  %>%
   unlist(recursive = FALSE) %>%
   tibble::enframe() %>%
   unnest()
+
+# remove llids in NLA (they all have depths according to Katelyn)
+nla <- dplyr::filter(llids, stringr::str_detect(name, "US_EPA"))
+llids <- llids[!(llids$value %in% nla$value),]
+
 llids <- llids[!duplicated(llids$value),]
 llids <- llids %>%
   mutate(file_name = gsub(".Linked_lagoslakeid", "", name)) %>%
@@ -104,21 +109,23 @@ res <- depth_log %>%
   arrange(total_llids) %>%
   mutate(cusum = cumsum(total_llids))
 
-people <- data.frame(stringsAsFactors=FALSE,
+people <-data.frame(stringsAsFactors=FALSE,
 people = c("Lauren (1)", "Jessica (1)", "Joe (1)", "Ian (1-2)", "Pat (1-2)",
-         "Katelyn (1-2)", "Kendra (1-2)", "Allie (~5 or more)",
-         "Lindsie - (10-15)", "Sam (10-15)"),
-num_states = c(1L, 1L, 1L, 2L, 2L, 2L, 2L, 5L, 10L, 10L),
-num_lakes = c(328.8611111, 328.8611111, 328.8611111, 657.7222222,
-                657.7222222, 657.7222222, 657.7222222, 1644.305556,
-                3288.611111, 3288.611111),
-cusum = c(328.8611111, 657.7222222, 986.5833333, 1644.305556, 2302.027778,
-            2959.75, 3617.472222, 5261.777778, 8550.388889, 11839),
-states = c("MI, TN, ID, OR, AL, LA, DE, NV, VA", "WV, SC, GA, CA, AZ", "KY, WY, NM", "CT, MS, SD, OK, NE", "NC, UT, MT, ND", "WA, KS", "CO, NY", "NH, TX", "NLA2007, FL", "NLA2012, GLNC")
-)
+                  "Katelyn (1-2)", "Kendra (1-2)", "Allie (~5 or more)",
+                  "Lindsie - (10-15)", "Sam (10-15)"),
+         num_states = c(1L, 1L, 1L, 2L, 2L, 2L, 2L, 5L, 10L, 10L),
+         num_lakes = c(247.7777778, 247.7777778, 247.7777778, 495.5555556,
+                         495.5555556, 495.5555556, 495.5555556, 1238.888889,
+                         2477.777778, 2477.777778),
+         cusum = c(247.7777778, 495.5555556, 743.3333333, 1238.888889, 1734.444444,
+                     2230, 2725.555556, 3964.444444, 6442.222222, 8920),
+         states = c("MI, ID, TN, AL, OR, DE, LA, CA", "NV, VA, AZ, WV, GA", "SC, KY, CT", "WY, NM, MS, SD", "NE, OK, NC, MT", "UT, ND", "WA, KS", "CO, NY", "NH, TX, FL", "GLNC")
+         )
 
 jsta::pdf_table(knitr::kable(people), out_name = "assignments.pdf")
-
+jsta::pdf_table(knitr::kable(dplyr::select(depth_log, state, n_llids, file_name,
+                                           -number_of_linked_lake_sites,
+                                           -program_name)), out_name = "log.pdf")
 
 
 
