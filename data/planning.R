@@ -114,12 +114,10 @@ num_lakes = c(328.8611111, 328.8611111, 328.8611111, 657.7222222,
                 3288.611111, 3288.611111),
 cusum = c(328.8611111, 657.7222222, 986.5833333, 1644.305556, 2302.027778,
             2959.75, 3617.472222, 5261.777778, 8550.388889, 11839),
-states = c("MI, TN, ID, OR, AL, LA, DE, NV, VA", "WV, SC, GA, CA, AZ", "KY,
-             WY, NM", "CT, MS, SD, OK, NE", "NC, UT, MT, ND", "WA, KS", "CO,
-             NY", "NH, TX", "NLA2007, FL", "NLA2012, GLNC")
+states = c("MI, TN, ID, OR, AL, LA, DE, NV, VA", "WV, SC, GA, CA, AZ", "KY, WY, NM", "CT, MS, SD, OK, NE", "NC, UT, MT, ND", "WA, KS", "CO, NY", "NH, TX", "NLA2007, FL", "NLA2012, GLNC")
 )
 
-jsta::
+jsta::pdf_table(knitr::kable(people), out_name = "assignments.pdf")
 
 
 
