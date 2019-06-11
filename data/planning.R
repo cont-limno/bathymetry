@@ -108,14 +108,15 @@ depth_log_all <- lapply(depth_files, function(x) dplyr::select(x,
   lapply(function(x) mutate_all(x, as.character)) %>%
   lapply(function(x) setNames(x, tolower(names(x))))
 
-lat_col  <- unlist(lapply(depth_files, function(x) names(dplyr::select(x,
-                    matches("^lat|_lat_|y_coord|latitude$|latdd$|^latitude|ylat")))[1]))
+lat_col  <- lapply(depth_files, function(x) names(dplyr::select(x,
+                    matches("^lat|_lat_|y_coord|latitude$|latdd$|^latitude|ylat|lat_ddmmss"))))
+lat_col <- unlist(lapply(lat_col, function(x) x[length(x)]))
 lon_col  <- lapply(depth_files, function(x) names(dplyr::select(x,
-                    matches("^longitude|^lon|_lon_|x_coord|longitude$|longdd$|xlon"))))
+                    matches("^longitude|^lon|_lon_|x_coord|longitude$|longdd$|xlon|lon_ddmmss"))))
 lon_col <- unlist(lapply(lon_col, function(x) x[length(x)]))
-name_col <- as.character(unlist(lapply(depth_files, function(x) names(dplyr::select(x,
-                    matches("waterbodyname|commonname|county_name|waterbody_name|station_name|sta_desc|monitoringlocationname|loc_name|site_name|^site$|long_description|stationname|lakes4|monitoring_location_name|streamname_facilityname|station_description|water_name|locale_name")))[1])))
-name_col[is.na(name_col)] <- "gibberish"
+name_col <- lapply(depth_files, function(x) names(dplyr::select(x,
+                    matches("station_alt_name|waterbodyname|commonname|waterbody_name|station_name|sta_desc|monitoringlocationname|loc_name|site_name|^site$|long_description|stationname|lakes4|monitoring_location_name|streamname_facilityname|station_description|water_name|locale_name"))))
+name_col <- unlist(lapply(name_col, function(x) x[length(x)]))
 
 depth_log_all <- lapply(seq_len(length(depth_files)), function(x) dplyr::select(depth_files[[x]],
                                                         lat = lat_col[x],
@@ -126,7 +127,7 @@ depth_log_all <- lapply(depth_log_all, function(x) mutate_all(x, as.character))
 
 # cbind(seq_len(length(test)), unlist(lapply(test, ncol)))
 # i <- 45
-# head(depth_log_all[[23]])
+# head(depth_log_all[[10]])
 # names(depth_files)[23]
 # names(depth_files[[45]])
 # head(depth_files[[45]])
