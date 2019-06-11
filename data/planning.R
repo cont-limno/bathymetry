@@ -95,7 +95,53 @@ llids <- llids[!(llids$value %in% nla$value),]
 llids <- llids[!duplicated(llids$value),]
 llids <- llids %>%
   mutate(file_name = gsub(".Linked_lagoslakeid", "", name)) %>%
-  rename(llid = value) %>%
+  rename(llid = value)
+
+depth_files <- depth_files[names(depth_files) %in% llids$file_name]
+
+#####
+depth_log_all <- lapply(depth_files, function(x) dplyr::select(x,
+          matches("^lat|_lat_|y_coord|latitude$|latdd$|^latitude|ylat"),
+          matches("^lon|_lon_|x_coord|longitude$|longdd$|^longitude|xlon"),
+          matches("waterbodyname|commonname|county_name|waterbody_name|station_name"),
+          "Linked_lagoslakeid")) %>%
+  lapply(function(x) mutate_all(x, as.character)) %>%
+  lapply(function(x) setNames(x, tolower(names(x))))
+
+lat_col  <- unlist(lapply(depth_files, function(x) names(dplyr::select(x,
+                    matches("^lat|_lat_|y_coord|latitude$|latdd$|^latitude|ylat")))[1]))
+lon_col  <- lapply(depth_files, function(x) names(dplyr::select(x,
+                    matches("^longitude|^lon|_lon_|x_coord|longitude$|longdd$|xlon"))))
+lon_col <- unlist(lapply(lon_col, function(x) x[length(x)]))
+name_col <- as.character(unlist(lapply(depth_files, function(x) names(dplyr::select(x,
+                    matches("waterbodyname|commonname|county_name|waterbody_name|station_name|sta_desc|monitoringlocationname|loc_name|site_name|^site$|long_description|stationname|lakes4|monitoring_location_name|streamname_facilityname|station_description|water_name|locale_name")))[1])))
+name_col[is.na(name_col)] <- "gibberish"
+
+depth_log_all <- lapply(seq_len(length(depth_files)), function(x) dplyr::select(depth_files[[x]],
+                                                        lat = lat_col[x],
+                                                        lon = lon_col[x],
+                                                        name = matches(paste0("^", name_col[x], "$")),
+                                                        Linked_lagoslakeid))
+depth_log_all <- lapply(depth_log_all, function(x) mutate_all(x, as.character))
+
+# cbind(seq_len(length(test)), unlist(lapply(test, ncol)))
+# i <- 45
+# head(depth_log_all[[23]])
+# names(depth_files)[23]
+# names(depth_files[[45]])
+# head(depth_files[[45]])
+
+res <- dplyr::bind_rows(depth_log_all) %>%
+  left_join(dplyr::select(mutate(llids, llid = as.character(llid)), llid, file_name),
+            by = c("Linked_lagoslakeid" = "llid")) %>%
+  left_join(dplyr::select(depth_log, state, file_name), by = "file_name") %>%
+  dplyr::filter(!is.na(file_name)) %>%
+  dplyr::filter(!duplicated(Linked_lagoslakeid)) %>%
+  mutate(max_depth_ft = NA, mean_depth_ft = NA, lakename_googleearth = NA,
+         max_depth_m = NA, mean_depth_m = NA, url = NA, comments = NA)
+write.csv(res, "data/depth_log_all.csv", row.names = FALSE)
+
+llids <- llids %>%
   group_by(file_name) %>%
   count(name = "n_llids")
 depth_log <- left_join(depth_log, llids, by = "file_name") %>%
