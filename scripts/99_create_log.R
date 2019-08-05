@@ -141,39 +141,3 @@ res <- dplyr::bind_rows(depth_log_all) %>%
   mutate(max_depth_ft = NA, mean_depth_ft = NA, lakename_googleearth = NA,
          max_depth_m = NA, mean_depth_m = NA, url = NA, comments = NA)
 write.csv(res, "data/depth_log_all.csv", row.names = FALSE)
-
-llids <- llids %>%
-  group_by(file_name) %>%
-  count(name = "n_llids")
-depth_log <- left_join(depth_log, llids, by = "file_name") %>%
-  dplyr::filter(!is.na(n_llids))
-depth_log <- depth_log %>%
-  verify(n_llids <= number_of_linked_lake_sites)
-
-res <- depth_log %>%
-  group_by(state) %>%
-  summarize(total_llids = sum(n_llids)) %>%
-  arrange(total_llids) %>%
-  mutate(cusum = cumsum(total_llids))
-
-people <-data.frame(stringsAsFactors=FALSE,
-people = c("Lauren (1)", "Jessica (1)", "Joe (1)", "Ian (1-2)", "Pat (1-2)",
-                  "Katelyn (1-2)", "Kendra (1-2)", "Allie (~5 or more)",
-                  "Lindsie - (10-15)", "Sam (10-15)"),
-         num_states = c(1L, 1L, 1L, 2L, 2L, 2L, 2L, 5L, 10L, 10L),
-         num_lakes = c(247.7777778, 247.7777778, 247.7777778, 495.5555556,
-                         495.5555556, 495.5555556, 495.5555556, 1238.888889,
-                         2477.777778, 2477.777778),
-         cusum = c(247.7777778, 495.5555556, 743.3333333, 1238.888889, 1734.444444,
-                     2230, 2725.555556, 3964.444444, 6442.222222, 8920),
-         states = c("MI, ID, TN, AL, OR, DE, LA, CA", "NV, VA, AZ, WV, GA", "SC, KY, CT", "WY, NM, MS, SD", "NE, OK, NC, MT", "UT, ND", "WA, KS", "CO, NY", "NH, TX, FL", "GLNC")
-         )
-
-jsta::pdf_table(knitr::kable(people), out_name = "assignments.pdf")
-jsta::pdf_table(knitr::kable(dplyr::select(depth_log, state, n_llids, file_name,
-                                           -number_of_linked_lake_sites,
-                                           -program_name)), out_name = "log.pdf")
-
-
-
-
