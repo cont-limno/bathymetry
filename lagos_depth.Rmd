@@ -42,7 +42,7 @@ lg_depth <- dplyr::select(lg$lakes_limno,
   coordinatize()
 ```
 
-```{r summary_stats, echo = FALSE}
+```{r summary_stats, echo = FALSE, eval=FALSE}
 paste0(round(sum(!is.na(lg_depth$maxdepth)) / nrow(lg_depth) * 100, 2),
        "% (n=", sum(!is.na(lg_depth$maxdepth)), ") of lakes have maxdepth values.")
 
@@ -107,6 +107,45 @@ knitr::kable(
   year = c(2011L, 2015L, 2016L, 2011L, 2007L, 2007L, 1959L),
   location = c("NE/NY Huc", "Boreal Canada", "LAGOSNE", "Sweden",
                  "Canadian Arctic", "Sweden", "Global"),
-  lake_numbers = c(133L, 433L, 7347L, 6618L, 81L, 105L, 107L)
+  lake_numbers = c(133L, 433L, 7347L, 6618L, 81L, 105L, 107L), 
+  rmse_m = c(6, 1.8, 7.1, NA, NA, NA, NA)
 ))
 ```
+
+```{r akima}
+library(gfplot)
+library(dplyr)
+library(PBSdata)
+library(akima)
+
+bath        <- gfplot:::load_bath(utm_zone = 9) %>% 
+  filter(depth > 0) %>%
+  filter(X < 600) %>% filter(X > 330) %>%
+  filter(Y < 5850) %>% filter(Y > 5630)
+bath_interp <- akima::interp(
+      x = bath$X,
+      y = bath$Y,
+      z = log(bath$depth),
+      extrap = TRUE, linear = TRUE
+    )
+
+z   <- reshape2::melt(bath_interp$z)
+z$x <- bath_interp$x[z$Var1]
+z$y <- bath_interp$y[z$Var2]
+z   <- rename(z, X = x, Y = y, akima_depth = value) %>%
+      dplyr::select(-Var1, -Var2) %>%
+  filter(!is.na(akima_depth)) %>%
+  mutate(akima_depth = exp(akima_depth)) %>%
+  dplyr::select(x = X, y = Y, akima_depth)
+z   <- raster::rasterFromXYZ(z)
+
+# rasterize bath object. See - https://gis.stackexchange.com/a/79074/32531
+bath_ras <- rasterize(bath[,1:2], setValues(z, NA), 
+                      bath$depth, fun = mean)
+
+
+par(mfrow = c(1, 2))
+plot(bath_ras)
+plot(z)
+```
+
