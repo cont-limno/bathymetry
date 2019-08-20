@@ -1,7 +1,13 @@
 library(readxl)
 library(dplyr)
+library(googledrive)
+# drive_find(type = "spreadsheet")
+if(!file.exists("data/backups/depth_log_all.csv")){
+  drive_download("depth_log_all", type = "csv",
+                 path = "data/backups/depth_log_all.csv", overwrite = TRUE)
+}
 
-dt_raw <- readxl::read_excel("depth_log_all.xlsx")
+dt_raw <- read.csv("data/backups/depth_log_all.csv", stringsAsFactors = FALSE)
 
 # How many states have been touched?
 # Of those states, how what is the response rate for max/mean depth?
@@ -29,4 +35,12 @@ dt <- dplyr::filter(dt, frac > 0) %>%
           frac = 0)
 
 jsta::pdf_table(dt)
+
+26/34
+
+dt_raw %>%
+  summarize_at(vars(max_depth_ft:comments),
+               function(x) sum(is.na(x)) / length(x))
+
+  sum(!is.na(dt_raw$max_depth_ft))
 
