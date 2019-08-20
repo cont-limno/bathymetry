@@ -9,18 +9,19 @@ if(!file.exists("data/backups/depth_log_all.csv")){
 dt <- read.csv("data/backups/depth_log_all.csv", stringsAsFactors = FALSE) %>%
   rename(people = Assigned.to.)
 
-dplyr::filter(dt, state == "TN")
+# unique(dt$people)
+# dplyr::filter(dt, people == "")
 
 # set apportionment goal
 people <- data.frame(stringsAsFactors = FALSE,
                     people = c("Lauren", "Jessica", "Joe",
-                               "Ian", "Katelyn", "Kendra",
-                               "Allie", "Lindsie",
+                               "Ian", "Katelyn", "Jake",
+                               "Arika", "Allie", "Lindsie",
                                "Sam"),
                     num_states = c(1L, 1L, 1L,
                                    2L, 2L, 2L,
-                                   5L, 10L,
-                                   10L)) %>%
+                                   1L, 3L, 10L,
+                                   9L)) %>%
   mutate(target_frac = num_states / sum(num_states))
 
 res <- dt %>%
@@ -30,17 +31,8 @@ res <- dt %>%
   left_join(people) %>%
   mutate(n_target = target_frac * sum(n)) %>%
   mutate(n_diff = n_target - n) %>%
-  arrange(desc(n_diff)) %>%
-  dplyr::filter(n_diff > 0)
-
-# distribute Pat's states
-dt %>%
-  dplyr::filter(state %in% c("NE", "OK", "NC", "MT")) %>%
-    group_by(state) %>% tally()
-
-# Lindsie gets MT
-# Allie gets NC and OK
-# Joe gets NE
+  arrange(desc(n_diff)) # %>%
+  # dplyr::filter(n_diff > 0)
 
 # Which people have the most untouched lakes?
 touched <- dt %>%
