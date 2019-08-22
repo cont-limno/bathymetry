@@ -51,3 +51,9 @@ jsta::pdf_table(knitr::kable(arrange(res, desc(max_n))), "n_sorted.pdf")
 # calculate total number of lakes we're working with here
 lg <- LAGOSNE::lagosne_load()
 sum(res$max_n) + sum(!is.na(lg$lakes_limno$maxdepth))
+
+# % of lakes with maxdepth in NE
+sum(!is.na(lg$lakes_limno$maxdepth)) / nrow(lg$lakes_limno) * 100
+
+# % of lakes with maxdepth not in NE
+sum(res$max_n) / nrow(dt) * 100
