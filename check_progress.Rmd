@@ -1,0 +1,109 @@
+---
+title: "LAGOSUS depth progress"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r packages, echo=FALSE, message=FALSE, results='hide'}
+library(readxl)
+library(dplyr)
+library(googledrive)
+library(sf)
+library(ggplot2)
+library(jsta)
+library(LAGOSNE)
+library(assertr)
+```
+
+```{r data}
+# drive_find(type = "spreadsheet")
+if(!file.exists("data/backups/depth_log_all.csv")){
+  drive_download("depth_log_all", type = "csv",
+                 path = "data/backups/depth_log_all.csv", overwrite = TRUE)
+}
+
+dt_raw <- read.csv("data/backups/depth_log_all.csv", stringsAsFactors = FALSE)
+```
+
+```{r clean, warning=FALSE, message=FALSE}
+# convert ft to m
+dt <- dt_raw %>%
+  mutate_at(vars(contains("depth")), as.numeric) %>%
+  mutate(max_depth_m = case_when(
+    is.na(max_depth_m) & !is.na(max_depth_ft) ~ max_depth_ft * 0.3048,
+    TRUE ~ max_depth_m
+  )) %>%
+  mutate(mean_depth_m = case_when(
+    is.na(mean_depth_m) & !is.na(mean_depth_ft) ~ mean_depth_ft * 0.3048,
+    TRUE ~ mean_depth_m
+  )) %>%
+  dplyr::select(-mean_depth_ft, -max_depth_ft) %>%
+  # assign GLNC to state(s)
+  coordinatize("lat", "lon") %>%
+  mutate(has_max = !is.na(max_depth_m) & nchar(max_depth_m) > 0) %>%
+  st_join(jsta::usa_sf()) %>%
+  mutate(state.x = case_when(
+    state.x == "Western States GLNC" & !is.na(state.y) ~ state.y, 
+    TRUE ~ state.x)) %>%
+  dplyr::select(-state.y) %>% dplyr::rename(state = state.x) %>%
+  dplyr::filter(state != "Western States GLNC")
+
+# TODO: assertr the arg below
+# which(dt$mean_depth_m == dt$max_depth_m)
+```
+
+```{r analysis}
+# How many states have been touched?
+# Of those states, how what is the response rate for max/mean depth?
+
+frac <- dt %>%
+  st_drop_geometry() %>%
+  group_by(state) %>%
+  # dplyr::filter(state == "ID") %>%
+  summarize_at(vars(max_depth_m:mean_depth_m),
+               function(x) round(sum(!is.na(x) & nchar(x > 0)) / length(x), 2)) %>%
+  data.frame() %>% setNames(c("state", "max_frac", "mean_frac"))
+
+n <- dt %>%
+  st_drop_geometry() %>%
+  group_by(state) %>%
+  summarize_at(vars(max_depth_m:mean_depth_m),
+               function(x) sum(!is.na(x))) %>%
+  data.frame() %>% setNames(c("state", "max_n", "mean_n"))
+
+res <- left_join(frac, n, by = "state") %>%
+  arrange(desc(max_frac))
+```
+
+```{r tables}
+knitr::kable(res)
+knitr::kable(arrange(res, desc(max_n)))
+```
+
+```{r fun_facts, warning=FALSE, eval=TRUE}
+# calculate total number of lakes we're working with here
+lg <- lagosne_load()
+
+paste0(sum(res$max_n), " lakes in not NE")
+
+paste0((sum(res$max_n) + sum(!is.na(lg$lakes_limno$maxdepth))),
+       " lakes in NE and not NE")
+
+paste0(round(sum(res$max_n) / nrow(dt) * 100, 2),
+       " percent of lakes with maxdepth not in NE")
+
+paste0(round(sum(!is.na(lg$lakes_limno$maxdepth)) / nrow(lg$lakes_limno) * 100, 2),
+       " percent of lakes with maxdepth in NE")
+```
+
+```{r map}
+ggplot() +
+  geom_sf(data = jsta::usa_sf()) +
+  geom_sf(data = dt, aes(color = has_max), size = 0.6)
+
+# mapview::mapview(dt_sf)
+```
+
