@@ -51,10 +51,29 @@ test2[is.na(test2)] <- 0
 # rayshader
 rmat <- matrix(test2 + maxdepth,
                nrow = ncol(rsub), ncol = nrow(rsub))
+rmat[rmat > maxdepth] <- NA
 # slice half off to show profile
-rmat[1:(nrow(rmat)/2),] <- NA
+# rmat[1:(nrow(rmat)/2),] <- NA
+
+tex <- create_texture("#AFEEEE", "#B0C4DE", "#B0E2FF", "#B2DFEE", "#BCD2EE")
+rmat %>%
+  sphere_shade(texture = tex) %>%
+  plot_3d(rmat, water = TRUE, waterdepth = maxdepth,
+          zscale = 0.2, solidcolor = "white", solidalpha = 0.1,
+          shadow = FALSE, solidlinecolor = "white", phi = 20)
+render_snapshot(clear = TRUE)
+
 
 rmat %>%
-  sphere_shade(texture = "unicorn") %>%
+  sphere_shade(texture = tex) %>%
   plot_3d(rmat, water = TRUE, waterdepth = maxdepth,
-          zscale = 0.3)
+          zscale = 0.2, solidcolor = "white", solidalpha = 1,
+          shadow = FALSE, solidlinecolor = "white", phi = 20)
+render_snapshot(clear = TRUE)
+
+library(magick)
+
+image_write(image_append(c(
+  image_trim(image_read("solidalpha1.0.png")),
+  image_trim(image_read("soildalpha0.1.png")))), "solidalpha.png")
+
