@@ -51,8 +51,9 @@ dt <- dt_raw %>%
   dplyr::select(-state.y) %>% dplyr::rename(state = state.x) %>%
   dplyr::filter(state != "Western States GLNC")
 
-# TODO: assertr the arg below
-# which(dt$mean_depth_m == dt$max_depth_m)
+# TODO: assertr the args below
+# * dt$mean_depth_m <= dt$max_depth_m
+# * the ft value should always be greater than the m value if both are present
 ```
 
 ```{r analysis}
