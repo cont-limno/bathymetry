@@ -27,17 +27,21 @@ lg     <- left_join(lg_raw$locus, lg_raw$state) %>%
   dplyr::filter(state == "MN") %>%
   arrange(desc(maxdepth)) %>%
   filter(lake_area_ha < 5000) %>%
-  filter(lake_area_ha >= 100) %>%
+  filter(lake_area_ha >= 120) %>%
   dplyr::select(lagoslakeid, gnis_name,
                 nhd_lat, nhd_long, lake_area_ha, maxdepth, maxdepthsource)
-
-quantile_sample <- function(x, y = NA, probs){
+# filter lakes where the lagosnegis points don't intersect an NA value in r
+llid_pnts   <- query_gis("LAGOS_NE_All_Lakes_4ha_POINTS",
+                         "lagoslakeid", lg$lagoslakeid)
+lg <- lg[!is.na(raster::extract(r, llid_pnts)),]
+# plot(lg$lake_area_ha, lg$maxdepth)
+quantile_sample <- function(x, y = NA, probs = c(0.05, 0.95)){
   x_qs   <- quantile(x, probs, na.rm = TRUE)
   x_diff <- sapply(x_qs, function(b) abs(b - x))
 
   if(!is.na(y[1])){
-    y_qs <- quantile(y, probs, na.rm = TRUE)
-    y_diff <- sapply(y_qs, function(b) abs(b - x))
+    y_qs   <- quantile(y, probs, na.rm = TRUE)
+    y_diff <- sapply(y_qs, function(b) abs(b - y))
 
     total_diff_1 <- x_diff[,1] + y_diff[,1]
     total_diff_2 <- x_diff[,2] + y_diff[,2]
@@ -53,9 +57,8 @@ quantile_sample <- function(x, y = NA, probs){
   }
 }
 
-llids <- lg[
-  quantile_sample(lg$lake_area_ha,lg$maxdepth, probs = probs)[,1],]$
-  lagoslakeid
+llids <- lg[quantile_sample(lg$lake_area_ha,lg$maxdepth)[,1],]
+llids <- llids$lagoslakeid
 
 get_hypso <- function(llid){
   res_sf   <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", llid)
@@ -64,6 +67,9 @@ get_hypso <- function(llid){
     st_buffer(st_sf(st_as_sfc(st_bbox(res_sf))), 50))
   rsub     <- crop(r, box)
   maxdepth <- abs(cellStats(rsub, "min"))
+  if(maxdepth == Inf){
+    stop("No depth data found in layer.")
+  }
 
   # replace NA with data from elevatr
   elev <- get_elev_raster(rsub, 13)
@@ -80,16 +86,15 @@ get_hypso <- function(llid){
   rmat[rmat > maxdepth] <- NA
   # slice half off to show profile
   # rmat[1:(nrow(rmat)/2),] <- NA
-  rmat
+  list(rmat = rmat, maxdepth = maxdepth, res_sf = res_sf)
 }
 
-hypso_1 <- get_hypso[llids[1]]
-
+hypso_1 <- get_hypso(llids[2])
 
 tex <- create_texture("#AFEEEE", "#B0C4DE", "#B0E2FF", "#B2DFEE", "#BCD2EE")
-rmat %>%
-  sphere_shade(texture = tex) %>%
-  plot_3d(rmat, water = TRUE, waterdepth = maxdepth,
+
+sphere_shade(hypso_1$rmat, texture = tex) %>%
+  plot_3d(hypso_1$rmat, water = TRUE, waterdepth = hypso_1$maxdepth,
           zscale = 0.4, solidcolor = "white", solidalpha = 0.4,
           shadow = FALSE, solidlinecolor = "white", phi = 20)
 render_snapshot(clear = TRUE)
