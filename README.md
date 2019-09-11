@@ -1,6 +1,14 @@
-# Analysis of LAGOSNE depth data
+# LAGOSUS depth data
 
-Potential future analyses:
+Contains data from:
+
+ * Manual efforts (internet searching)
+ 
+ * LAGOSNE (also internet searching)
+ 
+ * National Lakes Assessments (NLA)
+
+## Potential future analyses:
 
  * [ ] lake depth by glaciation status
  * [ ] lake depth by connectivity
