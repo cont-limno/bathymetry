@@ -1,9 +1,12 @@
 library(googledrive)
-library(dplyr)
-library(LAGOSNE)
-library(sf)
+suppressMessages(library(dplyr))
+suppressMessages(library(LAGOSNE))
+suppressMessages(library(sf))
 library(assertr)
 library(readr)
+library(nlaR)
+library(tidyr)
+library(ggplot2)
 
 # jsta::get_if_not_exists
 get_if_not_exists <- function(x, destfile, read_function = readRDS,
