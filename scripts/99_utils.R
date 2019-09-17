@@ -7,6 +7,8 @@ library(readr)
 library(nlaR)
 library(tidyr)
 library(ggplot2)
+library(janitor)
+library(stringr)
 
 # jsta::get_if_not_exists
 get_if_not_exists <- function(x, destfile, read_function = readRDS,

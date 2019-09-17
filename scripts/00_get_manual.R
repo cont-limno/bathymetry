@@ -3,11 +3,10 @@ source("scripts/99_utils.R")
 
 
 # ---- download_from_drive ----
-dt_raw <- get_if_not_exists(x = drive_download,
-                            destfile = "data/00_manual/depth_log_all.csv",
-                            read_function = read_csv, file = "depth_log_all",
-                            type = "csv", path = "data/00_manual/depth_log_all.csv",
-                            overwrite = FALSE, verbose = TRUE)
+# unlink("data/00_manual/depth_log_all.csv")
+# drive_download(file = "depth_log_all",
+#                path = "data/00_manual/depth_log_all.csv", overwrite = FALSE)
+dt_raw <- read_csv("data/00_manual/depth_log_all.csv")
 
 dt_lw <- get_if_not_exists(x = drive_download,
                             destfile = "data/00_manual/lw.csv",
@@ -38,11 +37,40 @@ raw <- raw %>%
     state.x == "Western States GLNC" & !is.na(state.y) ~ state.y,
     TRUE ~ state.x)) %>%
   dplyr::select(-state.y) %>% dplyr::rename(state = state.x) %>%
-  dplyr::filter(state != "Western States GLNC")
+  dplyr::filter(state != "Western States GLNC") %>%
+  data.frame(stringsAsFactors = FALSE) %>%
+  janitor::clean_names("snake")
 
-# ---- assertr_raw ----
-# TODO: assertr the args below
-# * dt$mean_depth_m <= dt$max_depth_m
-# * the ft value should always be greater than the m value if both are present
+# ---- qa ----
+# ## mean_depth_m <= max_depth_m
+# raw_assert <- dplyr::filter(raw, !is.na(max_depth_m) & !is.na(mean_depth_m))
+# greater_than <- function(x, y){if(x <= y) return(FALSE)}
+# assert(raw_assert, greater_than, x = max_depth_m, y = mean_depth_m)
 
+# ## the ft value should always be greater than the m value if both are present
+
+# ## any(duplicated(raw$linked_lagoslakeid))
+
+# ---- graph_checks ----
+
+test <- data.frame(url = urltools::domain(raw$url),
+           url_raw = raw$url,
+           stringsAsFactors = FALSE) %>%
+  dplyr::filter(!is.na(url)) %>%
+  dplyr::filter(url != "none found") %>%
+  dplyr::filter(url != "no depth") %>%
+  dplyr::filter(url != "no depth found") %>%
+  group_by(url_raw) %>%
+  dplyr::tally() %>%
+  arrange(desc(n)) %>%
+  data.frame()
+head(test)
+
+dplyr::filter(raw, stringr::str_detect(url, "gf.nd.gov"))
+dplyr::filter(raw, stringr::str_detect(url, ".kdheks.gov"))
+
+hist(raw$max_depth_m)
+raw[which.min(raw$max_depth_m),]
+
+# ---- export ----
 
