@@ -16,8 +16,12 @@ dt_lw <- get_if_not_exists(x = drive_download,
                             overwrite = FALSE)
 
 # ---- convert_merge_ft_to_m ----
+
 raw <- dt_raw %>%
   mutate_at(vars(contains("depth")), as.numeric) %>%
+  # ## the ft value should always be greater than the m value if both are present
+  assert_rows(row_redux, greater_than_0, c(max_depth_ft, max_depth_m)) %>%
+  assert_rows(row_redux, greater_than_0, c(mean_depth_ft, mean_depth_m)) %>%
   mutate(max_depth_m = case_when(
     is.na(max_depth_m) & !is.na(max_depth_ft) ~ max_depth_ft * 0.3048,
     TRUE ~ max_depth_m
@@ -42,17 +46,19 @@ raw <- raw %>%
   janitor::clean_names("snake")
 
 # ---- qa ----
-# ## mean_depth_m <= max_depth_m
-# raw_assert <- dplyr::filter(raw, !is.na(max_depth_m) & !is.na(mean_depth_m))
-# greater_than <- function(x, y){if(x <= y) return(FALSE)}
-# assert(raw_assert, greater_than, x = max_depth_m, y = mean_depth_m)
-
-# ## the ft value should always be greater than the m value if both are present
-
-# ## any(duplicated(raw$linked_lagoslakeid))
+# ## max_depth_m > mean_depth_m
+assert_rows(raw, row_redux, greater_than_0, c(max_depth_m, mean_depth_m))
 
 # ---- graph_checks ----
 
+# histograms by state
+hist(raw$max_depth_m)
+raw[which.min(raw$max_depth_m),]
+
+# join with locus preview
+
+
+# ---- check common data sources ----
 test <- data.frame(url = urltools::domain(raw$url),
            url_raw = raw$url,
            stringsAsFactors = FALSE) %>%
@@ -68,9 +74,6 @@ head(test)
 
 dplyr::filter(raw, stringr::str_detect(url, "gf.nd.gov"))
 dplyr::filter(raw, stringr::str_detect(url, ".kdheks.gov"))
-
-hist(raw$max_depth_m)
-raw[which.min(raw$max_depth_m),]
 
 # ---- export ----
 

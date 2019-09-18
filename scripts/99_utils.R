@@ -1,3 +1,4 @@
+# ---- load packages ----
 library(googledrive)
 suppressMessages(library(dplyr))
 suppressMessages(library(LAGOSNE))
@@ -10,6 +11,7 @@ library(ggplot2)
 library(janitor)
 library(stringr)
 
+# ---- misc fxn ----
 # jsta::get_if_not_exists
 get_if_not_exists <- function(x, destfile, read_function = readRDS,
                               ow = FALSE, ...){
@@ -33,3 +35,11 @@ get_if_not_exists <- function(x, destfile, read_function = readRDS,
     invisible(x)
   }
 }
+
+# ---- assertr -----
+greater_than_0 <- function(x){
+  if(!is.na(x) & x <= 0){
+    return(FALSE)
+  }
+}
+row_redux <- function(df){df[[1]] - df[[2]]}
