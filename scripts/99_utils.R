@@ -8,8 +8,9 @@ library(readr)
 library(nlaR)
 library(tidyr)
 library(ggplot2)
-library(janitor)
+suppressMessages(library(janitor))
 library(stringr)
+library(ggforce)
 
 # ---- misc fxn ----
 # jsta::get_if_not_exists

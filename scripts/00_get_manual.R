@@ -5,7 +5,7 @@ source("scripts/99_utils.R")
 # ---- download_from_drive ----
 # unlink("data/00_manual/depth_log_all.csv")
 # drive_download(file = "depth_log_all",
-#                path = "data/00_manual/depth_log_all.csv", overwrite = FALSE)
+#                path = "data/00_manual/depth_log_all.csv", overwrite = TRUE)
 dt_raw <- read_csv("data/00_manual/depth_log_all.csv")
 
 dt_lw <- get_if_not_exists(x = drive_download,
@@ -49,14 +49,32 @@ raw <- raw %>%
 # ## max_depth_m > mean_depth_m
 assert_rows(raw, row_redux, greater_than_0, c(max_depth_m, mean_depth_m))
 
+# ## state codes are legit
+# assert(codes are legit)
+unique(raw$state)
+table(table(raw$state))
+
+
 # ---- graph_checks ----
 
 # histograms by state
-hist(raw$max_depth_m)
+ggplot(data = raw, aes(x = max_depth_m)) +
+  geom_histogram() +
+  facet_wrap_paginate(~state, scales = "free", page = 2, ncol = 3, nrow = 4)
+
+# outlier checks
+dplyr::filter(raw, max_depth_m < 1)
 raw[which.min(raw$max_depth_m),]
 
 # join with locus preview
+ll_locus <- read.csv("data/00_lagosus_locus/lake_characteristics.csv", stringsAsFactors = FALSE)
+test <- left_join(raw, ll_locus, by = c("linked_lagoslakeid" = "lagoslakeid"))
 
+dplyr::filter(test, lake_waterarea_ha <= 1.05)$max_depth_m
+
+plot(test$lake_waterarea_ha, test$max_depth_m,
+     xlim = c(0, 20000),
+     ylim = c(0, 150))
 
 # ---- check common data sources ----
 test <- data.frame(url = urltools::domain(raw$url),
