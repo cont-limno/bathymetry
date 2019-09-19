@@ -70,9 +70,52 @@ raw[which.min(raw$max_depth_m),]
 ll_locus <- read.csv("data/00_lagosus_locus/lake_characteristics.csv", stringsAsFactors = FALSE)
 test <- left_join(raw, ll_locus, by = c("linked_lagoslakeid" = "lagoslakeid"))
 
+
+# labelled histogram of max depth availability by area class
+test %>%
+  mutate(area_class = cut(lake_waterarea_ha,
+                          breaks = c(1, 4, seq(100, 500, 100), 1000, 20000, Inf))) %>%
+  drop_na(area_class) %>%
+  group_by(area_class) %>%
+  mutate(prop_maxdepth = mean(is.na(max_depth_m))) %>%
+  add_tally() %>%
+  distinct(area_class, prop_maxdepth, n) %>%
+  arrange(area_class)
+
+
+
+ggplot(data = test, aes(x = lake_waterarea_ha)) +
+  geom_histogram(aes(y = ..density..)) +
+  geom_density() +
+  scale_y_continuous(breaks = c(1, 4, 1000))
+
+group_by(test, area_class) %>% tally()
+
+ggplot(data = test, aes(x =
+
+                          lake_waterarea_ha)) +
+  geom_histogram(breaks = c(1, 4, 1000)) +
+
+  scale_y_continuous(breaks = c(1, 4, 1000, Inf))
+
+
+?cut
+classInt::classIntervals(test$lake_waterarea_ha, n = 5)
+
+
+# map of missing/not-missing mean depth
+
+
+
+
+
 ggplot() +
   geom_point(data = test, aes(x = lake_waterarea_ha, y = max_depth_m)) +
   xlim(0, 20000) +
+  ylim(0, 150)
+
+ggplot() +
+  geom_point(data = test, aes(x = mean_depth_m, y = max_depth_m)) +
   ylim(0, 150)
 
 dplyr::filter(test, lake_waterarea_ha <= 20 & max_depth_m > 50)
