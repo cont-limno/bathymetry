@@ -70,11 +70,22 @@ raw[which.min(raw$max_depth_m),]
 ll_locus <- read.csv("data/00_lagosus_locus/lake_characteristics.csv", stringsAsFactors = FALSE)
 test <- left_join(raw, ll_locus, by = c("linked_lagoslakeid" = "lagoslakeid"))
 
-dplyr::filter(test, lake_waterarea_ha <= 1.05)$max_depth_m
+ggplot() +
+  geom_point(data = test, aes(x = lake_waterarea_ha, y = max_depth_m)) +
+  xlim(0, 20000) +
+  ylim(0, 150)
+
+dplyr::filter(test, lake_waterarea_ha <= 20 & max_depth_m > 50)
+
+dplyr::filter(test, max_depth_m > 250)
+dplyr::filter(test, lake_waterarea_ha > 200000)
 
 plot(test$lake_waterarea_ha, test$max_depth_m,
      xlim = c(0, 20000),
      ylim = c(0, 150))
+
+# compare against lagosne
+lg <- lagosne_load("1.087.3")
 
 # ---- check common data sources ----
 test <- data.frame(url = urltools::domain(raw$url),
