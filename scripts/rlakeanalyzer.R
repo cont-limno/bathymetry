@@ -1,5 +1,7 @@
 library(rLakeAnalyzer)
 
+# LAGOSNE::lake_info(name = "Lake Mendota", state = "Wisconsin")
+
 ## explore:
 # load.bathy
 exampleFilePath <- system.file('extdata', 'Sparkling.bth', package="rLakeAnalyzer")
