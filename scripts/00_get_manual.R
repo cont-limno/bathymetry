@@ -5,14 +5,18 @@ source("scripts/99_utils.R")
 # unlink("data/00_manual/depth_log_all.csv")
 # drive_download(file = "depth_log_all",
 #                path = "data/00_manual/depth_log_all.csv", overwrite = TRUE)
-dt_raw <- read_csv("data/00_manual/depth_log_all.csv")
+dt_raw <- invisible(
+  read_csv("data/00_manual/depth_log_all.csv", col_types = cols())
+)
 
-dt_lw <- get_if_not_exists(x = drive_download,
+dt_lw <- invisible(
+  get_if_not_exists(x = drive_download,
                             destfile = "data/00_manual/lw.csv",
                             read_function = read_csv,
                            file = "FL_LAKEWATCH_sites_linked_R",
                             type = "csv", path = "data/00_manual/lw.csv",
-                            overwrite = FALSE)
+                            overwrite = FALSE, col_types = cols())
+  )
 
 # ---- convert_merge_ft_to_m ----
 
@@ -23,8 +27,6 @@ raw <- dt_raw %>%
   assert_rows(row_redux, greater_than_0, c(mean_depth_ft, mean_depth_m)) %>%
   # ## max_depth_m > mean_depth_m
   assert_rows(row_redux, greater_than_0, c(max_depth_m, mean_depth_m)) %>%
-  # ## state codes are legit
-  assert(function(x) x %in% state.abb, state)
   mutate(max_depth_m = case_when(
     is.na(max_depth_m) & !is.na(max_depth_ft) ~ max_depth_ft * 0.3048,
     TRUE ~ max_depth_m
@@ -45,19 +47,25 @@ raw <- raw %>%
     TRUE ~ state.x)) %>%
   dplyr::select(-state.y) %>% dplyr::rename(state = state.x) %>%
   dplyr::filter(state != "Western States GLNC") %>%
+  # ## state codes are legit
+  # assert(raw, function(x) x %in% state.abb, state)
   data.frame(stringsAsFactors = FALSE) %>%
   janitor::clean_names("snake")
 
-
 # ---- graph_checks ----
-
+if(interactive()){
 # histograms by state
 ggplot(data = raw, aes(x = max_depth_m)) +
   geom_histogram() +
   facet_wrap_paginate(~state, scales = "free", page = 2, ncol = 3, nrow = 4)
 
 # missing data by state
-
+  test %>%
+    group_by(state) %>%
+    mutate(prop_maxdepth = round(mean(!is.na(max_depth_m)), 2)) %>%
+    add_tally() %>%
+    distinct(state, prop_maxdepth, n)  %>%
+    arrange(prop_maxdepth)
 
 # outlier checks
 dplyr::filter(raw, max_depth_m < 1)
@@ -140,7 +148,10 @@ plot(test$lake_waterarea_ha, test$max_depth_m,
      xlim = c(0, 20000),
      ylim = c(0, 150))
 
+}
+
 # ---- check common data sources ----
+if(interactive()){
 test <- data.frame(url = urltools::domain(raw$url),
            url_raw = raw$url,
            stringsAsFactors = FALSE) %>%
@@ -157,5 +168,15 @@ head(test)
 dplyr::filter(raw, stringr::str_detect(url, "gf.nd.gov"))
 dplyr::filter(raw, stringr::str_detect(url, ".kdheks.gov"))
 
-# ---- export ----
+}
 
+# ---- export ----
+res <- raw[,!duplicated(names(raw))] %>%
+    rename(llid = linked_lagoslakeid) %>%
+    mutate(legacy_name = NA) %>%
+    rename(source = url) %>%
+    select(llid, name, legacy_name, state, max_depth_m, mean_depth_m, source,
+           lat, lon) %>%
+    dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
+
+write.csv(res, "data/00_manual/00_manual.csv", row.names = FALSE)
