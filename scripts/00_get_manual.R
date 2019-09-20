@@ -72,36 +72,38 @@ test <- left_join(raw, ll_locus, by = c("linked_lagoslakeid" = "lagoslakeid"))
 
 
 # labelled histogram of max depth availability by area class
-test %>%
-  mutate(area_class = cut(lake_waterarea_ha,
-                          breaks = c(1, 4, seq(100, 500, 100), 1000, 20000, Inf))) %>%
+library(cutr) # devtools::install_github("moodymudskipper/cutr")
+
+thousand_k <- function(x){
+  res <- rep(NA, length(x))
+  for(i in 1:length(x)){
+      if(x[i] >= 1000){
+        res[i] <- paste0(substring(x[i], 1, 1), ".", substring(x[i], 2, 2), "k")
+      }else{
+        res[i] <- x[i]
+      }
+    }
+  res
+}
+
+test2 <- test %>%
+  mutate(area_class = smart_cut(test$lake_waterarea_ha, c(1, 4, 40, 80, 400,
+                                                          1000, 20000, Inf),
+                                labels = ~paste(sep="-", .y[1], .y[2]))) %>%
   drop_na(area_class) %>%
   group_by(area_class) %>%
-  mutate(prop_maxdepth = mean(is.na(max_depth_m))) %>%
+  mutate(prop_maxdepth = round(mean(!is.na(max_depth_m)), 2)) %>%
   add_tally() %>%
   distinct(area_class, prop_maxdepth, n) %>%
   arrange(area_class)
 
-
-
-ggplot(data = test, aes(x = lake_waterarea_ha)) +
-  geom_histogram(aes(y = ..density..)) +
-  geom_density() +
-  scale_y_continuous(breaks = c(1, 4, 1000))
-
-group_by(test, area_class) %>% tally()
-
-ggplot(data = test, aes(x =
-
-                          lake_waterarea_ha)) +
-  geom_histogram(breaks = c(1, 4, 1000)) +
-
-  scale_y_continuous(breaks = c(1, 4, 1000, Inf))
-
-
-?cut
-classInt::classIntervals(test$lake_waterarea_ha, n = 5)
-
+test2 %>%
+  ggplot() +
+  geom_col(aes(y = n, x = area_class)) +
+  geom_text(aes(y = n, x = area_class, label = prop_maxdepth),
+            vjust = -0.5, size = 4) +
+  ylim(0, 4000) +
+  ggtitle("Max depth availability by lake area class")
 
 # map of missing/not-missing mean depth
 
