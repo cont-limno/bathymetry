@@ -1,7 +1,6 @@
 source("scripts/99_utils.R")
 # merge depth_log_all with lakewatch and rm lines with missing lakes
 
-
 # ---- download_from_drive ----
 # unlink("data/00_manual/depth_log_all.csv")
 # drive_download(file = "depth_log_all",
@@ -22,6 +21,10 @@ raw <- dt_raw %>%
   # ## the ft value should always be greater than the m value if both are present
   assert_rows(row_redux, greater_than_0, c(max_depth_ft, max_depth_m)) %>%
   assert_rows(row_redux, greater_than_0, c(mean_depth_ft, mean_depth_m)) %>%
+  # ## max_depth_m > mean_depth_m
+  assert_rows(row_redux, greater_than_0, c(max_depth_m, mean_depth_m)) %>%
+  # ## state codes are legit
+  assert(function(x) x %in% state.abb, state)
   mutate(max_depth_m = case_when(
     is.na(max_depth_m) & !is.na(max_depth_ft) ~ max_depth_ft * 0.3048,
     TRUE ~ max_depth_m
@@ -45,15 +48,6 @@ raw <- raw %>%
   data.frame(stringsAsFactors = FALSE) %>%
   janitor::clean_names("snake")
 
-# ---- qa ----
-# ## max_depth_m > mean_depth_m
-assert_rows(raw, row_redux, greater_than_0, c(max_depth_m, mean_depth_m))
-
-# ## state codes are legit
-# assert(codes are legit)
-unique(raw$state)
-table(table(raw$state))
-
 
 # ---- graph_checks ----
 
@@ -61,6 +55,9 @@ table(table(raw$state))
 ggplot(data = raw, aes(x = max_depth_m)) +
   geom_histogram() +
   facet_wrap_paginate(~state, scales = "free", page = 2, ncol = 3, nrow = 4)
+
+# missing data by state
+
 
 # outlier checks
 dplyr::filter(raw, max_depth_m < 1)
@@ -70,14 +67,13 @@ raw[which.min(raw$max_depth_m),]
 ll_locus <- read.csv("data/00_lagosus_locus/lake_characteristics.csv", stringsAsFactors = FALSE)
 test <- left_join(raw, ll_locus, by = c("linked_lagoslakeid" = "lagoslakeid"))
 
-
 # labelled histogram of max depth availability by area class
 library(cutr) # devtools::install_github("moodymudskipper/cutr")
 
 thousand_k <- function(x){
   res <- rep(NA, length(x))
   for(i in 1:length(x)){
-      if(x[i] >= 1000){
+      if(x[i] >= 1000 & x[i] < Inf){
         res[i] <- paste0(substring(x[i], 1, 1), ".", substring(x[i], 2, 2), "k")
       }else{
         res[i] <- x[i]
@@ -87,9 +83,11 @@ thousand_k <- function(x){
 }
 
 test2 <- test %>%
-  mutate(area_class = smart_cut(test$lake_waterarea_ha, c(1, 4, 40, 80, 400,
+  mutate(area_class =
+           smart_cut(test$lake_waterarea_ha, c(1, 4, 40, 80, 400,
                                                           1000, 20000, Inf),
-                                labels = ~paste(sep="-", .y[1], .y[2]))) %>%
+             labels = ~paste(sep="-", thousand_k(.y[1]), thousand_k(.y[2])))
+         ) %>%
   drop_na(area_class) %>%
   group_by(area_class) %>%
   mutate(prop_maxdepth = round(mean(!is.na(max_depth_m)), 2)) %>%
@@ -102,25 +100,38 @@ test2 %>%
   geom_col(aes(y = n, x = area_class)) +
   geom_text(aes(y = n, x = area_class, label = prop_maxdepth),
             vjust = -0.5, size = 4) +
-  ylim(0, 4000) +
-  ggtitle("Max depth availability by lake area class")
+  ylim(0, 4000) + xlab("Area (ha)") +
+  ggtitle("Proportion max depth availability by lake area class")
 
-# map of missing/not-missing mean depth
+# what lakes' data are coming from navionics?
 
+test2 <- test %>%
+  drop_na(max_depth_m) %>%
+  mutate(is_navionics = case_when(
+    as.logical(!is.na(str_match(tolower(url), "navionics"))) ~ TRUE,
+    TRUE ~ FALSE)) %>%
+  sf::st_sf()
 
-
-
+sum(test2$is_navionics) / nrow(test2) * 100 # roughly 20 percent
 
 ggplot() +
+  geom_sf(data = test2, aes(color = is_navionics)) # mostly texas, florida, and sd
+
+# map of missing/not-missing mean depth
+ggplot() +
+  geom_sf(data = test2, aes(color = !is.na(mean_depth_m)))
+
+# outlier qa
+ggplot() +
   geom_point(data = test, aes(x = lake_waterarea_ha, y = max_depth_m)) +
-  xlim(0, 20000) +
+  xlim(3, 400) +
   ylim(0, 150)
 
 ggplot() +
   geom_point(data = test, aes(x = mean_depth_m, y = max_depth_m)) +
   ylim(0, 150)
 
-dplyr::filter(test, lake_waterarea_ha <= 20 & max_depth_m > 50)
+dplyr::filter(test, lake_waterarea_ha > 300 & max_depth_m < 2)
 
 dplyr::filter(test, max_depth_m > 250)
 dplyr::filter(test, lake_waterarea_ha > 200000)
@@ -128,9 +139,6 @@ dplyr::filter(test, lake_waterarea_ha > 200000)
 plot(test$lake_waterarea_ha, test$max_depth_m,
      xlim = c(0, 20000),
      ylim = c(0, 150))
-
-# compare against lagosne
-lg <- lagosne_load("1.087.3")
 
 # ---- check common data sources ----
 test <- data.frame(url = urltools::domain(raw$url),
