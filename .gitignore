@@ -5,3 +5,6 @@
 .httr-oauth
 data/*.csv
 data/backups
+data/00_manual/*.csv
+data/00_nla/*.csv
+data/00_lagosne/*.csv
