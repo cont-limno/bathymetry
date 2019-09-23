@@ -176,7 +176,7 @@ res <- raw[,!duplicated(names(raw))] %>%
     mutate(legacy_name = NA) %>%
     rename(source = url) %>%
     select(llid, name, legacy_name, state, max_depth_m, mean_depth_m, source,
-           lat, lon) %>%
+           lat, long = lon) %>%
     dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
 
 write.csv(res, "data/00_manual/00_manual.csv", row.names = FALSE)

@@ -33,12 +33,12 @@ dt_2012 <- dt_raw_2012 %>%
          legacy_name = site_id,
          name = eval_name,
          lat = lat_dd83,
-         lon = lon_dd83) %>%
+         long = lon_dd83) %>%
   mutate(source = "NLA2012",
          state = single_state(state_nla),
          max_depth_m = index_site_depth) %>%
   select(llid, name, legacy_name, state, max_depth_m, mean_depth_m, source,
-         lat, lon, siteid_07) %>%
+         lat, long, siteid_07) %>%
   dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
 
 dt_2007 <- dt_raw_2007 %>%
@@ -52,13 +52,13 @@ dt_2007 <- dt_raw_2007 %>%
          legacy_name = site_id,
          name = lakename,
          lat = lat_dd,
-         lon = lon_dd) %>%
+         long = lon_dd) %>%
   mutate(source = "NLA2007",
          state = state_name,
          max_depth_m = depthmax) %>%
   rename(state.name = state) %>% key_state() %>% rename(state = state.abb) %>%
   select(llid, name, legacy_name, state, max_depth_m, mean_depth_m, source,
-         lat, lon) %>%
+         lat, long) %>%
   dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
 
 # deal with 2007/2012 dups?
