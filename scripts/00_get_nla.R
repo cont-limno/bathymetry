@@ -10,7 +10,7 @@ dt_raw_2012 <- read_csv("data/00_nla/2012_nla.csv")
 dt_raw_2007 <- read_csv("data/00_nla/2007_nla.csv") #nla 2007 file already has depth
 
 nl2012 <- nla_load(2012)$wide_siteinfo %>%
-  dplyr::select(SITE_ID, EVAL_NAME, LAT_DD83, LON_DD83) %>%
+  dplyr::select(SITE_ID, SITEID_07, EVAL_NAME, LAT_DD83, LON_DD83) %>%
   distinct(SITE_ID, .keep_all = TRUE) %>%
   left_join(dplyr::select(nla_load(2012)$wide_profile,
                           SITE_ID, INDEX_SITE_DEPTH)) %>%
@@ -38,12 +38,14 @@ dt_2012 <- dt_raw_2012 %>%
          state = single_state(state_nla),
          max_depth_m = index_site_depth) %>%
   select(llid, name, legacy_name, state, max_depth_m, mean_depth_m, source,
-         lat, lon) %>%
+         lat, lon, siteid_07) %>%
   dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
 
 dt_2007 <- dt_raw_2007 %>%
   distinct(SITE_ID, .keep_all = TRUE) %>%
   dplyr::filter(!is.na(DEPTHMAX)) %>%
+  # remove lakes in 2007 that are also in 2012
+  dplyr::filter(!(SITE_ID %in% dt_2012$siteid_07)) %>%
   data.frame(stringsAsFactors = FALSE) %>%
   janitor::clean_names("snake") %>%
   rename(llid = linked_lagoslakeid,
@@ -54,11 +56,15 @@ dt_2007 <- dt_raw_2007 %>%
   mutate(source = "NLA2007",
          state = state_name,
          max_depth_m = depthmax) %>%
+  rename(state.name = state) %>% key_state() %>% rename(state = state.abb) %>%
   select(llid, name, legacy_name, state, max_depth_m, mean_depth_m, source,
          lat, lon) %>%
   dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
 
 # deal with 2007/2012 dups?
+dt_2012 <- select(dt_2012, -siteid_07)
 
 # anticipated columns:
 # llid, name, legacy_name, state, max_depth_m, mean_depth_m, source, lat, long
+res <- dplyr::bind_rows(dt_2007, dt_2012)
+write.csv(res, "data/00_nla/00_nla.csv", row.names = FALSE)
