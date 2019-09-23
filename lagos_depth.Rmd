@@ -19,29 +19,24 @@ knitr::knit_hooks$set(timeit = local({
   }})
 )
 
-knitr::opts_chunk$set(echo = FALSE, timeit = TRUE)
+knitr::opts_chunk$set(echo = FALSE, timeit = TRUE, eval = FALSE)
+source("scripts/99_utils.R")
 ```
 
-```{r data, message=FALSE, echo=FALSE}
-library(LAGOSNE)
-library(ggplot2)
-library(sf)
-library(dplyr)
-library(cowplot)
-library(ggforce)
-
-lg       <- lagosne_load("1.087.1")
-lg_depth <- dplyr::select(lg$lakes_limno, 
-                          lagoslakeid, maxdepth, maxdepthsource) %>% 
-  mutate(color = cut(maxdepth, 
-                     round(quantile(maxdepth, c(0, 0.05, 0.5, 0.95, 1), 
+```{r data, message=FALSE, echo=FALSE, eval=TRUE}
+dt <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
+  mutate(maxdepth_class = cut(max_depth_m, 
+                     round(quantile(max_depth_m, c(0, 0.05, 0.5, 0.95, 1), 
                                     na.rm = TRUE)))) %>% 
-  left_join(lg$locus, by = "lagoslakeid") %>%
-  mutate(has_limno = lagoslakeid %in% lg$epi_nutr$lagoslakeid) %>%
-  # dplyr::filter(!is.na(maxdepth)) %>%
-  coordinatize()
+  coordinatize(latname = "lat", longname = "long")
 ```
 
+ * Number of lakes w/ max depth by state
+ 
+ * Fraction of lakes w/ max depth by state
+ 
+ * Ridgeline plot of lake depth
+ 
 ```{r summary_stats, echo = FALSE, eval=FALSE}
 paste0(round(sum(!is.na(lg_depth$maxdepth)) / nrow(lg_depth) * 100, 2),
        "% (n=", sum(!is.na(lg_depth$maxdepth)), ") of lakes have maxdepth values.")
