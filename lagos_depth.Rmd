@@ -3,7 +3,7 @@ title: "LAGOS lake depth"
 output: pdf_document
 ---
 
-```{r setup, include=FALSE}
+```{r timings, include=FALSE}
 # https://stackoverflow.com/a/24600461/3362993
 knitr::knit_hooks$set(timeit = local({
   now = NULL
@@ -18,9 +18,11 @@ knitr::knit_hooks$set(timeit = local({
     }
   }})
 )
+```
 
-knitr::opts_chunk$set(echo = FALSE, timeit = TRUE, eval = FALSE)
+```{r setup, include=FALSE}
 source("scripts/99_utils.R")
+knitr::opts_chunk$set(echo = FALSE, timeit = TRUE, eval = FALSE)
 ```
 
 ```{r data, message=FALSE, echo=FALSE, eval=TRUE}
@@ -28,6 +30,7 @@ dt <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
   mutate(maxdepth_class = cut(max_depth_m, 
                      round(quantile(max_depth_m, c(0, 0.05, 0.5, 0.95, 1), 
                                     na.rm = TRUE)))) %>% 
+  # TODO: join with locus preview
   coordinatize(latname = "lat", longname = "long")
 ```
 
@@ -36,21 +39,6 @@ dt <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
  * Fraction of lakes w/ max depth by state
  
  * Ridgeline plot of lake depth
- 
-```{r summary_stats, echo = FALSE, eval=FALSE}
-paste0(round(sum(!is.na(lg_depth$maxdepth)) / nrow(lg_depth) * 100, 2),
-       "% (n=", sum(!is.na(lg_depth$maxdepth)), ") of lakes have maxdepth values.")
-
-paste0(round(sum(dplyr::filter(lg_depth, !is.na(maxdepth))$lagoslakeid %in% 
-            lg$epi_nutr$lagoslakeid) / 
-        nrow(lg_depth) * 100, 2), 
-       "% (n=", sum(dplyr::filter(lg_depth, !is.na(maxdepth))$lagoslakeid %in% 
-            lg$epi_nutr$lagoslakeid), ") of lakes with maxdepth values have limno data.")
-
-paste0(round(sum(!is.na(dplyr::filter(lg_depth, has_limno)$maxdepth)) / 
-  length(unique(lg$epi_nutr$lagoslakeid)) * 100, 2), 
-  "% (n=", sum(!is.na(dplyr::filter(lg_depth, has_limno)$maxdepth)), ") of lakes with limno data have maxdepth values.")
-```
 
 ```{r viz, echo=FALSE, warning=FALSE, message=FALSE, fig.height=3}
 knitr::kable(t(quantile(lg_depth$maxdepth, c(0, 0.05, 0.5, 0.95, 1), 
@@ -75,6 +63,21 @@ cowplot::plot_grid(
       xlab("Lake Area")
 )
 
+```
+
+```{r summary_stats, echo = FALSE, eval=FALSE}
+paste0(round(sum(!is.na(lg_depth$maxdepth)) / nrow(lg_depth) * 100, 2),
+       "% (n=", sum(!is.na(lg_depth$maxdepth)), ") of lakes have maxdepth values.")
+
+paste0(round(sum(dplyr::filter(lg_depth, !is.na(maxdepth))$lagoslakeid %in% 
+            lg$epi_nutr$lagoslakeid) / 
+        nrow(lg_depth) * 100, 2), 
+       "% (n=", sum(dplyr::filter(lg_depth, !is.na(maxdepth))$lagoslakeid %in% 
+            lg$epi_nutr$lagoslakeid), ") of lakes with maxdepth values have limno data.")
+
+paste0(round(sum(!is.na(dplyr::filter(lg_depth, has_limno)$maxdepth)) / 
+  length(unique(lg$epi_nutr$lagoslakeid)) * 100, 2), 
+  "% (n=", sum(!is.na(dplyr::filter(lg_depth, has_limno)$maxdepth)), ") of lakes with limno data have maxdepth values.")
 ```
 
 ```{r map, echo=FALSE, message=FALSE, error = FALSE}

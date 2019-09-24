@@ -6,11 +6,19 @@ lg <- lagosne_load("1.087.3")
 # llid, name, legacy_name, state, max_depth_m, mean_depth_m, source, lat, long
 res <- mutate(lg$lakes_limno,
        legacy_name = NA) %>%
-  left_join(dplyr::select(lg$locus, lagoslakeid, gnis_name, state_zoneid)) %>%
+  left_join(dplyr::select(lg$locus, lagoslakeid, gnis_name, state_zoneid,
+                          lake_area_ha)) %>%
   left_join(dplyr::select(lg$state, state, state_zoneid)) %>%
+  left_join(dplyr::select(lg$lakes.geo, lagoslakeid, lakeconnection)) %>%
+  # rename to lagosus conny codes
+  mutate(lakeconnection = case_when(lakeconnection == "DR_Stream" ~ "Drainage",
+                                    lakeconnection == "DR_LakeStream" ~ "DrainageLk",
+                                    TRUE ~ lakeconnection)) %>%
 dplyr::select(llid = lagoslakeid, name = gnis_name, state,
               max_depth_m = maxdepth, mean_depth_m = meandepth,
-              source = maxdepthsource, lat = nhd_lat, long = nhd_long) %>%
+              source = maxdepthsource, lake_waterarea_ha = lake_area_ha,
+              lake_connectivity_permanent = lakeconnection,
+              lat = nhd_lat, long = nhd_long) %>%
   # TODO: eventually cross-walk lagosne llids with lagosus llids
   dplyr::mutate(llid = NA) %>%
   dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))

@@ -52,6 +52,13 @@ raw <- raw %>%
   data.frame(stringsAsFactors = FALSE) %>%
   janitor::clean_names("snake")
 
+# ---- join_lake_area ----
+locus <- read.csv("data/00_lagosus_locus/lake_characteristics.csv",
+                  stringsAsFactors = FALSE)
+raw <- left_join(raw, dplyr::select(locus, lagoslakeid, lake_waterarea_ha,
+                                    lake_connectivity_permanent),
+                 by = c("linked_lagoslakeid" = "lagoslakeid"))
+
 # ---- graph_checks ----
 if(interactive()){
 # histograms by state
@@ -176,6 +183,7 @@ res <- raw[,!duplicated(names(raw))] %>%
     mutate(legacy_name = NA) %>%
     rename(source = url) %>%
     select(llid, name, legacy_name, state, max_depth_m, mean_depth_m, source,
+           lake_waterarea_ha, lake_connectivity_permanent,
            lat, long = lon) %>%
     dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
 
