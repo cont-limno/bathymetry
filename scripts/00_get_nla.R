@@ -64,15 +64,15 @@ dt_2007 <- dt_raw_2007 %>%
 # deal with 2007/2012 dups?
 dt_2012 <- select(dt_2012, -siteid_07)
 
-
-
-  # ---- join_lake_area ----
+# ---- join_lake_area ----
 locus <- read.csv("data/00_lagosus_locus/lake_characteristics.csv",
                   stringsAsFactors = FALSE)
 res     <- dplyr::bind_rows(dt_2007, dt_2012) %>%
   left_join(dplyr::select(locus, llid = lagoslakeid, lake_waterarea_ha,
                                     lake_connectivity_permanent),
                  by = c("llid" = "llid"))
+
+res <- mutate(res, effort = "NLA")
 
 # join lake area and connectivity from locus preview
 write.csv(res, "data/00_nla/00_nla.csv", row.names = FALSE)

@@ -11,6 +11,9 @@ library(ggplot2)
 suppressMessages(library(janitor))
 library(stringr)
 library(ggforce)
+suppressMessages(library(cowplot))
+library(cutr) # devtools::install_github("moodymudskipper/cutr")
+library(broom)
 
 # ---- misc fxn ----
 # jsta::get_if_not_exists
@@ -53,3 +56,26 @@ key_state <- function(x){
   dplyr::left_join(x, key,
                    by = c("state.name"))
 }
+
+thousand_k <- function(x){
+  res <- rep(NA, length(x))
+  for(i in 1:length(x)){
+    if(x[i] >= 1000 & x[i] < Inf){
+      res[i] <- paste0(substring(x[i], 1, 1), ".", substring(x[i], 2, 2), "k")
+    }else{
+      res[i] <- x[i]
+    }
+  }
+  res
+}
+
+# jsta::usa_sf()
+usa_sf <- function(crs){
+  res <- sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
+  state_key <- data.frame(state = datasets::state.abb,
+                          ID = tolower(datasets::state.name),
+                          stringsAsFactors = FALSE)
+  res <- dplyr::left_join(res, state_key, by = "ID")
+  dplyr::filter(res, !is.na(.data$state))
+}
+

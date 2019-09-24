@@ -11,6 +11,7 @@ lagosne_raw <- read.csv("data/00_lagosne/00_lagosne.csv", stringsAsFactors = FAL
 
 res <- dplyr::bind_rows(manual_raw,
                         nla_raw,
-                        lagosne_raw)
+                        lagosne_raw) %>%
+  dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
 
 write.csv(res, "data/lagosus_depth.csv", row.names = FALSE)

@@ -20,7 +20,10 @@ dplyr::select(llid = lagoslakeid, name = gnis_name, state,
               lake_connectivity_permanent = lakeconnection,
               lat = nhd_lat, long = nhd_long) %>%
   # TODO: eventually cross-walk lagosne llids with lagosus llids
-  dplyr::mutate(llid = NA) %>%
-  dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
+  # for now: limit results to those with WQ data in epi_nutr
+  # dplyr::filter(llid %in% lg$epi_nutr$lagoslakeid) %>%
+  dplyr::mutate(# llid = NA,
+                effort = "LAGOSNE") # %>%
+  #dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
 
 write.csv(res, "data/00_lagosne/00_lagosne.csv", row.names = FALSE)

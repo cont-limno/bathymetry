@@ -85,18 +85,6 @@ test <- left_join(raw, ll_locus, by = c("linked_lagoslakeid" = "lagoslakeid"))
 # labelled histogram of max depth availability by area class
 library(cutr) # devtools::install_github("moodymudskipper/cutr")
 
-thousand_k <- function(x){
-  res <- rep(NA, length(x))
-  for(i in 1:length(x)){
-      if(x[i] >= 1000 & x[i] < Inf){
-        res[i] <- paste0(substring(x[i], 1, 1), ".", substring(x[i], 2, 2), "k")
-      }else{
-        res[i] <- x[i]
-      }
-    }
-  res
-}
-
 test2 <- test %>%
   mutate(area_class =
            smart_cut(test$lake_waterarea_ha, c(1, 4, 40, 80, 400,
@@ -181,10 +169,11 @@ dplyr::filter(raw, stringr::str_detect(url, ".kdheks.gov"))
 res <- raw[,!duplicated(names(raw))] %>%
     rename(llid = linked_lagoslakeid) %>%
     mutate(legacy_name = NA) %>%
+    mutate(effort = "manual") %>%
     rename(source = url) %>%
     select(llid, name, legacy_name, state, max_depth_m, mean_depth_m, source,
            lake_waterarea_ha, lake_connectivity_permanent,
-           lat, long = lon) %>%
-    dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
+           lat, long = lon)# %>%
+    # dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
 
 write.csv(res, "data/00_manual/00_manual.csv", row.names = FALSE)

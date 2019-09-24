@@ -3,7 +3,7 @@ title: "LAGOS lake depth"
 output: pdf_document
 ---
 
-```{r timings, include=FALSE}
+```{r timings, include=FALSE, eval=FALSE}
 # https://stackoverflow.com/a/24600461/3362993
 knitr::knit_hooks$set(timeit = local({
   now = NULL
@@ -27,75 +27,131 @@ knitr::opts_chunk$set(echo = FALSE, timeit = TRUE, eval = FALSE)
 
 ```{r data, message=FALSE, echo=FALSE, eval=TRUE}
 dt <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
-  mutate(maxdepth_class = cut(max_depth_m, 
+  mutate(max_depth_m_class = cut(max_depth_m, 
                      round(quantile(max_depth_m, c(0, 0.05, 0.5, 0.95, 1), 
                                     na.rm = TRUE)))) %>% 
-  # TODO: join with locus preview
+    mutate(area_class =
+           smart_cut(lake_waterarea_ha, c(1, 4, 40, 80, 400,
+                                                          1000, 20000, Inf),
+             labels = ~paste(sep="-", thousand_k(.y[1]), thousand_k(.y[2])))
+         ) %>%
   coordinatize(latname = "lat", longname = "long")
 ```
 
- * Number of lakes w/ max depth by state
- 
- * Fraction of lakes w/ max depth by state
- 
- * Ridgeline plot of lake depth
-
-```{r viz, echo=FALSE, warning=FALSE, message=FALSE, fig.height=3}
-knitr::kable(t(quantile(lg_depth$maxdepth, c(0, 0.05, 0.5, 0.95, 1), 
-                        na.rm = TRUE)), caption = "Lake depth quantiles")
-knitr::kable(round(t(quantile(lg_depth$lake_area_ha, c(0, 0.05, 0.5, 0.95, 1), 
-                        na.rm = TRUE)), 2), caption = "Lake area quantiles")
-
-cowplot::plot_grid(
-  ggplot(data = dplyr::filter(lg_depth, !is.na(lake_area_ha), !is.na(maxdepth))) + 
-    geom_mark_rect(aes(fill = "", x = lake_area_ha, y = maxdepth,
-                     filter = maxdepth <= 26 & lake_area_ha <= 53), inherit.aes = FALSE) +
-  geom_point(aes(x = lake_area_ha, y = maxdepth)) +
-  theme_minimal_grid() + theme(legend.position = 0, 
-                               axis.text.x = element_text(angle = 90)) +
-  scale_x_log10(expand = c(0, 0)) + 
-    scale_y_continuous(expand = c(0, 0), limits = c(0, 100)) +
-  xlab("log(Lake Area)"), 
-  ggplot() + 
-    geom_point(data = dplyr::filter(lg_depth, lake_area_ha < 53, maxdepth < 26), 
-               aes(x = lake_area_ha, y = maxdepth)) +
-    theme_minimal_grid() + 
-      xlab("Lake Area")
-)
-
-```
-
-```{r summary_stats, echo = FALSE, eval=FALSE}
-paste0(round(sum(!is.na(lg_depth$maxdepth)) / nrow(lg_depth) * 100, 2),
-       "% (n=", sum(!is.na(lg_depth$maxdepth)), ") of lakes have maxdepth values.")
-
-paste0(round(sum(dplyr::filter(lg_depth, !is.na(maxdepth))$lagoslakeid %in% 
-            lg$epi_nutr$lagoslakeid) / 
-        nrow(lg_depth) * 100, 2), 
-       "% (n=", sum(dplyr::filter(lg_depth, !is.na(maxdepth))$lagoslakeid %in% 
-            lg$epi_nutr$lagoslakeid), ") of lakes with maxdepth values have limno data.")
-
-paste0(round(sum(!is.na(dplyr::filter(lg_depth, has_limno)$maxdepth)) / 
-  length(unique(lg$epi_nutr$lagoslakeid)) * 100, 2), 
-  "% (n=", sum(!is.na(dplyr::filter(lg_depth, has_limno)$maxdepth)), ") of lakes with limno data have maxdepth values.")
-```
-
-```{r map, echo=FALSE, message=FALSE, error = FALSE}
-states_base <- jsta::get_intersects(jsta::usa_sf(), lg_depth, 
-                                    threshold = 1500)
+```{r map, echo=FALSE, message=FALSE, error = FALSE, eval=TRUE}
+states_base <- jsta::get_intersects(jsta::usa_sf(), dt, 
+                                    threshold = 1)
 
 ggplot() + 
   geom_sf(data = states_base) +
   geom_sf(data = dplyr::sample_frac(
-    dplyr::filter(lg_depth, !is.na(maxdepth)), 0.3), 
-          aes(color = color), 
+    dplyr::filter(dt, !is.na(max_depth_m)), 0.3), 
+          aes(color = max_depth_m_class), 
     size = 1, alpha = 0.4, shape = 20) +
   # scale_color_viridis_d(direction = -1) +
   # scale_color_brewer(palette = "Set2") +
   scale_fill_brewer(palette = "Set2") +
   coord_sf(datum = NA) + theme_void() +
-  labs(color = "depth (m)")
+  labs(color = "max depth (m)")
 ```
+
+```{r summary_stats, echo = FALSE, eval=TRUE}
+lg <- lagosne_load("1.087.3")
+
+dt_plot <- dplyr::bind_rows(
+   read.csv("data/00_manual/00_manual.csv", stringsAsFactors = FALSE))
+
+paste0(round(sum(!is.na(dt_plot$max_depth_m)) / nrow(dt_plot) * 100, 2),
+       "% (n=", sum(!is.na(dt_plot$max_depth_m)), ") of lakes with limno data in lagosus have max_depth_m values.")
+
+dt_plot <- dplyr::bind_rows(
+   read.csv("data/00_lagosne/00_lagosne.csv", stringsAsFactors = FALSE)) %>% 
+  mutate(has_limno = llid %in% lg$epi_nutr$lagoslakeid)
+
+paste0(round(sum(!is.na(dplyr::filter(dt_plot, has_limno)$max_depth_m)) / 
+  length(unique(lg$epi_nutr$lagoslakeid)) * 100, 2), 
+  "% (n=", sum(!is.na(dplyr::filter(dt_plot, has_limno)$max_depth_m)), ") of lakes with limno data in lagosne have max_depth_m values.")
+```
+
+```{r viz, echo=FALSE, warning=FALSE, message=FALSE, fig.height=3, eval=TRUE}
+knitr::kable(t(quantile(dt$max_depth_m, c(0, 0.05, 0.5, 0.95, 1), 
+                        na.rm = TRUE)), caption = "Lake depth quantiles")
+knitr::kable(round(t(quantile(dt$lake_waterarea_ha, c(0, 0.05, 0.5, 0.95, 1), 
+                        na.rm = TRUE)), 2), caption = "Lake area quantiles")
+```
+
+## Number of lakes with max/mean depth by state
+
+```{r num_lakes, eval = TRUE, echo=FALSE, message=FALSE}
+dt_plot <- dt %>%
+  st_drop_geometry() %>%
+  dplyr::filter(!is.na(max_depth_m)) %>%
+  group_by(state) %>%
+  tally() %>%
+  mutate(n_class = smart_cut(.$n, 5, "groups", 
+                        labels = ~paste(sep = "-", round(.y[1]), round(.y[2])))) %>%
+  right_join(usa_sf()) %>%
+  st_set_geometry("geometry")
+
+ggplot() + 
+  geom_sf(data = dt_plot, aes(fill = n_class)) +
+  labs(fill = "") +
+  ggtitle("Number of lakes with max depth")
+
+dt_plot <- dt %>%
+  st_drop_geometry() %>%
+  dplyr::filter(!is.na(mean_depth_m)) %>%
+  group_by(state) %>%
+  tally() %>%
+  mutate(n_class = smart_cut(.$n, 5, "groups", 
+                        labels = ~paste(sep = "-", round(.y[1]), round(.y[2])))) %>%
+  right_join(usa_sf()) %>%
+  st_set_geometry("geometry")
+
+ggplot() + 
+  geom_sf(data = dt_plot, aes(fill = n_class)) +
+  labs(fill = "") +
+  ggtitle("Number of lakes with mean depth")
+```
+
+```{r mean_vs_max, warning=FALSE}
+ggplot(data = dt) + 
+  geom_point(aes(x = mean_depth_m, y = max_depth_m))
+```
+
+\newpage 
+
+## What are reasonable cutoffs for depth prediction efforts?
+
+> Oliver used 4 ha < max_depth < 1000 ha
+
+```{r cutoffs, eval = TRUE, echo=FALSE}
+ 
+ dt_plot <- dplyr::bind_rows(
+   read.csv("data/00_manual/00_manual.csv", stringsAsFactors = FALSE), 
+   read.csv("data/00_lagosne/00_lagosne.csv", stringsAsFactors = FALSE)) %>%
+  mutate(area_class =
+           smart_cut(lake_waterarea_ha, c(1, 4, 40, 80, 400,
+                                                          1000, 20000, Inf),
+             labels = ~paste(sep="-", thousand_k(.y[1]), thousand_k(.y[2])))
+         ) %>%
+  drop_na(area_class) %>%
+  group_by(area_class) %>%
+  mutate(prop_maxdepth = round(mean(!is.na(max_depth_m)), 2)) %>%
+  add_tally() %>%
+  distinct(area_class, prop_maxdepth, n) %>%
+  arrange(area_class)
+
+dt_plot %>%
+  ggplot() +
+  geom_col(aes(y = n, x = area_class)) +
+  geom_text(aes(y = n, x = area_class, label = prop_maxdepth),
+            vjust = -0.5, size = 4) +
+  ylim(0, 100000) + xlab("Area (ha)") +
+  ggtitle("Proportion max depth availability by \n lake area class (LAGOSNE and Manual)")
+ ```
+ 
+ * Ridgeline plot of lake depth
 
 ```{r papers}
 knitr::kable(
@@ -146,4 +202,3 @@ par(mfrow = c(1, 2))
 plot(bath_ras)
 plot(z)
 ```
-
