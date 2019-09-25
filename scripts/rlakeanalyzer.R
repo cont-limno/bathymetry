@@ -1,7 +1,5 @@
 library(rLakeAnalyzer)
 
-# LAGOSNE::lake_info(name = "Lake Mendota", state = "Wisconsin")
-
 ## explore:
 # load.bathy
 exampleFilePath <- system.file('extdata', 'Sparkling.bth', package="rLakeAnalyzer")
@@ -27,4 +25,21 @@ points(Voldevshallow.ex$depths ~ Voldevshallow.ex$Area.at.z,
        ylim = rev(range(Voldevshallow.ex$depths)),
        col = "blue")
 
+clipr::write_clip(
+data.frame(area = Voldevshallow.ex$Area.at.z, depths = Voldevshallow.ex$depths)
+)
+
 # get.offsets
+
+
+# LAGOSNE::lake_info(name = "Lake Mendota", state = "Wisconsin")
+# wikilake::lake_wiki("Lake Mendota")
+# zratio is max/mean depth
+approx_depth <- function(zratio = NA, area = NA, method = "cone"){
+        area   <- 39400000
+        zratio <- 3/pi
+        # if a perfect cone then zratio is 3/pi
+        radius = sqrt(area/pi)
+
+        test <- tan(atan(zratio)) * radius
+}
