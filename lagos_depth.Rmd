@@ -114,11 +114,6 @@ ggplot() +
   ggtitle("Number of lakes with mean depth")
 ```
 
-```{r mean_vs_max, warning=FALSE}
-ggplot(data = dt) + 
-  geom_point(aes(x = mean_depth_m, y = max_depth_m))
-```
-
 \newpage 
 
 ## What are reasonable cutoffs for depth prediction efforts?
@@ -150,9 +145,52 @@ dt_plot %>%
   ylim(0, 100000) + xlab("Area (ha)") +
   ggtitle("Proportion max depth availability by \n lake area class (LAGOSNE and Manual)")
  ```
- 
- * Ridgeline plot of lake depth
 
+```{r ridgeline} 
+# Ridgeline plot of lake depth
+library(raster)
+r <- raster(ncol = 1000, nrow = 1000)
+test <- as_Spatial(
+  dplyr::sample_frac(dplyr::select(dt, max_depth_m), 0.2))
+test <- raster::rasterize(test, r, field = "max_depth_m")
+                  
+n <- 1000
+vals <- 1:n
+r <- raster(ncols=36, nrows=18)
+n <- 1000
+set.seed(123)
+x <- runif(n) * 360 - 180
+y <- runif(n) * 180 - 90
+xy <- cbind(x, y)
+p <- data.frame(xy, name=vals)
+coordinates(p) <- ~x+y
+  
+  raster::rasterToPoints() %>%
+  as_data_frame() %>%
+    dim()
+  rename(z = glp00g30) %>%
+  mutate(z = ifelse(z < 5000, NA, z)) %>%
+  complete(x, y) %>%
+  mutate(z = y + z/0.5e6)
+
+test %>%
+  ggplot() +
+  geom_path(data = map_data("world"), aes(long, lat, group = group), colour = "grey", alpha = 0.1) +
+  geom_polygon(data = map_data("world"), aes(long, lat, group = group), fill = "grey", alpha = 0.1) +
+  geom_line(aes(x, z, group = y), lwd = 0.2) +
+  # st_bbox(jsta::usa_sf())
+  coord_quickmap(ylim = c(25, 50),
+                 xlim = c(-125, -66)) +
+  scale_x_continuous(NULL, NULL) +
+  scale_y_continuous(NULL, NULL)
+  
+```
+
+```{r mean_vs_max, warning=FALSE}
+ggplot(data = dt) + 
+  geom_point(aes(x = mean_depth_m, y = max_depth_m))
+```
+ 
 ```{r papers}
 knitr::kable(
   data.frame(stringsAsFactors=FALSE,
