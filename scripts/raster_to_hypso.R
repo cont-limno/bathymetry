@@ -37,16 +37,16 @@ depth_int <- -1 * seq(0, round(maxdepth/min_res) * min_res, by = min_res)
   # reclassify raster based on depth intervals
   # calculate area of each class
 rc <- cut(rsub, breaks = depth_int) %>%
-  as.data.frame() %>%
-  tidyr::drop_na(layer) %>%
-  group_by(layer) %>%
-  tally() %>%
-  cumsum() %>%
+  as.data.frame() %>% tidyr::drop_na(layer) %>%
+  group_by(layer) %>% tally() %>% cumsum() %>%
   mutate(area_m2 = n * 5 *5) %>%
-  # add interval midpoints
-  mutate(depth_int = as.numeric(na.omit((depth_int + lag(depth_int))/2)))
+  mutate(depth_int = rev(# add interval midpoints
+    as.numeric(na.omit((depth_int + lag(depth_int))/2)) * -1)) %>%
+  mutate(area_percent = (area_m2 / max(area_m2)) * 100) %>%
+  mutate(depth_percent = (depth_int/ max(depth_int)) * 100)
 
-plot(rc$area_m2, rc$depth_int)
+
+plot(rc$area_percent, rc$depth_percent)
 
 rc$area_m2[nrow(rc)]
 st_area(res_sf)
