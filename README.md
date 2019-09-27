@@ -1,4 +1,4 @@
-# LAGOSUS depth data
+# Prediction of lake depth at continental scales: spatial patterning and relationship to landform
 
 Contains data from:
 
