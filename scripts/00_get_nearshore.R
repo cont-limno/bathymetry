@@ -16,8 +16,7 @@ ll_iws <- query_gis("IWS", "lagoslakeid", llid)
 elev      <- get_elev_raster(as_Spatial(ll_iws),
                         13, clip = "bbox")
 
-# TODO: compare with FedData because it caches output
-# does it have comparable resolution?
+# TODO: cache get_elev_raster output because FedData results have terribly low res
 
 # approximates functions in lakemorpho package
 elev      <- mask(elev, as_Spatial(ll_iws))

@@ -60,6 +60,7 @@ hypso <- dplyr::bind_rows(hypso)
 if(interactive()){
   ggplot(data = hypso) +
     geom_line(aes(x = area_percent, y = depth_percent, group = llid))
+  # TODO: plot the line of an ideal cone shape
 }
 
 write.csv(hypso, "data/mn_hypso.csv", row.names = FALSE)
