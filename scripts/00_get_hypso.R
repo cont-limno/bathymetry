@@ -63,4 +63,4 @@ if(interactive()){
 }
 
 write.csv(hypso, "data/mn_hypso.csv", row.names = FALSE)
-
+# test <- read.csv("data/mn_hypso.csv", stringsAsFactors = FALSE)
