@@ -16,6 +16,7 @@ library(cutr) # devtools::install_github("moodymudskipper/cutr")
 library(broom)
 suppressMessages(library(raster))
 library(LAGOSNEgis)
+suppressMessages(library(scales))
 
 # ---- misc fxn ----
 # jsta::get_if_not_exists

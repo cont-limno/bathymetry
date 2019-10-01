@@ -43,8 +43,8 @@ get_hypso <- function(rsub){
     mutate(area_m2 = n * 5 *5) %>%
     mutate(depth_int = rev(# add interval midpoints
       as.numeric(na.omit((depth_int + lag(depth_int))/2)) * -1)) %>%
-    mutate(area_percent = (area_m2 / max(area_m2)) * 100) %>%
-    mutate(depth_percent = (depth_int/ max(depth_int)) * 100)
+    mutate(area_percent = scales::rescale(area_m2, to = c(0, 100))) %>%
+    mutate(depth_percent = scales::rescale(depth_int, to = c(0, 100)))
 
   rc
 }
@@ -58,7 +58,6 @@ hypso <- lapply(seq_len(length(rsubs)),
 hypso <- dplyr::bind_rows(hypso)
 
 if(interactive()){
-  library(ggplot2)
   ggplot(data = hypso) +
     geom_line(aes(x = area_percent, y = depth_percent, group = llid))
 }
