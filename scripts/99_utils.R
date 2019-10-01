@@ -17,6 +17,7 @@ library(broom)
 suppressMessages(library(raster))
 library(LAGOSNEgis)
 suppressMessages(library(scales))
+library(elevatr)
 
 # ---- misc fxn ----
 # jsta::get_if_not_exists
