@@ -1,7 +1,4 @@
-library(raster)
-library(dplyr)
-library(LAGOSNEgis)
-library(sf)
+source("scripts/99_utils.R")
 
 r  <- raster("data/mn_bathy/lake_bathymetric_elevation_model.tif")
 
@@ -25,6 +22,7 @@ rsubs     <- lapply(st_geometry(llid_poly), function(x){
        raster::extent(
          st_buffer(st_sf(st_as_sfc(st_bbox(x))), 100))) / 3.281 # ft to m
 })
+names(rsubs) <- llid_poly$lagoslakeid
 
 # ---- function_definitions ----
 get_hypso <- function(rsub){
@@ -32,7 +30,8 @@ get_hypso <- function(rsub){
   maxdepth <-  abs(cellStats(rsub, "min"))
 
   # define depth intervals by raster resolution
-  min_res   <- res(rsub)[1]
+  # min_res   <- res(rsub)[1]
+  min_res   <- 0.5
   depth_int <- -1 * seq(0, round(maxdepth/min_res) * min_res, by = min_res)
 
   # calculate area of raster between depth intervals
@@ -52,7 +51,7 @@ get_hypso <- function(rsub){
 
 hypso <- lapply(seq_len(length(rsubs)),
                function(x){
-                 print(x)
+                 # print(x)
                  dplyr::mutate(get_hypso(rsubs[[x]]),
                                llid = dt$llid[x])
                  })
@@ -64,6 +63,5 @@ if(interactive()){
     geom_line(aes(x = area_percent, y = depth_percent, group = llid))
 }
 
-
-
+write.csv(hypso, "data/mn_hypso.csv", row.names = FALSE)
 

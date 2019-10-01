@@ -1,5 +1,12 @@
 
-all: data/lagosus_depth.csv
+all: data
+
+data:	data/lagosus_depth.csv \
+data/mn_hypso.csv
+
+data/mn_hypso.csv: scripts/00_get_hypso.R \
+data/lagosus_depth.csv
+	Rscript $<
 
 data/lagosus_depth.csv: scripts/01_merge.R \
 data/00_manual/00_manual.csv \

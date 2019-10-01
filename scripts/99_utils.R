@@ -14,6 +14,8 @@ library(ggforce)
 suppressMessages(library(cowplot))
 library(cutr) # devtools::install_github("moodymudskipper/cutr")
 library(broom)
+suppressMessages(library(raster))
+library(LAGOSNEgis)
 
 # ---- misc fxn ----
 # jsta::get_if_not_exists
