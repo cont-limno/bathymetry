@@ -2,6 +2,12 @@ source("scripts/99_utils.R")
 
 dt              <- read.csv("data/lagosus_depth.csv",
                             stringsAsFactors = FALSE)
+
+# lagos geo module should have terrain metrics for mea slope
+# Oliver (year) found that max slope was most informative
+
+
+# attempt at manual calculation follows:
 max_buffer_dist <- 100 # to match Hollister (2011)
 
 llid <- 4040 # test on one lake for now
