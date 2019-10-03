@@ -26,31 +26,72 @@ if(!file.exists("data/ct_bathy/ct_bathy.gpkg")){
 contours <- st_read("data/ct_bathy/ct_bathy.gpkg", layer = "contours")
 ps       <- st_read("data/ct_bathy/ct_bathy.gpkg", layer = "ps")
 
-# test_name <- "Colebrook River Reservoir"
-# dt <- dplyr::filter(contours, WBNAME == test_name)
-dt <- dplyr::filter(ps, WBNAME == "Colebrook River Reservoir")
-dt <- st_transform(dt, 6433) # ct state plane
-dt <- dplyr::select(dt, DEPTH_FT)
+# polygons to raster
+get_rsub <- function(dt){
+  dt <- st_transform(dt, 6433) # ct state plane
+  dt <- dplyr::select(dt, DEPTH_FT)
 
-r             <- raster(xmn = st_bbox(dt)[1], ymn = st_bbox(dt)[2],
-                        xmx = st_bbox(dt)[3], ymx = st_bbox(dt)[4])
-r[]           <- NA
-r             <- rasterize(as_Spatial(dt), r, field = "DEPTH_FT")
-projection(r) <- as.character(st_crs(dt))[2]
+  r             <- raster(xmn = st_bbox(dt)[1], ymn = st_bbox(dt)[2],
+                          xmx = st_bbox(dt)[3], ymx = st_bbox(dt)[4])
+  r[]           <- NA
+  r             <- rasterize(as_Spatial(dt), r, field = "DEPTH_FT")
+  projection(r) <- as.character(st_crs(dt))[2]
 
-# https://stackoverflow.com/a/45658609/3362993
-fill.na <- function(x) {
-  center = 0.5 + (width*width/2)
-  if( is.na(x)[center] ) {
-    return( round(mean(x, na.rm=TRUE),0) )
-  } else {
-    return( round(x[center],0) )
+  # https://stackoverflow.com/a/45658609/3362993
+  fill.na <- function(x) {
+    center = 0.5 + (width*width/2)
+    if( is.na(x)[center] ) {
+      return( round(mean(x, na.rm=TRUE),0) )
+    } else {
+      return( round(x[center],0) )
+    }
   }
+  width <- 17
+  r2 <- focal(r, w = matrix(1, width, width), fun = fill.na,
+              pad = TRUE, na.rm = FALSE)
+  # clip to r2
+  r2 <- mask(r2, dt)
+  r2
 }
-width <- 17
-r2 <- focal(r, w = matrix(1, width, width), fun = fill.na,
-            pad = TRUE, na.rm = FALSE)
-# clip to r2
-r2 <- mask(r2, dt)
 
+# raster to hypso
+get_hypso <- function(rsub, id){
+  # rsub <- rsubs[[46]]
 
+  maxdepth <- abs(cellStats(rsub, "max"))
+
+  # calculate area of each class
+  rc <- rsub %>%
+    as.data.frame() %>%
+    group_by(layer) %>% tally() %>%
+    mutate(n = cumsum(n)) %>%
+    rename(depth = layer) %>%
+    tidyr::drop_na(depth) %>%
+    mutate(area_m2 = n * res(rsub)[1] * res(rsub)[2]) %>%
+    mutate(area_percent = scales::rescale(area_m2, to = c(0, 100))) %>%
+    mutate(depth_percent = scales::rescale(depth, to = c(0, 100)))
+
+  rc
+}
+
+rsubs <- lapply(unique(ps$WBNAME), function(x){
+  message(x)
+  dt <- dplyr::filter(ps, WBNAME == x)
+  get_rsub(dt)
+})
+names(rsubs) <- unique(ps$WBNAME)
+
+hypso <- lapply(seq_len(length(rsubs)), function(x){
+  dplyr::mutate(get_hypso(rsubs[[x]]),
+                id = names(rsubs)[x])
+})
+hypso <- dplyr::bind_rows(hypso)
+
+if(interactive()){
+  ggplot(data = hypso) +
+    geom_line(aes(x = area_percent, y = depth_percent, group = id))
+  # TODO: plot the line of an ideal cone shape
+}
+
+write.csv(hypso, "data/ct_hypso.csv", row.names = FALSE)
+# test <- read.csv("data/ct_hypso.csv", stringsAsFactors = FALSE)
