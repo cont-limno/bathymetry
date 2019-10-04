@@ -149,6 +149,7 @@ plot_grid(
 ggplot(data = hypso_ct) +
   geom_polygon(data = polys, aes(x = x, y = y, group = id, fill = id), alpha = 0.2) +
   geom_line(aes(x = area_percent, y = depth_percent, group = id)) +
+  geom_abline(intercept = 100, slope = -1, color = "red") +
   ylab("Depth (percent)") + xlab("Area (percent)") + 
   ggtitle(paste0("CT", " (", length(unique(hypso_ct$id)), ") lakes")) + 
   theme(legend.position = "bottom"), 
