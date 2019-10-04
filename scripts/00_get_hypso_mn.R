@@ -40,7 +40,7 @@ get_hypso <- function(rsub){
   rc <- cut(rsub, breaks = depth_int) %>%
     as.data.frame() %>% tidyr::drop_na(layer) %>%
     group_by(layer) %>% tally() %>% cumsum() %>%
-    mutate(area_m2 = n * 5 *5) %>%
+    mutate(area_m2 = n * 5 * 5) %>%
     mutate(depth_int = rev(# add interval midpoints
       as.numeric(na.omit((depth_int + lag(depth_int))/2)) * -1)) %>%
     mutate(area_percent = scales::rescale(area_m2, to = c(0, 100))) %>%
@@ -58,10 +58,10 @@ hypso <- lapply(seq_len(length(rsubs)),
 hypso <- dplyr::bind_rows(hypso)
 
 if(interactive()){
-  ggplot(data = hypso) +
+  ggplot(data = hypso_mn) +
     geom_line(aes(x = area_percent, y = depth_percent, group = llid))
   # TODO: plot the line of an ideal cone shape
 }
 
 write.csv(hypso, "data/mn_hypso.csv", row.names = FALSE)
-# test <- read.csv("data/mn_hypso.csv", stringsAsFactors = FALSE)
+# hypso_mn <- read.csv("data/mn_hypso.csv", stringsAsFactors = FALSE)

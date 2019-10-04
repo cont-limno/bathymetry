@@ -64,9 +64,10 @@ get_hypso <- function(rsub, id){
   rc <- rsub %>%
     as.data.frame() %>%
     group_by(layer) %>% tally() %>%
+    tidyr::drop_na(layer) %>%
+    arrange(desc(layer)) %>%
     mutate(n = cumsum(n)) %>%
     rename(depth = layer) %>%
-    tidyr::drop_na(depth) %>%
     mutate(area_m2 = n * res(rsub)[1] * res(rsub)[2]) %>%
     mutate(area_percent = scales::rescale(area_m2, to = c(0, 100))) %>%
     mutate(depth_percent = scales::rescale(depth, to = c(0, 100)))
@@ -94,4 +95,4 @@ if(interactive()){
 }
 
 write.csv(hypso, "data/ct_hypso.csv", row.names = FALSE)
-# test <- read.csv("data/ct_hypso.csv", stringsAsFactors = FALSE)
+# hypso <- read.csv("data/ct_hypso.csv", stringsAsFactors = FALSE)

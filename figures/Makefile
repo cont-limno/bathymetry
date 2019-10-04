@@ -1,0 +1,2 @@
+pnglatest:
+	mogrifylatest

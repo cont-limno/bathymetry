@@ -1,10 +1,18 @@
 
 all: data
 
-data:	data/lagosus_depth.csv \
-data/mn_hypso.csv
+figures:
+	cd figures && make pnglatest
 
-data/mn_hypso.csv: scripts/00_get_hypso.R \
+data:	data/lagosus_depth.csv \
+data/mn_hypso.csv \
+data/ct_hypso.csv
+
+data/mn_hypso.csv: scripts/00_get_hypso_mn.R \
+data/lagosus_depth.csv
+	Rscript $<
+
+data/ct_hypso.csv: scripts/00_get_hypso_ct.R \
 data/lagosus_depth.csv
 	Rscript $<
 

@@ -3,26 +3,11 @@ title: "LAGOS lake depth"
 output: pdf_document
 ---
 
-```{r timings, include=FALSE, eval=FALSE}
-# https://stackoverflow.com/a/24600461/3362993
-knitr::knit_hooks$set(timeit = local({
-  now = NULL
-  function(before, options) {
-    if (before) {
-      now <<- Sys.time()
-    } else {
-      res = difftime(Sys.time(), now)
-      now <<- NULL
-      # use options$label if you want the chunk label as well
-      paste('Time for this code chunk:', as.character(round(res, 2)))
-    }
-  }})
-)
-```
-
 ```{r setup, include=FALSE}
 source("scripts/99_utils.R")
-knitr::opts_chunk$set(echo = FALSE, timeit = TRUE, eval = FALSE)
+knitr::opts_chunk$set(echo = FALSE, eval = FALSE, message = FALSE,
+                      fig.path = "figures/", fig.width = 5, fig.height = 6,
+                      dev = c("pdf"))
 ```
 
 ```{r data, message=FALSE, echo=FALSE, eval=TRUE}
@@ -36,6 +21,9 @@ dt <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
              labels = ~paste(sep="-", thousand_k(.y[1]), thousand_k(.y[2])))
          ) %>%
   coordinatize(latname = "lat", longname = "long")
+
+hypso_ct <- read.csv("data/ct_hypso.csv", stringsAsFactors = FALSE)
+hypso_mn <- read.csv("data/mn_hypso.csv", stringsAsFactors = FALSE)
 ```
 
 ```{r map, echo=FALSE, message=FALSE, error = FALSE, eval=TRUE}
@@ -73,7 +61,7 @@ paste0(round(sum(!is.na(dplyr::filter(dt_plot, has_limno)$max_depth_m)) /
   "% (n=", sum(!is.na(dplyr::filter(dt_plot, has_limno)$max_depth_m)), ") of lakes with limno data in lagosne have max_depth_m values.")
 ```
 
-```{r viz, echo=FALSE, warning=FALSE, message=FALSE, fig.height=3, eval=TRUE}
+```{r viz, echo=FALSE, warning=FALSE, message=FALSE, fig.height=3, eval=FALSE}
 knitr::kable(t(quantile(dt$max_depth_m, c(0, 0.05, 0.5, 0.95, 1), 
                         na.rm = TRUE)), caption = "Lake depth quantiles")
 knitr::kable(round(t(quantile(dt$lake_waterarea_ha, c(0, 0.05, 0.5, 0.95, 1), 
@@ -97,7 +85,9 @@ ggplot() +
   geom_sf(data = dt_plot, aes(fill = n_class)) +
   labs(fill = "") +
   ggtitle("Number of lakes with max depth")
+```
 
+```{r num-lakes-mean, eval=TRUE}
 dt_plot <- dt %>%
   st_drop_geometry() %>%
   dplyr::filter(!is.na(mean_depth_m)) %>%
@@ -120,7 +110,7 @@ ggplot() +
 
 > Oliver used 4 ha < max_depth < 1000 ha
 
-```{r cutoffs, eval = TRUE, echo=FALSE}
+```{r cutoffs, eval = TRUE, echo=FALSE, fig.height = 4}
  
  dt_plot <- dplyr::bind_rows(
    read.csv("data/00_manual/00_manual.csv", stringsAsFactors = FALSE), 
@@ -144,7 +134,32 @@ dt_plot %>%
             vjust = -0.5, size = 4) +
   ylim(0, 100000) + xlab("Area (ha)") +
   ggtitle("Proportion max depth availability by \n lake area class (LAGOSNE and Manual)")
- ```
+```
+
+```{r hypsography, eval=TRUE, fig.height = 4}
+ids <- factor(c("concave", "convex"))
+polys <- data.frame(
+  id = rep(ids, each = 3),
+  x = c(0, 75, 0, 
+        25, 100, 100), 
+  y = c(75, 0, 0, 
+        100, 100, 25))
+
+plot_grid(
+ggplot(data = hypso_ct) +
+  geom_polygon(data = polys, aes(x = x, y = y, group = id, fill = id), alpha = 0.2) +
+  geom_line(aes(x = area_percent, y = depth_percent, group = id)) +
+  ylab("Depth (percent)") + xlab("Area (percent)") + 
+  ggtitle(paste0("CT", " (", length(unique(hypso_ct$id)), ") lakes")) + 
+  theme(legend.position = "bottom"), 
+ggplot(data = hypso_mn) +
+    geom_line(aes(x = area_percent, y = depth_percent, group = llid)) +
+  ylab("Depth (percent)") + xlab("Area (percent)") +
+  ggtitle(paste0("MN", " (", length(unique(hypso_mn$llid)), ") lakes")) +
+  theme(axis.title.y = element_blank()), 
+rel_widths = c(1, 0.7))
+
+```
 
 ```{r ridgeline} 
 # Ridgeline plot of lake depth

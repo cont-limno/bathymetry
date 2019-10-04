@@ -8,3 +8,5 @@ data/backups
 data/00_manual/*.csv
 data/00_nla/*.csv
 data/00_lagosne/*.csv
+figures/*.png
+figures/*.pdf
