@@ -1,6 +1,5 @@
 # ---- load packages ----
 library(googledrive)
-suppressMessages(library(dplyr))
 suppressMessages(library(LAGOSNE))
 suppressMessages(library(sf))
 library(assertr)
@@ -18,6 +17,7 @@ suppressMessages(library(raster))
 library(LAGOSNEgis)
 suppressMessages(library(scales))
 library(elevatr)
+suppressMessages(library(dplyr))
 
 # ---- misc fxn ----
 # jsta::get_if_not_exists
