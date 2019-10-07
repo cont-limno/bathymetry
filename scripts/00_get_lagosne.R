@@ -10,6 +10,8 @@ res <- mutate(lg$lakes_limno,
                           lake_area_ha)) %>%
   left_join(dplyr::select(lg$state, state, state_zoneid)) %>%
   left_join(dplyr::select(lg$lakes.geo, lagoslakeid, lakeconnection)) %>%
+  left_join(dplyr::select(lg$buffer100m.lulc,
+                          buffer100m_slope_mean, lagoslakeid)) %>%
   # rename to lagosus conny codes
   mutate(lakeconnection = case_when(lakeconnection == "DR_Stream" ~ "Drainage",
                                     lakeconnection == "DR_LakeStream" ~ "DrainageLk",
@@ -17,6 +19,7 @@ res <- mutate(lg$lakes_limno,
 dplyr::select(llid = lagoslakeid, name = gnis_name, state,
               max_depth_m = maxdepth, mean_depth_m = meandepth,
               source = maxdepthsource, lake_waterarea_ha = lake_area_ha,
+              buffer100m_slope_mean,
               lake_connectivity_permanent = lakeconnection,
               lat = nhd_lat, long = nhd_long) %>%
   # TODO: eventually cross-walk lagosne llids with lagosus llids
