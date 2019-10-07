@@ -66,9 +66,9 @@ get_hypso <- function(rsub, id){
     group_by(layer) %>% tally() %>%
     tidyr::drop_na(layer) %>%
     arrange(desc(layer)) %>%
-    mutate(n = cumsum(n)) %>%
+    mutate(n_cs = cumsum(n)) %>%
     rename(depth = layer) %>%
-    mutate(area_m2 = n * res(rsub)[1] * res(rsub)[2]) %>%
+    mutate(area_m2 = n_cs * res(rsub)[1] * res(rsub)[2]) %>%
     mutate(area_percent = scales::rescale(area_m2, to = c(0, 100))) %>%
     mutate(depth_percent = scales::rescale(depth, to = c(0, 100)))
 
@@ -81,6 +81,12 @@ rsubs <- lapply(unique(ps$WBNAME), function(x){
   get_rsub(dt)
 })
 names(rsubs) <- unique(ps$WBNAME)
+
+for (i in 1:length(rsubs)) {
+  writeRaster(rsubs[[i]],
+              paste0("data/ct_bathy/", snakecase::to_snake_case(names(rsubs[i]))),
+              format='GTiff')
+}
 
 hypso <- lapply(seq_len(length(rsubs)), function(x){
   dplyr::mutate(get_hypso(rsubs[[x]]),
