@@ -250,13 +250,50 @@ rel_widths = c(0.6, 1)
 cowplot::plot_grid(
   ggplot(data = hypso, aes(x = radius_percent, y = depth_percent)) +
     geom_point(aes(color = type)) + geom_line(aes(color = type)) +
-    xlab("Radius distance (percent)") + ylab("Depth (percent)") + ylim(c(100, 0)), 
+    xlab("Radius distance (percent)") + ylab("Depth (percent)") + 
+    ylim(c(100, 0)) +  theme(legend.position = "none"),
 ggplot(data = hypso, aes(x = area_percent, y = depth_percent)) +
   geom_point(aes(color = type)) + geom_line(aes(color = type)) +
   xlab("Area > depth (percent)") + ylab("Depth (percent)") +
-    ylim(c(100, 0))
+    ylim(c(100, 0)),
+rel_widths = c(0.6, 1)
 )
 
+```
+
+```{r compare-slopes, eval=TRUE, fig.height = 4}
+dt <- dplyr::filter(lg$lakes_limno,
+                    !is.na(maxdepth) & !is.na(meandepth)) %>%
+  dplyr::select(lagoslakeid, nhd_lat, nhd_long, maxdepth, meandepth) %>%
+  dplyr::left_join(dplyr::select(lg$locus, lagoslakeid, lake_area_ha, gnis_name, state_zoneid)) %>%
+  left_join(dplyr::select(lg$buffer100m.lulc,
+                          buffer100m_slope_mean, lagoslakeid)) %>%
+  dplyr::left_join(dplyr::select(lg$state, state_zoneid, state)) %>%
+  dplyr::filter(lake_area_ha >= 4 & lake_area_ha <= 400) %>%
+  dplyr::filter(state == "MN") %>%
+  dplyr::filter(meandepth != maxdepth) %>%
+  dplyr::filter(meandepth > 1)
+
+# using lake areas:
+# calculate a vector of lake radii
+dt <- mutate(dt, radius = sqrt(lake_area_ha / pi))
+# TODO: instead of straight-up radii use half the fetch or half the minimum bounding width
+# Kath did geoprocessing using ArcGIS v 10.5 with tool Minimum Bounding Geometry in Features in Data Management Tools (System Toolbox)
+
+# calculate "slopes" as max_depth / r
+dt <- mutate(dt, slope = maxdepth / radius)
+
+# calculate "half-slopes" as mean_depth / (r/2)
+# how do they compare with full "slopes"?
+dt <- mutate(dt, half_slope = meandepth / (radius / 2))
+
+plot(dt$buffer100m_slope_mean, dt$slope)
+abline(0, 1)
+```
+
+```{r eval=TRUE, fig.height = 4}
+plot(dt$half_slope, dt$slope)
+abline(0, 1)
 ```
 
 ```{r ridgeline} 
