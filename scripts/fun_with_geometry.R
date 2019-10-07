@@ -6,6 +6,8 @@ dt <- dplyr::filter(lg$lakes_limno,
                     !is.na(maxdepth) & !is.na(meandepth)) %>%
   dplyr::select(lagoslakeid, nhd_lat, nhd_long, maxdepth, meandepth) %>%
   dplyr::left_join(dplyr::select(lg$locus, lagoslakeid, lake_area_ha, gnis_name, state_zoneid)) %>%
+  left_join(dplyr::select(lg$buffer100m.lulc,
+                          buffer100m_slope_mean, lagoslakeid)) %>%
   dplyr::left_join(dplyr::select(lg$state, state_zoneid, state)) %>%
   dplyr::filter(lake_area_ha >= 4 & lake_area_ha <= 400) %>%
   dplyr::filter(state == "MN") %>%
@@ -25,8 +27,14 @@ dt <- mutate(dt, slope = maxdepth / radius)
 # how do they compare with full "slopes"?
 dt <- mutate(dt, half_slope = meandepth / (radius / 2))
 
+plot(dt$buffer100m_slope_mean, dt$slope)
+abline(0, 1)
+
 plot(dt$slope, dt$half_slope)
 abline(0, 1) # shallow slopes are shallower than the overall (deep) slope
+
+plot(dt$half_slope, dt$slope)
+abline(0, 1)
 
 # regress half-slopes against max depth
 dt <- mutate(dt, maxdepth_pred = half_slope * radius)
