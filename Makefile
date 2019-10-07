@@ -30,3 +30,6 @@ data/00_nla/00_nla.csv: scripts/00_get_nla.R
 
 data/00_lagosne/00_lagosne.csv: scripts/00_get_lagosne.R
 	Rscript $<
+
+lagos_depth.pdf: lagos_depth.Rmd
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
