@@ -5,7 +5,8 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 source("scripts/99_utils.R")
-knitr::opts_chunk$set(echo = FALSE, eval = FALSE, message = FALSE,
+knitr::opts_chunk$set(echo = FALSE, eval = FALSE, message = FALSE, 
+                      warning = FALSE,
                       fig.path = "figures/", fig.width = 5, fig.height = 6,
                       dev = c("pdf"))
 ```
@@ -152,12 +153,14 @@ plot_grid(
 ggplot(data = hypso_ct) +
   geom_polygon(data = polys, aes(x = x, y = y, group = id, fill = id), alpha = 0.2) +
   geom_line(aes(x = area_percent, y = depth_percent, group = id)) +
-  geom_abline(intercept = 100, slope = -1, color = "red") +
+  geom_abline(intercept = -100, slope = 1, color = "red") +
+  ylim(c(100, 0)) +
   ylab("Depth (percent)") + xlab("Area (percent)") + 
   ggtitle(paste0("CT", " (", length(unique(hypso_ct$id)), ") lakes")) + 
   theme(legend.position = "bottom"), 
 ggplot(data = hypso_mn) +
     geom_line(aes(x = area_percent, y = depth_percent, group = llid)) +
+  ylim(c(100, 0)) +
   ylab("Depth (percent)") + xlab("Area (percent)") +
   ggtitle(paste0("MN", " (", length(unique(hypso_mn$llid)), ") lakes")) +
   theme(axis.title.y = element_blank()), 
@@ -165,18 +168,36 @@ rel_widths = c(1, 0.7))
 
 ```
 
-```{r raster-to-profile-to-hypso}
+```{r raster-to-profile-to-hypso, eval=TRUE, fig.height = 4}
 # 3 panel figure of a single starting with rayshader, then depth profile, then hypsography
 
 # use plotly::ggplotly to select specific lakes
-dplyr::filter(hypso_ct, id == "lake_saltonstall") # super deep
-"pickerel_lake" # convex
-"long_pond" # concave
+# dplyr::filter(hypso_ct, id == "lake_saltonstall") # super deep
+# "pickerel_lake" # convex
+# "long_pond" # concave
 
 rsub1 <- raster::raster("data/ct_bathy/pickerel_lake.tif")
 rsub2 <- raster::raster("data/ct_bathy/long_pond.tif")
+names(rsub1) <- "layer"
+names(rsub2) <- "layer"
 
-# load hypso function(s)
+cowplot::plot_grid( 
+ggplot(data = as.data.frame(rsub1, xy = TRUE)) +
+  geom_raster(aes(x = x, y = y, fill = layer)) +
+  coord_quickmap() +
+  scale_fill_continuous(tran = "reverse") +
+  labs(fill = "") + ggtitle("convex") +
+  theme_void(),
+ggplot(data = as.data.frame(rsub2, xy = TRUE)) +
+  geom_raster(aes(x = x, y = y, fill = layer)) +
+  coord_quickmap() +
+  scale_fill_continuous(tran = "reverse") +
+  labs(fill = "") + ggtitle("concave") +
+  theme_void()
+)
+```
+
+```{r get-hypso, eval=TRUE, fig.height = 4}
 get_hypso <- function(rsub, id){
   # rsub <- rsubs[[46]]
   
@@ -192,29 +213,50 @@ get_hypso <- function(rsub, id){
     rename(depth = layer) %>%
     mutate(area_m2 = n_cs * res(rsub)[1] * res(rsub)[2]) %>%
     mutate(area_percent = scales::rescale(area_m2, to = c(0, 100))) %>%
-    mutate(depth_percent = scales::rescale(depth, to = c(0, 100)))
+    mutate(depth_percent = scales::rescale(depth, to = c(0, 100))) %>%
+    mutate(n_diff = scales::rescale(c(0, diff(n_cs)), 
+                                    to = c(0, 100))) %>%
+    mutate(radius_percent = rev(scales::rescale(sqrt(area_m2 / pi)) * 100))
 
   rc
 }
 
-names(rsub1) <- "layer"
 hypso1 <- get_hypso(rsub1)
-hypso1$test <- scales::rescale(c(diff(hypso1$n_cs), 0), to = c(0, 100))
-
-ggplot(data = as.data.frame(rsub1, xy = TRUE)) + 
-  geom_raster(aes(x = x, y = y, fill = layer)) +
-  coord_quickmap()
-  
-cowplot::plot_grid(
-ggplot(data = hypso1, aes(x = test, y = depth_percent)) +
-  geom_point(aes(y = rev(depth_percent))) + xlab("Area (percent)") + ylab("Depth (percent)"), 
-ggplot(data = hypso1, aes(x = area_percent, y = depth_percent)) +
-  geom_point() + xlab("Area > depth (percent)") + ylab("Depth (percent)")
-)
-
-
-names(rsub2) <- "layer"
+hypso1$type <- "convex"
 hypso2 <- get_hypso(rsub2)
+hypso2$type <- "concave"
+hypso <- dplyr::rbind_all(list(hypso1, hypso2))
+
+# par(mfrow = c(1, 2))
+# plot(hypso1$radius_percent, hypso1$depth, 
+#      ylim = rev(range(hypso1$depth)))
+# plot(hypso1$area_percent, hypso1$depth, 
+#      ylim = rev(range(hypso1$depth)))
+
+cowplot::plot_grid(
+  ggplot(data = hypso, aes(x = radius_percent, y = depth)) +
+    geom_point(aes(color = type)) + geom_line(aes(color = type)) +
+    xlab("Radius distance (percent)") + ylab("Depth") +
+    ylim(c(max(hypso$depth), 0)) +
+    theme(legend.position = "none"), 
+  ggplot(data = hypso, aes(x = area_percent, y = depth)) +
+    geom_point(aes(color = type)) + geom_line(aes(color = type)) +
+    xlab("Area > depth (percent)") + ylab("Depth") +
+    ylim(c(max(hypso$depth), 0)),
+rel_widths = c(0.6, 1)
+)
+```
+
+```{r eval=TRUE, fig.height = 4}
+cowplot::plot_grid(
+  ggplot(data = hypso, aes(x = radius_percent, y = depth_percent)) +
+    geom_point(aes(color = type)) + geom_line(aes(color = type)) +
+    xlab("Radius distance (percent)") + ylab("Depth (percent)") + ylim(c(100, 0)), 
+ggplot(data = hypso, aes(x = area_percent, y = depth_percent)) +
+  geom_point(aes(color = type)) + geom_line(aes(color = type)) +
+  xlab("Area > depth (percent)") + ylab("Depth (percent)") +
+    ylim(c(100, 0))
+)
 
 ```
 
