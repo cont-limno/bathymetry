@@ -141,7 +141,7 @@ dt_plot %>%
 ```
 
 ```{r hypsography, eval=TRUE, fig.height = 4}
-ids <- factor(c("concave", "convex"))
+ids <- factor(c("convex", "concave"))
 polys <- data.frame(
   id = rep(ids, each = 3),
   x = c(0, 75, 0, 
@@ -186,21 +186,19 @@ ggplot(data = as.data.frame(rsub1, xy = TRUE)) +
   geom_raster(aes(x = x, y = y, fill = layer)) +
   coord_quickmap() +
   scale_fill_continuous(tran = "reverse") +
-  labs(fill = "") + ggtitle("convex") +
+  labs(fill = "") + ggtitle("concave") +
   theme_void(),
 ggplot(data = as.data.frame(rsub2, xy = TRUE)) +
   geom_raster(aes(x = x, y = y, fill = layer)) +
   coord_quickmap() +
   scale_fill_continuous(tran = "reverse") +
-  labs(fill = "") + ggtitle("concave") +
+  labs(fill = "") + ggtitle("convex") +
   theme_void()
 )
 ```
 
 ```{r get-hypso, eval=TRUE, fig.height = 4}
 get_hypso <- function(rsub, id){
-  # rsub <- rsubs[[46]]
-  
   maxdepth <- abs(cellStats(rsub, "max"))
 
   # calculate area of each class
@@ -216,15 +214,16 @@ get_hypso <- function(rsub, id){
     mutate(depth_percent = scales::rescale(depth, to = c(0, 100))) %>%
     mutate(n_diff = scales::rescale(c(0, diff(n_cs)), 
                                     to = c(0, 100))) %>%
-    mutate(radius_percent = rev(scales::rescale(sqrt(area_m2 / pi)) * 100))
+    mutate(radius_percent = 
+             rev(scales::rescale(cumsum(sqrt((n * res(rsub)[1] * res(rsub)[2])/ pi)) * 100)))
 
   rc
 }
 
 hypso1 <- get_hypso(rsub1)
-hypso1$type <- "convex"
+hypso1$type <- "concave"
 hypso2 <- get_hypso(rsub2)
-hypso2$type <- "concave"
+hypso2$type <- "convex"
 hypso <- dplyr::rbind_all(list(hypso1, hypso2))
 
 # par(mfrow = c(1, 2))
@@ -236,7 +235,7 @@ hypso <- dplyr::rbind_all(list(hypso1, hypso2))
 cowplot::plot_grid(
   ggplot(data = hypso, aes(x = radius_percent, y = depth)) +
     geom_point(aes(color = type)) + geom_line(aes(color = type)) +
-    xlab("Radius distance (percent)") + ylab("Depth") +
+    xlab("Radius distance (proportion)") + ylab("Depth") +
     ylim(c(max(hypso$depth), 0)) +
     theme(legend.position = "none"), 
   ggplot(data = hypso, aes(x = area_percent, y = depth)) +
