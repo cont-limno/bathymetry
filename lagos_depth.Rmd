@@ -22,7 +22,10 @@ dt <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
          ) %>%
   coordinatize(latname = "lat", longname = "long")
 
-hypso_ct <- read.csv("data/ct_hypso.csv", stringsAsFactors = FALSE)
+hypso_ct <- read.csv("data/ct_hypso.csv", stringsAsFactors = FALSE) %>%
+  select(-n) %>% group_by(id) %>%  add_tally() %>% ungroup() %>%
+  dplyr::filter(n > 3) %>%
+  filter(!str_detect(id, "Cove"))
 hypso_mn <- read.csv("data/mn_hypso.csv", stringsAsFactors = FALSE)
 ```
 
@@ -159,6 +162,59 @@ ggplot(data = hypso_mn) +
   ggtitle(paste0("MN", " (", length(unique(hypso_mn$llid)), ") lakes")) +
   theme(axis.title.y = element_blank()), 
 rel_widths = c(1, 0.7))
+
+```
+
+```{r raster-to-profile-to-hypso}
+# 3 panel figure of a single starting with rayshader, then depth profile, then hypsography
+
+# use plotly::ggplotly to select specific lakes
+dplyr::filter(hypso_ct, id == "lake_saltonstall") # super deep
+"pickerel_lake" # convex
+"long_pond" # concave
+
+rsub1 <- raster::raster("data/ct_bathy/pickerel_lake.tif")
+rsub2 <- raster::raster("data/ct_bathy/long_pond.tif")
+
+# load hypso function(s)
+get_hypso <- function(rsub, id){
+  # rsub <- rsubs[[46]]
+  
+  maxdepth <- abs(cellStats(rsub, "max"))
+
+  # calculate area of each class
+  rc <- rsub %>%
+    as.data.frame() %>%
+    group_by(layer) %>% tally() %>%
+    tidyr::drop_na(layer) %>%
+    arrange(desc(layer)) %>%
+    mutate(n_cs = cumsum(n)) %>%
+    rename(depth = layer) %>%
+    mutate(area_m2 = n_cs * res(rsub)[1] * res(rsub)[2]) %>%
+    mutate(area_percent = scales::rescale(area_m2, to = c(0, 100))) %>%
+    mutate(depth_percent = scales::rescale(depth, to = c(0, 100)))
+
+  rc
+}
+
+names(rsub1) <- "layer"
+hypso1 <- get_hypso(rsub1)
+hypso1$test <- scales::rescale(c(diff(hypso1$n_cs), 0), to = c(0, 100))
+
+ggplot(data = as.data.frame(rsub1, xy = TRUE)) + 
+  geom_raster(aes(x = x, y = y, fill = layer)) +
+  coord_quickmap()
+  
+cowplot::plot_grid(
+ggplot(data = hypso1, aes(x = test, y = depth_percent)) +
+  geom_point(aes(y = rev(depth_percent))) + xlab("Area (percent)") + ylab("Depth (percent)"), 
+ggplot(data = hypso1, aes(x = area_percent, y = depth_percent)) +
+  geom_point() + xlab("Area > depth (percent)") + ylab("Depth (percent)")
+)
+
+
+names(rsub2) <- "layer"
+hypso2 <- get_hypso(rsub2)
 
 ```
 
