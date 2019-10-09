@@ -15,3 +15,7 @@ res <- dplyr::bind_rows(manual_raw,
   dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
 
 write.csv(res, "data/lagosus_depth.csv", row.names = FALSE)
+
+# write to GDrive
+# googledrive::drive_upload(media = "data/lagosus_depth.csv",
+# path = "Continental-limnology/HUBS/LIMNO-Hub/LAGOS-lake-depth/LAGOSUS-LakeDepth/depth_merged.csv")
