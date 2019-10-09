@@ -53,21 +53,36 @@ raw <- raw %>%
   janitor::clean_names("snake")
 
 # ---- join_lake_area ----
-locus <- read.csv("data/00_lagosus_locus/lake_characteristics.csv",
+locus <- read.csv("data/00_lagosus_locus/lake_characteristics_20190913.csv",
                   stringsAsFactors = FALSE)
 raw <- left_join(raw, dplyr::select(locus, lagoslakeid, lake_waterarea_ha,
                                     lake_connectivity_permanent),
                  by = c("linked_lagoslakeid" = "lagoslakeid"))
 
+# ---- export ----
+res <- raw[,!duplicated(names(raw))] %>%
+  rename(llid = linked_lagoslakeid) %>%
+  mutate(legacy_name = NA) %>%
+  mutate(effort = "manual") %>%
+  rename(source = url) %>%
+  select(llid, name, legacy_name, state,
+         max_depth_m, mean_depth_m, source,
+         lake_waterarea_ha, lake_connectivity_permanent, effort,
+         lat, long = lon)# %>%
+# dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
+
+write.csv(res, "data/00_manual/00_manual.csv", row.names = FALSE)
+# res <- read.csv("data/00_manual/00_manual.csv", stringsAsFactors = FALSE)
+
 # ---- graph_checks ----
 if(interactive()){
 # histograms by state
-ggplot(data = raw, aes(x = max_depth_m)) +
+ggplot(data = res, aes(x = max_depth_m)) +
   geom_histogram() +
   facet_wrap_paginate(~state, scales = "free", page = 2, ncol = 3, nrow = 4)
 
 # missing data by state
-  test %>%
+  res %>%
     group_by(state) %>%
     mutate(prop_maxdepth = round(mean(!is.na(max_depth_m)), 2)) %>%
     add_tally() %>%
@@ -164,18 +179,3 @@ dplyr::filter(raw, stringr::str_detect(url, "gf.nd.gov"))
 dplyr::filter(raw, stringr::str_detect(url, ".kdheks.gov"))
 
 }
-
-# ---- export ----
-res <- raw[,!duplicated(names(raw))] %>%
-    rename(llid = linked_lagoslakeid) %>%
-    mutate(legacy_name = NA) %>%
-    mutate(effort = "manual") %>%
-    rename(source = url) %>%
-    select(llid, name, legacy_name, state,
-           max_depth_m, mean_depth_m, source,
-           lake_waterarea_ha, lake_connectivity_permanent, effort,
-           lat, long = lon)# %>%
-    # dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
-
-write.csv(res, "data/00_manual/00_manual.csv", row.names = FALSE)
-# read.csv("data/00_manual/00_manual.csv", stringsAsFactors = FALSE)[1,]
