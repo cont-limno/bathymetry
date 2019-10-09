@@ -185,7 +185,7 @@ names(rsub1) <- "layer"
 names(rsub2) <- "layer"
 
 # gg_raster <- cowplot::plot_grid( 
-gg_convave_raster <- ggplot(data = as.data.frame(rsub1, xy = TRUE)) +
+gg_concave_raster <- ggplot(data = as.data.frame(rsub1, xy = TRUE)) +
   geom_raster(aes(x = x, y = y, fill = layer)) +
   coord_quickmap() +
   scale_fill_continuous(tran = "reverse") +
