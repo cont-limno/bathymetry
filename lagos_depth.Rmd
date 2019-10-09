@@ -159,11 +159,14 @@ ggplot(data = hypso_ct) +
   ggtitle(paste0("CT", " (", length(unique(hypso_ct$id)), ") lakes")) + 
   theme(legend.position = "bottom"), 
 ggplot(data = hypso_mn) +
-    geom_line(aes(x = area_percent, y = depth_percent, group = llid)) +
+  geom_polygon(data = polys, aes(x = x, y = y, group = id, fill = id), alpha = 0.2) +
+  geom_line(aes(x = area_percent, y = depth_percent, group = llid)) +
+  geom_abline(intercept = -100, slope = 1, color = "red") +
   ylim(c(100, 0)) +
   ylab("Depth (percent)") + xlab("Area (percent)") +
   ggtitle(paste0("MN", " (", length(unique(hypso_mn$llid)), ") lakes")) +
-  theme(axis.title.y = element_blank()), 
+  theme(axis.title.y = element_blank(), 
+        legend.position = "none"), 
 rel_widths = c(1, 0.7))
 
 ```
@@ -181,23 +184,102 @@ rsub2 <- raster::raster("data/ct_bathy/long_pond.tif")
 names(rsub1) <- "layer"
 names(rsub2) <- "layer"
 
-cowplot::plot_grid( 
-ggplot(data = as.data.frame(rsub1, xy = TRUE)) +
+# gg_raster <- cowplot::plot_grid( 
+gg_convave_raster <- ggplot(data = as.data.frame(rsub1, xy = TRUE)) +
   geom_raster(aes(x = x, y = y, fill = layer)) +
   coord_quickmap() +
   scale_fill_continuous(tran = "reverse") +
   labs(fill = "") + ggtitle("concave") +
-  theme_void(),
-ggplot(data = as.data.frame(rsub2, xy = TRUE)) +
+  theme_void()
+
+gg_convex_raster <- ggplot(data = as.data.frame(rsub2, xy = TRUE)) +
   geom_raster(aes(x = x, y = y, fill = layer)) +
   coord_quickmap() +
   scale_fill_continuous(tran = "reverse") +
   labs(fill = "") + ggtitle("convex") +
   theme_void()
+```
+
+```{r gg_rayshader, eval=TRUE}
+library(rayshader)
+library(elevatr)
+
+tex <- create_texture("#AFEEEE", "#B0C4DE", "#B0E2FF", "#B2DFEE", "#BCD2EE")
+
+rsub1 <- raster::raster("data/ct_bathy/pickerel_lake.tif")
+rsub2 <- raster::raster("data/ct_bathy/long_pond.tif")
+
+if(!(file.exists("data/elevatr/pickerel_lake.gri") & 
+     file.exists("data/elevatr/long_pond.gri"))){
+  elev <- get_elev_raster(rsub1, 13)
+  raster::writeRaster(elev, paste0("data/elevatr/", names(rsub1)))
+  
+  elev <- get_elev_raster(rsub2, 13)
+  raster::writeRaster(elev, paste0("data/elevatr/", names(rsub2)))
+}
+elev1 <- raster::raster("data/elevatr/pickerel_lake.gri")
+elev2 <- raster::raster("data/elevatr/long_pond.gri")
+
+prep_rayshader <- function(rsub, elev){
+  rsub <- rsub * -1
+  maxdepth <- abs(cellStats(rsub, "min"))
+  
+  test <- crop(elev, rsub)
+  test <- test - abs(cellStats(test, "min")) # test should have a min of 0
+  rsub <- rsub + abs(cellStats(rsub, "max")) # rsub should have a max of 0
+
+  test  <- mask(test, test <= (cellStats(test, "min") + 1), maskvalue = TRUE)
+  test  <- resample(test, rsub)
+  test2 <- merge(rsub, test)
+  # test2[is.na(test2)] <- 0
+
+  rmat                <- matrix(test2 + maxdepth, 
+                                nrow = ncol(rsub), ncol = nrow(rsub))
+  rmat[rmat > maxdepth] <- NA
+  list(rmat = rmat, maxdepth = maxdepth, r = test2)
+}
+```
+
+```{r gg-rayshader-concave, eval=TRUE}
+
+res_rsub1 <- prep_rayshader(rsub1, elev1)
+# plot(res_rsub1$r)
+
+sphere_shade(res_rsub1$rmat, texture = tex) %>%
+  plot_3d(res_rsub1$rmat, water = TRUE, waterdepth = res_rsub1$maxdepth,
+          zscale = 0.4, solidcolor = "white", solidalpha = 0.4,
+          shadow = FALSE, solidlinecolor = "white", phi = 10, theta = -20)
+render_snapshot("figures/concave-rayshader.png", clear = TRUE)
+
+cowplot::plot_grid(
+  gg_concave_raster, 
+  ggdraw() +
+  draw_image("figures/concave-rayshader.png")
+)
+```
+
+```{r gg-rayshader-convex, eval=TRUE}
+res_rsub2 <- prep_rayshader(rsub2, elev2)
+
+sphere_shade(res_rsub2$rmat, texture = tex) %>%
+  plot_3d(res_rsub2$rmat, water = TRUE, waterdepth = res_rsub2$maxdepth,
+          zscale = 0.4, solidcolor = "white", solidalpha = 0.4,
+          shadow = FALSE, solidlinecolor = "white", phi = 10, theta = -20)
+render_snapshot("figures/convex-rayshader.png", clear = TRUE)
+
+cowplot::plot_grid(
+  gg_convex_raster, 
+  ggdraw() +
+  draw_image("figures/convex-rayshader.png")
 )
 ```
 
 ```{r get-hypso, eval=TRUE, fig.height = 4}
+rsub1 <- raster::raster("data/ct_bathy/pickerel_lake.tif")
+rsub2 <- raster::raster("data/ct_bathy/long_pond.tif")
+names(rsub1) <- "layer"
+names(rsub2) <- "layer"
+
 get_hypso <- function(rsub, id){
   maxdepth <- abs(cellStats(rsub, "max"))
 
@@ -246,7 +328,7 @@ rel_widths = c(0.6, 1)
 )
 ```
 
-```{r eval=TRUE, fig.height = 4}
+```{r get-hypso-normalized, eval=TRUE, fig.height = 4}
 cowplot::plot_grid(
   ggplot(data = hypso, aes(x = radius_percent, y = depth_percent)) +
     geom_point(aes(color = type)) + geom_line(aes(color = type)) +
@@ -294,6 +376,10 @@ abline(0, 1)
 ```{r eval=TRUE, fig.height = 4}
 plot(dt$half_slope, dt$slope)
 abline(0, 1)
+```
+
+```{r }
+
 ```
 
 ```{r ridgeline} 
