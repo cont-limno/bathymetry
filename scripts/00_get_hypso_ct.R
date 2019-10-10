@@ -23,8 +23,30 @@ if(!file.exists("data/ct_bathy/ct_bathy.gpkg")){
   sf::st_write(ps, "data/ct_bathy/ct_bathy.gpkg", "ps",
                update = TRUE, delete_layer = TRUE)
 }
-contours <- st_read("data/ct_bathy/ct_bathy.gpkg", layer = "contours")
+# contours <- st_read("data/ct_bathy/ct_bathy.gpkg", layer = "contours")
 ps       <- st_read("data/ct_bathy/ct_bathy.gpkg", layer = "ps")
+
+# map ps polygons to llids
+## pull the largest polygon associated with each lake
+ps_large <- ps %>%
+  mutate(area = st_area(.)) %>%
+  group_by(WBNAME) %>%
+  slice(which.max(area)) %>%
+  ungroup()
+# fill-in hollow contours
+ps_large_filled       <- lapply(seq_len(nrow(ps_large)), function(x)
+      concaveman::concaveman(st_cast(ps_large[x,], "POINT"))
+  )
+ps_large_filled       <- do.call(rbind, ps_large_cm)
+st_geometry(ps_large) <- ps_large_filled$polygons
+
+lg_pnts <- query_gis_(query = paste0(
+  "SELECT * FROM LAGOS_NE_All_Lakes_4ha_POINTS WHERE ",
+  paste0("State_Name LIKE '", "Connecticut", "'", collapse = " OR ")))
+lg_pnts <- sf::st_join(lg_pnts, st_transform(ps_large, st_crs(lg_pnts))) %>%
+  dplyr::filter(!is.na(WBNAME))
+ps <- ps[ps$WBNAME %in% ps_large$WBNAME,]
+length(unique(ps$WBNAME)); nrow(ps_large)
 
 # polygons to raster
 get_rsub <- function(dt){
@@ -75,12 +97,12 @@ get_hypso <- function(rsub, id){
   rc
 }
 
-rsubs <- lapply(unique(ps$WBNAME), function(x){
+rsubs <- lapply(unique(ps_large$WBNAME), function(x){
   message(x)
-  dt <- dplyr::filter(ps, WBNAME == x)
+  dt <- dplyr::filter(ps_large, WBNAME == x)
   get_rsub(dt)
 })
-names(rsubs) <- unique(ps$WBNAME)
+names(rsubs) <- unique(ps_large$WBNAME)
 
 for (i in 1:length(rsubs)) {
   writeRaster(rsubs[[i]],
@@ -101,4 +123,4 @@ if(interactive()){
 }
 
 write.csv(hypso, "data/ct_hypso.csv", row.names = FALSE)
-# hypso <- read.csv("data/ct_hypso.csv", stringsAsFactors = FALSE)
+# hypso1 <- read.csv("data/ct_hypso.csv", stringsAsFactors = FALSE)
