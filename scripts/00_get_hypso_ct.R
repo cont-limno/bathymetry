@@ -37,7 +37,7 @@ ps_large <- ps %>%
 ps_large_filled       <- lapply(seq_len(nrow(ps_large)), function(x)
       concaveman::concaveman(st_cast(ps_large[x,], "POINT"))
   )
-ps_large_filled       <- do.call(rbind, ps_large_cm)
+ps_large_filled       <- do.call(rbind, ps_large_filled)
 st_geometry(ps_large) <- ps_large_filled$polygons
 
 lg_pnts <- query_gis_(query = paste0(
@@ -45,8 +45,18 @@ lg_pnts <- query_gis_(query = paste0(
   paste0("State_Name LIKE '", "Connecticut", "'", collapse = " OR ")))
 lg_pnts <- sf::st_join(lg_pnts, st_transform(ps_large, st_crs(lg_pnts))) %>%
   dplyr::filter(!is.na(WBNAME))
-ps <- ps[ps$WBNAME %in% ps_large$WBNAME,]
-length(unique(ps$WBNAME)); nrow(ps_large)
+
+ps_large <- ps_large[ps_large$WBNAME %in% lg_pnts$WBNAME,]
+ps       <- ps[ps$WBNAME %in% ps_large$WBNAME,]
+ps       <- left_join(ps,
+                  dplyr::select(st_drop_geometry(lg_pnts), lagoslakeid, WBNAME),
+                  by = "WBNAME")
+
+# length(unique(ps$lagoslakeid))
+# length(unique(ps$WBNAME)); nrow(ps_large)
+# View(unique(paste0(ps$WBNAME, ps$lagoslakeid))[order(unique(paste0(ps$WBNAME, ps$lagoslakeid)))])
+# lg <- lagosne_load()
+# lake_info(name = "Black Pond", state = "Connecticut", dt = lg)
 
 # polygons to raster
 get_rsub <- function(dt){
@@ -97,12 +107,12 @@ get_hypso <- function(rsub, id){
   rc
 }
 
-rsubs <- lapply(unique(ps_large$WBNAME), function(x){
+rsubs <- lapply(unique(ps$lagoslakeid), function(x){
   message(x)
-  dt <- dplyr::filter(ps_large, WBNAME == x)
+  dt <- dplyr::filter(ps, lagoslakeid == x)
   get_rsub(dt)
 })
-names(rsubs) <- unique(ps_large$WBNAME)
+names(rsubs) <- unique(ps$lagoslakeid)
 
 for (i in 1:length(rsubs)) {
   writeRaster(rsubs[[i]],
@@ -112,13 +122,19 @@ for (i in 1:length(rsubs)) {
 
 hypso <- lapply(seq_len(length(rsubs)), function(x){
   dplyr::mutate(get_hypso(rsubs[[x]]),
-                id = names(rsubs)[x])
+                llid = names(rsubs)[x])
 })
 hypso <- dplyr::bind_rows(hypso)
 
 if(interactive()){
-  ggplot(data = hypso) +
-    geom_line(aes(x = area_percent, y = depth_percent, group = id))
+  ggplot(data = left_join(hypso,
+                          dplyr::mutate(
+                            dplyr::select(lg_pnts, lagoslakeid, Lake_Area_Ha),
+                            lagoslakeid = as.character(lagoslakeid)),
+                          by = c("llid" = "lagoslakeid"))) +
+    geom_line(aes(x = area_percent, y = depth_percent, group = llid,
+                  color = log(Lake_Area_Ha))) +
+    ylim(100, 0)
   # TODO: plot the line of an ideal cone shape
 }
 
