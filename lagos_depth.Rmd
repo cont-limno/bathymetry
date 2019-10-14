@@ -24,9 +24,10 @@ dt <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
   coordinatize(latname = "lat", longname = "long")
 
 hypso_ct <- read.csv("data/ct_hypso.csv", stringsAsFactors = FALSE) %>%
-  select(-n) %>% group_by(id) %>%  add_tally() %>% ungroup() %>%
+  select(-n) %>% group_by(llid, WBNAME) %>%  
+  add_tally() %>% ungroup() %>%
   dplyr::filter(n > 3) %>%
-  filter(!str_detect(id, "Cove"))
+  filter(!str_detect(WBNAME, "Cove"))
 hypso_mn <- read.csv("data/mn_hypso.csv", stringsAsFactors = FALSE)
 ```
 
@@ -176,11 +177,15 @@ rel_widths = c(1, 0.7))
 
 # use plotly::ggplotly to select specific lakes
 # dplyr::filter(hypso_ct, id == "lake_saltonstall") # super deep
-# "pickerel_lake" # convex
-# "long_pond" # concave
+# "pickerel_lake" 7096 # convex
+# "long_pond" 99642 # concave
 
-rsub1 <- raster::raster("data/ct_bathy/pickerel_lake.tif")
-rsub2 <- raster::raster("data/ct_bathy/long_pond.tif")
+# dplyr::filter(hypso_ct, 
+#               str_detect(WBNAME, c("Pickerel", "Long"))) %>%
+#   distinct(llid)
+
+rsub1 <- raster::raster("data/ct_bathy/7096.tif")
+rsub2 <- raster::raster("data/ct_bathy/99642.tif")
 names(rsub1) <- "layer"
 names(rsub2) <- "layer"
 
@@ -329,18 +334,46 @@ rel_widths = c(0.6, 1)
 ```
 
 ```{r get-hypso-normalized, eval=TRUE, fig.height = 4}
-cowplot::plot_grid(
-  ggplot(data = hypso, aes(x = radius_percent, y = depth_percent)) +
+gg_radius_normal <- ggplot(data = hypso, 
+                           aes(x = radius_percent, y = depth_percent)) +
     geom_point(aes(color = type)) + geom_line(aes(color = type)) +
     xlab("Radius distance (percent)") + ylab("Depth (percent)") + 
-    ylim(c(100, 0)) +  theme(legend.position = "none"),
-ggplot(data = hypso, aes(x = area_percent, y = depth_percent)) +
+    ylim(c(100, 0)) +  theme(legend.position = "none")
+
+gg_hypso_normal <- ggplot(data = hypso, aes(x = area_percent, y = depth_percent)) +
   geom_point(aes(color = type)) + geom_line(aes(color = type)) +
   xlab("Area > depth (percent)") + ylab("Depth (percent)") +
-    ylim(c(100, 0)),
+    ylim(c(100, 0))
+
+cowplot::plot_grid(
+  gg_radius_normal, gg_hypso_normal,
 rel_widths = c(0.6, 1)
 )
 
+```
+
+```{r workflow}
+gg_radius_convex <- 
+  ggplot(data = dplyr::filter(hypso, type == "convex"), 
+         aes(x = radius_percent, y = depth)) +
+    geom_point() + geom_line() +
+    xlab("Radius distance (proportion)") + ylab("Depth") +
+    scale_y_reverse()
+  
+gg_hypso_convex <- ggplot(data = dplyr::filter(hypso, type == "convex"), 
+                           aes(x = area_percent, y = depth)) +
+    geom_point() + geom_line() +
+    xlab("Area > depth (percent)") + ylab("Depth") +
+  scale_y_reverse()
+
+cowplot::plot_grid(
+  gg_convex_raster, 
+  ggdraw() +
+  draw_image("figures/convex-rayshader.png"),
+  gg_radius_convex, 
+  gg_hypso_convex, 
+  ncol = 1
+)
 ```
 
 ```{r compare-slopes, eval=TRUE, fig.height = 4}
