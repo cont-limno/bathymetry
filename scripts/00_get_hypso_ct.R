@@ -114,10 +114,12 @@ rsubs <- lapply(unique(ps$lagoslakeid), function(x){
 })
 names(rsubs) <- unique(ps$lagoslakeid)
 
+if(!interactive()){
 for (i in 1:length(rsubs)) {
   writeRaster(rsubs[[i]],
               paste0("data/ct_bathy/", snakecase::to_snake_case(names(rsubs[i]))),
               format='GTiff')
+}
 }
 
 hypso <- lapply(seq_len(length(rsubs)), function(x){
@@ -125,6 +127,13 @@ hypso <- lapply(seq_len(length(rsubs)), function(x){
                 llid = names(rsubs)[x])
 })
 hypso <- dplyr::bind_rows(hypso)
+
+name_key <- distinct(st_drop_geometry(
+  dplyr::mutate(
+    dplyr::select(ps, lagoslakeid, WBNAME),
+    lagoslakeid = as.character(lagoslakeid))))
+hypso <- left_join(hypso, name_key,
+                  by = c("llid" = "lagoslakeid"))
 
 if(interactive()){
   ggplot(data = left_join(hypso,
