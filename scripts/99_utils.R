@@ -83,3 +83,16 @@ usa_sf <- function(crs){
   dplyr::filter(res, !is.na(.data$state))
 }
 
+get_csv   <- function(destfile, drive_name){
+  tryCatch(drive_download(drive_name, type = "csv",
+                          path = destfile),
+           error = function(e){
+             print(drive_name)
+             write.csv(NA, file = destfile, row.names = FALSE)
+             return(NA)
+           }
+  )
+  return(
+    read.csv(destfile, stringsAsFactors = FALSE)
+  )
+}
