@@ -72,7 +72,11 @@ res <- dplyr::bind_rows(depth_log_all) %>%
   dplyr::filter(!is.na(file_name)) %>%
   dplyr::filter(!duplicated(Linked_lagoslakeid)) %>%
   mutate(max_depth_ft = NA, mean_depth_ft = NA, lakename_googleearth = NA,
-         max_depth_m = NA, mean_depth_m = NA, url = NA, comments = NA)
+         max_depth_m = NA, mean_depth_m = NA, url = NA, comments = NA) %>%
+  mutate(rowid = NA, assigned_to = NA, state = NA)
+
+res <- dplyr::select(res, Linked_lagoslakeid, rowid, lat, lon,
+                      name, file_name, state, assigned_to, max_depth_ft:comments)
 
 write.csv(res, "data/depth_todo.csv", row.names = FALSE)
 
