@@ -79,5 +79,3 @@ res <- dplyr::select(res, Linked_lagoslakeid, rowid, lat, lon,
                       name, file_name, state, assigned_to, max_depth_ft:comments)
 
 write.csv(res, "data/depth_todo.csv", row.names = FALSE)
-
-
