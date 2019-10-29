@@ -35,9 +35,10 @@ dt_2012 <- dt_raw_2012 %>%
          lat = lat_dd83,
          long = lon_dd83) %>%
   mutate(source = "NLA2012",
+         source_type = "Government",
          state = single_state(state_nla),
          max_depth_m = index_site_depth) %>%
-  select(llid, name, legacy_name, state, max_depth_m, mean_depth_m, source,
+  select(llid, name, legacy_name, state, max_depth_m, mean_depth_m, source, source_type,
          lat, long, siteid_07) %>%
   dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
 
@@ -54,18 +55,18 @@ dt_2007 <- dt_raw_2007 %>%
          lat = lat_dd,
          long = lon_dd) %>%
   mutate(source = "NLA2007",
+         source_type = "Government",
          state = state_name,
          max_depth_m = depthmax) %>%
   rename(state.name = state) %>% key_state() %>% rename(state = state.abb) %>%
-  select(llid, name, legacy_name, state, max_depth_m, mean_depth_m, source,
-         lat, long) %>%
+  select(llid, name, legacy_name, state, max_depth_m, mean_depth_m, source, source_type, lat, long) %>%
   dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
 
 # deal with 2007/2012 dups?
 dt_2012 <- select(dt_2012, -siteid_07)
 
 # ---- join_lake_area ----
-locus <- read.csv("data/00_lagosus_locus/lake_characteristics.csv",
+locus <- read.csv("data/00_lagosus_locus/lake_characteristics_20190913.csv",
                   stringsAsFactors = FALSE)
 res     <- dplyr::bind_rows(dt_2007, dt_2012) %>%
   left_join(dplyr::select(locus, llid = lagoslakeid, lake_waterarea_ha,

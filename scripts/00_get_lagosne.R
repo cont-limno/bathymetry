@@ -3,9 +3,10 @@ source("scripts/99_utils.R")
 lg <- lagosne_load("1.087.3")
 
 # anticipated columns:
-# llid, name, legacy_name, state, max_depth_m, mean_depth_m, source, lat, long
+# llid, name, legacy_name, state, max_depth_m, mean_depth_m, source, source_type, lat, long
 res <- mutate(lg$lakes_limno,
        legacy_name = NA) %>%
+  dplyr::filter(!is.na(maxdepth) | !is.na(meandepth)) %>%
   left_join(dplyr::select(lg$locus, lagoslakeid, gnis_name, state_zoneid,
                           lake_area_ha)) %>%
   left_join(dplyr::select(lg$state, state, state_zoneid)) %>%
@@ -22,6 +23,9 @@ dplyr::select(llid = lagoslakeid, name = gnis_name, state,
               buffer100m_slope_mean,
               lake_connectivity_permanent = lakeconnection,
               lat = nhd_lat, long = nhd_long) %>%
+  left_join(dplyr::select(lg$lagos_source_program, programname, programtype),
+                  by = c("source" = "programname")) %>%
+  rename(source_type = programtype) %>%
   # TODO: eventually cross-walk lagosne llids with lagosus llids
   # for now: limit results to those with WQ data in epi_nutr
   # dplyr::filter(llid %in% lg$epi_nutr$lagoslakeid) %>%

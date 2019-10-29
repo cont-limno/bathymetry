@@ -9,12 +9,28 @@ manual_raw  <- read.csv("data/00_manual/00_manual.csv", stringsAsFactors = FALSE
 nla_raw     <- read.csv("data/00_nla/00_nla.csv", stringsAsFactors = FALSE)
 lagosne_raw <- read.csv("data/00_lagosne/00_lagosne.csv", stringsAsFactors = FALSE)
 
-res <- dplyr::bind_rows(manual_raw,
-                        nla_raw,
-                        lagosne_raw) %>%
-  dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
+res <- dplyr::bind_rows(manual_raw, nla_raw, lagosne_raw) %>%
+  rowwise() %>%
+  dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m)) %>%
+  dplyr::filter(is.na(max_depth_m) | is.na(mean_depth_m) |
+                  max_depth_m != mean_depth_m) %>%
+  dplyr::filter(is.na(max_depth_m) | is.na(mean_depth_m) |
+                  max_depth_m > mean_depth_m) %>%
+  mutate(source = urltools::domain(source)) %>%
+  mutate(source_type = case_when(
+    is.na(source_type) & grepl("\\.gov|\\.us$|dnr|dwq|dep", source) ~ "Government",
+    is.na(source_type) & grepl("\\.edu", source) ~ "University",
+    !is.na(source_type) ~ source_type,
+    TRUE ~ NA_character_)) %>%
+  mutate(source_type = case_when(
+    grepl("Mix", source_type) | is.na(source_type) ~ "Misc",
+    grepl("Agency", source_type) | is.na(source_type) ~ "Government",
+    !is.na(source_type) ~ source_type))
+
+# table(res$source_type)
 
 write.csv(res, "data/lagosus_depth.csv", row.names = FALSE)
+# res <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE)
 
 # write to GDrive
 # googledrive::drive_upload(media = "data/lagosus_depth.csv",
