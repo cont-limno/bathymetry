@@ -11,7 +11,7 @@ lagosne_raw <- read.csv("data/00_lagosne/00_lagosne.csv", stringsAsFactors = FAL
 
 res <- dplyr::bind_rows(manual_raw, nla_raw, lagosne_raw) %>%
   rowwise() %>%
-  dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m)) %>%
+  # dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m)) %>%
   dplyr::filter(is.na(max_depth_m) | is.na(mean_depth_m) |
                   max_depth_m != mean_depth_m) %>%
   dplyr::filter(is.na(max_depth_m) | is.na(mean_depth_m) |

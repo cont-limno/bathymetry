@@ -6,7 +6,7 @@ lg <- lagosne_load("1.087.3")
 # llid, name, legacy_name, state, max_depth_m, mean_depth_m, source, source_type, lat, long
 res <- mutate(lg$lakes_limno,
        legacy_name = NA) %>%
-  dplyr::filter(!is.na(maxdepth) | !is.na(meandepth)) %>%
+  # dplyr::filter(!is.na(maxdepth) | !is.na(meandepth)) %>%
   left_join(dplyr::select(lg$locus, lagoslakeid, gnis_name, state_zoneid,
                           lake_area_ha)) %>%
   left_join(dplyr::select(lg$state, state, state_zoneid)) %>%
