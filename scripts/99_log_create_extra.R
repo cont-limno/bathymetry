@@ -14,8 +14,6 @@ log <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE)
 # remove dups
 ls <- dplyr::filter(ls_raw, !(lagoslakeid %in% log$llid)) %>%
   dplyr::filter(lake_centroidstate == target_state) %>%
-  # order by lake name
-  arrange(desc(lake_namegnis)) %>%
   # add fields
   mutate(rowid = seq_len(nrow(.)),
          max_depth_ft = NA, mean_depth_ft = NA,
@@ -25,10 +23,15 @@ ls <- dplyr::filter(ls_raw, !(lagoslakeid %in% log$llid)) %>%
                 lon = lake_lon_decdeg, name = lake_namegnis,
                 state = lake_centroidstate, max_depth_ft, mean_depth_ft,
                 lakename_google, max_depth_m, mean_depth_m,
-                url) %>%
-  # TODO distinct !is.na(name) but keep all blanks
-  distinct(lat, .keep_all = TRUE)
+                url)
 
+# distinct !is.na(name) but keep all blanks
+ls_noname    <- dplyr::filter(ls, nchar(name) <= 1)
+ls_name <- dplyr::filter(ls, nchar(name) > 1) %>%
+  distinct(name, .keep_all = TRUE) %>%
+  arrange(name)
+
+ls <- rbind(ls_name, ls_noname)
 
 # export to csv
 write.csv(ls, paste0("data/99_depth_collection_extra/", file_name),
