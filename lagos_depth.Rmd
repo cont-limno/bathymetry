@@ -141,14 +141,14 @@ dt_plot %>%
   ggtitle("Proportion max depth availability by \n lake area class (LAGOSNE and Manual)")
 ```
 
-```{r hypsography, eval=TRUE, fig.height = 4}
+```{r hypsography, eval=TRUE, fig.height = 3.2}
 ids <- factor(c("convex", "concave"))
 polys <- data.frame(
   id = rep(ids, each = 3),
-  x = c(0, 75, 0, 
-        25, 100, 100), 
-  y = c(75, 0, 0, 
-        100, 100, 25))
+  x = c(0, 100, 0, 
+        0, 100, 100), 
+  y = c(100, 0, 0, 
+        100, 100, 0))
 
 gg_hypso_ct <- ggplot(data = hypso_ct) +
   geom_polygon(data = polys, aes(x = x, y = y, group = id, fill = id), alpha = 0.2) +
@@ -157,8 +157,9 @@ gg_hypso_ct <- ggplot(data = hypso_ct) +
   ylim(c(100, 0)) +
   ylab("Depth (percent)") + xlab("Area (percent)") + 
   ggtitle(paste0("CT", " (", length(unique(hypso_ct$llid)), ") lakes")) + 
-  theme(legend.position = "bottom")
-
+  theme(legend.position = c(0.84, 0.2), 
+        legend.title = element_blank())
+  
 gg_hypso_mn <- ggplot(data = hypso_mn) +
   geom_polygon(data = polys, aes(x = x, y = y, group = id, fill = id), alpha = 0.2) +
   geom_line(aes(x = area_percent, y = depth_percent, group = llid)) +
@@ -167,16 +168,67 @@ gg_hypso_mn <- ggplot(data = hypso_mn) +
   ylab("Depth (percent)") + xlab("Area (percent)") +
   ggtitle(paste0("MN", " (", length(unique(hypso_mn$llid)), ") lakes")) +
   theme(axis.title.y = element_blank(), 
-        legend.position = "none")
+        legend.position = "none") 
 
 plot_grid(gg_hypso_ct, gg_hypso_mn, 
 rel_widths = c(1, 0.7))
 
-gg_hypso_ct + theme(plot.title = element_blank())
+gg_hypso_ct <- gg_hypso_ct + theme(plot.title = element_blank())
+# for poster
+ggdraw(gg_hypso_ct, ylim = c(0, 1), clip = "off") + 
+  draw_label("200 MN and CT lakes with bathymetry [1,4]", 
+             y = 0.06, x = 0.22, size = 8) +
+  draw_label("33 percent concave, 66 percent convex", 
+             y = 0.01, x = 0.2, size = 8)
+```
+
+```{r classify, eval = TRUE}
+# round the x value and test if y is greater or less than a straight-line curve
+hypso_ct_classes <- hypso_ct %>%
+  group_by(WBNAME) %>%
+  summarize_all(median) %>%
+  mutate(area_percent_rounded = round(area_percent)) %>%
+  left_join(data.frame(y = rev(seq(0, 100, by = 1)), x = seq(0, 100, by = 1)), 
+            by = c("area_percent_rounded" = "x")) %>%
+  data.frame() %>%
+  mutate(shape_class = case_when(depth_percent < y ~ "convex", 
+                                 depth_percent > y ~ "concave", 
+                                 TRUE ~ "neither")) %>%
+  ungroup() %>%   dplyr::filter(!is.na(shape_class)) %>% 
+    dplyr::select(WBNAME, llid, shape_class)
+
+# table(hypso_ct_classes$shape_class)
+
+hypso_ct_w_class <- left_join(hypso_ct_classes, hypso_ct)
+
+ggplot(data = hypso_ct_w_class) +
+  geom_line(aes(x = area_percent, y = depth_percent, group = llid, 
+                color = shape_class)) +
+  geom_abline(intercept = -100, slope = 1) +
+  ylim(c(100, 0)) +
+  ylab("Depth (percent)") + xlab("Area (percent)") + 
+  ggtitle(paste0("CT", " (", length(unique(hypso_ct$llid)), ") lakes")) + 
+  theme(legend.position = "bottom") +
+  labs(fill = "")
+```
+
+```{r class-depths, eval = TRUE}
+
+distinct(hypso_ct_w_class, llid, .keep_all = TRUE) %>%
+  dplyr::filter(shape_class != "neither") %>%
+  group_by(shape_class) %>%
+  summarize(depth = list(tibble::enframe(
+    quantile(depth, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
+  unnest() %>%
+  tidyr::spread(name, value) %>%
+  ggplot() +
+geom_pointrange(aes(x = shape_class, y = `50%`, 
+                      ymin = `5%`, ymax = `95%`)) +
+  ylab("Depth (m)") + xlab("")
 
 ```
 
-```{r raster-to-profile-to-hypso, eval=TRUE, fig.height = 4}
+```{r raster-to-profile-to-hypso, eval=FALSE, fig.height = 4}
 # 3 panel figure of a single starting with rayshader, then depth profile, then hypsography
 
 # use plotly::ggplotly to select specific lakes
@@ -209,7 +261,7 @@ gg_convex_raster <- ggplot(data = as.data.frame(rsub2, xy = TRUE)) +
   theme_void()
 ```
 
-```{r gg_rayshader, eval=TRUE}
+```{r gg_rayshader, eval=FALSE}
 library(rayshader)
 library(elevatr)
 
@@ -257,7 +309,7 @@ prep_rayshader <- function(rsub, elev){
 }
 ```
 
-```{r gg-rayshader-concave, eval=TRUE}
+```{r gg-rayshader-concave, eval=FALSE}
 
 res_rsub1 <- prep_rayshader(rsub1, elev1)
 # plot(res_rsub1$r)
@@ -278,7 +330,7 @@ cowplot::plot_grid(
 )
 ```
 
-```{r gg-rayshader-convex, eval=TRUE}
+```{r gg-rayshader-convex, eval=FALSE}
 res_rsub2 <- prep_rayshader(rsub2, elev2)
 
 sphere_shade(res_rsub2$rmat, texture = tex) %>%
@@ -297,7 +349,7 @@ cowplot::plot_grid(
 )
 ```
 
-```{r get-hypso, eval=TRUE, fig.height = 4}
+```{r get-hypso, eval=FALSE, fig.height = 4}
 # "pickerel_lake" 7096 # convex
 # "long_pond" 99642 # concave
 rsub1 <- raster::raster("data/ct_bathy/7096.tif")
@@ -353,7 +405,7 @@ rel_widths = c(0.6, 1)
 )
 ```
 
-```{r get-hypso-normalized, eval=TRUE, fig.height = 4}
+```{r get-hypso-normalized, eval=FALSE, fig.height = 4}
 gg_radius_normal <- ggplot(data = hypso, 
                            aes(x = radius_percent, y = depth_percent)) +
     geom_point(aes(color = type)) + geom_line(aes(color = type)) +
@@ -372,7 +424,7 @@ rel_widths = c(0.6, 1)
 
 ```
 
-```{r workflow, eval=TRUE}
+```{r workflow, eval=FALSE}
 gg_radius_convex <- 
   ggplot(data = dplyr::filter(hypso, type == "convex"), 
          aes(x = radius_percent, y = depth)) +
@@ -396,7 +448,7 @@ cowplot::plot_grid(
 )
 ```
 
-```{r compare-slopes, eval=TRUE, fig.height = 4}
+```{r compare-slopes, eval=FALSE, fig.height = 4}
 dt <- dplyr::filter(lg$lakes_limno,
                     !is.na(maxdepth) & !is.na(meandepth)) %>%
   dplyr::select(lagoslakeid, nhd_lat, nhd_long, maxdepth, meandepth) %>%
@@ -426,13 +478,9 @@ plot(dt$buffer100m_slope_mean, dt$slope)
 abline(0, 1)
 ```
 
-```{r eval=TRUE, fig.height = 4}
+```{r eval=FALSE, fig.height = 4}
 plot(dt$half_slope, dt$slope)
 abline(0, 1)
-```
-
-```{r }
-
 ```
 
 ```{r ridgeline} 
