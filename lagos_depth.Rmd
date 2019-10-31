@@ -75,7 +75,7 @@ knitr::kable(round(t(quantile(dt$lake_waterarea_ha, c(0, 0.05, 0.5, 0.95, 1),
 
 ## Number of lakes with max/mean depth by state
 
-```{r num_lakes, eval = TRUE, echo=FALSE, message=FALSE}
+```{r num_lakes, eval=TRUE, echo=FALSE, message=FALSE}
 dt_plot <- dt %>%
   st_drop_geometry() %>%
   dplyr::filter(!is.na(max_depth_m)) %>%
@@ -141,7 +141,7 @@ dt_plot %>%
   ggtitle("Proportion max depth availability by \n lake area class (LAGOSNE and Manual)")
 ```
 
-```{r hypsography, eval=TRUE, fig.height = 3.2}
+```{r hypsography, eval=TRUE, fig.height = 2.8}
 ids <- factor(c("convex", "concave"))
 polys <- data.frame(
   id = rep(ids, each = 3),
@@ -156,7 +156,7 @@ gg_hypso_ct <- ggplot(data = hypso_ct) +
   geom_abline(intercept = -100, slope = 1, color = "red") +
   ylim(c(100, 0)) +
   ylab("Depth (percent)") + xlab("Area (percent)") + 
-  ggtitle(paste0("CT", " (", length(unique(hypso_ct$llid)), ") lakes")) + 
+  ggtitle(paste0("CT", " (n=", length(unique(hypso_ct$llid)), ") lakes [1]")) + 
   theme(legend.position = c(0.84, 0.2), 
         legend.title = element_blank())
   
@@ -166,12 +166,16 @@ gg_hypso_mn <- ggplot(data = hypso_mn) +
   geom_abline(intercept = -100, slope = 1, color = "red") +
   ylim(c(100, 0)) +
   ylab("Depth (percent)") + xlab("Area (percent)") +
-  ggtitle(paste0("MN", " (", length(unique(hypso_mn$llid)), ") lakes")) +
+  ggtitle(paste0("MN", " (n=", length(unique(hypso_mn$llid)), ") lakes [4]")) +
   theme(axis.title.y = element_blank(), 
-        legend.position = "none") 
+        axis.ticks.y = element_blank(), 
+        axis.text.y = element_blank(),
+        legend.position = c(0.72, 0.22), 
+        legend.margin = margin(0, 4, 1, 1),
+        legend.title = element_blank()) 
 
-plot_grid(gg_hypso_ct, gg_hypso_mn, 
-rel_widths = c(1, 0.7))
+plot_grid(gg_hypso_ct + theme(legend.position = "none"), gg_hypso_mn, 
+rel_widths = c(1, 0.88))
 
 gg_hypso_ct <- gg_hypso_ct + theme(plot.title = element_blank())
 # for poster
@@ -182,7 +186,7 @@ ggdraw(gg_hypso_ct, ylim = c(0, 1), clip = "off") +
              y = 0.01, x = 0.2, size = 8)
 ```
 
-```{r classify, eval = TRUE}
+```{r classify, eval=TRUE}
 # round the x value and test if y is greater or less than a straight-line curve
 hypso_ct_classes <- hypso_ct %>%
   group_by(WBNAME) %>%
@@ -212,7 +216,7 @@ ggplot(data = hypso_ct_w_class) +
   labs(fill = "")
 ```
 
-```{r class-depths, eval = TRUE}
+```{r class-depths, eval=TRUE}
 
 distinct(hypso_ct_w_class, llid, .keep_all = TRUE) %>%
   dplyr::filter(shape_class != "neither") %>%
@@ -226,6 +230,17 @@ geom_pointrange(aes(x = shape_class, y = `50%`,
                       ymin = `5%`, ymax = `95%`)) +
   ylab("Depth (m)") + xlab("")
 
+```
+
+```{r depth-histogram, eval=TRUE}
+# using Lauren's rounded (pretty) depth classes
+dt2 <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
+  dplyr::filter(!is.na(max_depth_m)) %>%
+  mutate(max_depth_m_class = smart_cut(max_depth_m, c(10, 30, 70, 200, Inf)))
+
+table(dt2$max_depth_m_class)
+round((table(dt2$max_depth_m_class) / nrow(dt2)) * 100, 2)
+dplyr::filter(dt2, max_depth_m > 200)
 ```
 
 ```{r raster-to-profile-to-hypso, eval=FALSE, fig.height = 4}
