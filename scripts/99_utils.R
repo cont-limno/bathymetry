@@ -52,6 +52,8 @@ greater_than_0 <- function(x){
 }
 row_redux <- function(df){df[[1]] - df[[2]]}
 
+# ---- convienience functions ----
+
 # jsta::key_state
 key_state <- function(x){
   key <- data.frame(state.abb = datasets::state.abb,
