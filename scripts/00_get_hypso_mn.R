@@ -63,5 +63,7 @@ if(interactive()){
   # TODO: plot the line of an ideal cone shape
 }
 
+hypso <- dplyr::select(hypso, llid, area_percent, depth_percent)
+
 write.csv(hypso, "data/mn_hypso.csv", row.names = FALSE)
 # hypso_mn <- read.csv("data/mn_hypso.csv", stringsAsFactors = FALSE)
