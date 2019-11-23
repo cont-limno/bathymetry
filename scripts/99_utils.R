@@ -98,3 +98,31 @@ get_csv   <- function(destfile, drive_name){
     read.csv(destfile, stringsAsFactors = FALSE)
   )
 }
+
+# convert collection of depth contours to depth raster
+poly_to_filled_raster <- function(dt, depth_attr, width = 17, proj){
+  dt <- st_transform(dt, proj) # use state plane for given state
+  dt <- dplyr::select(dt, depth_attr)
+
+  r             <- raster(xmn = st_bbox(dt)[1], ymn = st_bbox(dt)[2],
+                          xmx = st_bbox(dt)[3], ymx = st_bbox(dt)[4])
+  r[]           <- NA
+  r             <- rasterize(as_Spatial(dt), r, field = depth_attr)
+  projection(r) <- as.character(st_crs(dt))[2]
+
+  r2 <- focal(r, w = matrix(1, width, width), fun = fill.na,
+              pad = TRUE, na.rm = FALSE)
+  # clip to r2
+  r2 <- mask(r2, dt)
+  r2
+}
+
+# https://stackoverflow.com/a/45658609/3362993
+fill.na <- function(x) {
+  center = 0.5 + (width*width/2)
+  if( is.na(x)[center] ) {
+    return( round(mean(x, na.rm=TRUE),0) )
+  } else {
+    return( round(x[center],0) )
+  }
+}
