@@ -115,11 +115,14 @@ rsubs <- lapply(unique(ps$lagoslakeid), function(x){
 names(rsubs) <- unique(ps$lagoslakeid)
 
 if(!interactive()){
-for (i in 1:length(rsubs)) {
-  writeRaster(rsubs[[i]],
-              paste0("data/ct_bathy/", snakecase::to_snake_case(names(rsubs[i]))),
-              format='GTiff')
-}
+  for(i in 1:length(rsubs)){
+    x <- names(rsubs[i])
+    fname <- paste0("data/ct_bathy/",
+                    snakecase::to_snake_case(x))
+    if(!file.exists(paste0(fname, ".tif"))){
+      writeRaster(rsubs[[i]], fname, format='GTiff')
+    }
+  }
 }
 
 hypso <- lapply(seq_len(length(rsubs)), function(x){
@@ -146,6 +149,14 @@ if(interactive()){
     ylim(100, 0)
   # TODO: plot the line of an ideal cone shape
 }
+
+hypso <- hypso %>%
+select(-n) %>% group_by(llid, WBNAME) %>%
+  add_tally() %>% ungroup() %>%
+  dplyr::filter(n > 3) %>%
+  filter(!str_detect(WBNAME, "Cove"))
+
+hypso <- dplyr::select(hypso, llid, area_percent, depth_percent)
 
 write.csv(hypso, "data/ct_hypso.csv", row.names = FALSE)
 # hypso1 <- read.csv("data/ct_hypso.csv", stringsAsFactors = FALSE)
