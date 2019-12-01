@@ -18,3 +18,5 @@ hypso_classes <- dt %>%
   dplyr::select(llid, shape_class)
 
 # save csv with llid, bowl_shaped_dummy_variable
+write.csv(hypso_classes, "data/00_hypso/hypso_classes.csv", row.names = FALSE)
+

@@ -10,3 +10,7 @@ data/00_nla/*.csv
 data/00_lagosne/*.csv
 figures/*.png
 figures/*.pdf
+EXTRACTIONS/
+RAW
+4. Nov 21 2019 Agenda and Minutes.pdf
+data/*.zip
