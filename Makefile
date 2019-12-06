@@ -1,15 +1,18 @@
-
-all: data
+all: datasets
 
 figures:
 	cd figures && make pnglatest
 
-data:	data/lagosus_depth.csv \
-data/00_hypso/hypso.csv
+datasets: data/lagosus_depth.csv \
+data/00_hypso/hypso.csv \
+data/00_hypso/hypso_classes.csv
 
 data/00_hypso/hypso.csv: scripts/01_hypso_merge.R \
 data/mn_hypso.csv \
 data/ct_hypso.csv
+
+data/00_hypso/hypso_classes.csv: scripts/03_hypso_classifier.R \
+data/00_hypso/hypso.csv
 
 data/mn_hypso.csv: scripts/00_get_hypso_mn.R \
 data/lagosus_depth.csv
