@@ -1,5 +1,7 @@
 source("scripts/99_utils.R")
 
+# MI data come in
+
 if(!file.exists("data/mi_bathy/contours.geojson")){
 # https://gisago.mcgi.state.mi.us/arcgis/rest/services/OpenData/hydro/MapServer/4
 download.file("https://opendata.arcgis.com/datasets/d49160d2e5af4123b15d48c2e9c70160_4.geojson",
@@ -13,49 +15,69 @@ mi      <- st_transform(mi, st_crs(lg_poly))
 mi      <- st_join(mi, lg_poly) %>%
   dplyr::filter(!is.na(lagoslakeid))
 
-# rsubs <- lapply(unique(mi$lagoslakeid), function(x){
-  message(x)
-  x <- unique(mi$lagoslakeid)[1]
-  dt <- dplyr::filter(mi, lagoslakeid == x)
-  test <- poly_to_filled_raster(dt, proj = 3079, depth_attr = "DEPTH")
-# })
-# names(rsubs) <- unique(mi$lagoslakeid)
+lg_mi <- dplyr::filter(lg_poly, lagoslakeid %in% mi$lagoslakeid)
 
+pb <- progress_bar$new(
+  format = "llid :llid [:bar] :percent",
+  total = length(unique(mi$lagoslakeid)[1:10]),
+  clear = FALSE, width = 80)
 
-# mi %>%
-# group_by(lagoslakeid) %>%
-# tally()
+rsubs <- lapply(seq_along(unique(mi$lagoslakeid)[1:10]),
+                function(i){
+  pb$tick(tokens = list(llid = unique(mi$lagoslakeid)[i]))
+  dt <- dplyr::filter(mi, lagoslakeid == unique(mi$lagoslakeid)[i])
+  dt <- suppressWarnings(st_cast(dt, "POINT"))
 
-mi_large <- mi %>%
-  mutate(area = st_area(.)) %>%
-  group_by(lagoslakeid) %>%
-  slice(which.max(area)) %>%
-  ungroup()
+  res <- poly_to_filled_raster(dt, "DEPTH", 27, proj = 32616)
 
-mi_large_filled       <- lapply(seq_len(nrow(mi_large)), function(x)
-  concaveman::concaveman(st_cast(mi_large[x,], "POINT"))
-)
+  list(r = res$r, width = res$wh)
+  })
+whs          <- unlist(lapply(rsubs, function(x) x$width))
+rsubs        <- lapply(rsubs, function(x) x$r)
+names(rsubs) <- unique(mi$lagoslakeid)[1:10]
 
-mi_large_filled       <- do.call(rbind, mi_large_filled)
+# TODO get hypsography csv
+get_hypso <- function(rsub){
+  # rsub <- rsubs[[1]]
+  maxdepth <-  abs(cellStats(rsub, "max"))
 
-st_geometry(mi_large) <- mi_large_filled$polygons
-mi_large              <- mutate(mi_large,
-                                legacy_id = 1:nrow(mi_large))
-mi_large <- mi_large[st_is_valid(mi_large),]
+  # define depth intervals by raster resolution
+  # min_res   <- res(rsub)[1]
+  min_res   <- 0.5
+  depth_int <- seq(0, round(maxdepth/min_res) * min_res, by = min_res)
 
-# for each mi_large find intersecting mi
+  # calculate area of raster between depth intervals
+  # reclassify raster based on depth intervals
+  # calculate area of each class
+  rc <- cut(rsub, breaks = depth_int) %>%
+    as.data.frame() %>% tidyr::drop_na(layer) %>%
+    group_by(layer) %>% tally() %>% cumsum() %>%
+    mutate(area_m2 = n * 5 * 5) %>%
 
-# TODO: maybe polylines need to be joined in some fashion?
-# try mapviewing in a buffer
-i <- 1
-buf <- st_as_sfc(st_bbox(
-  st_buffer(mi_large[i,], 100)
-  ))
-test <- jsta::get_intersects(mi, buf)
+    mutate(depth_int = rev(# add interval midpoints
+      as.numeric(na.omit((depth_int + lag(depth_int))/2))
+      )) %>%
+    mutate(area_percent = scales::rescale(area_m2, to = c(0, 100))) %>%
+    mutate(depth_percent = scales::rescale(depth_int, to = c(0, 100)))
 
-# assign corresponding llid
-test <- lapply(seq_len(2), function(i){
-  # i <- 1
-  jsta::get_intersects(mi, mi_large[i,])
-})
-lapply(test, nrow)
+  rc
+}
+
+hypso <- lapply(seq_len(length(rsubs)),
+                function(x){
+                  # print(x)
+                  dplyr::mutate(get_hypso(rsubs[[x]]),
+                                llid = dt$llid[x])
+                })
+hypso <- dplyr::bind_rows(hypso)
+
+if(interactive()){
+  ggplot(data = hypso_mn) +
+    geom_line(aes(x = area_percent, y = depth_percent, group = llid))
+  # TODO: plot the line of an ideal cone shape
+}
+
+hypso <- dplyr::select(hypso, llid, area_percent, depth_percent)
+
+write.csv(hypso, "data/mn_hypso.csv", row.names = FALSE)
+# hypso_mn <- read.csv("data/mn_hypso.csv", stringsAsFactors = FALSE)

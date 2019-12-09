@@ -18,6 +18,7 @@ library(LAGOSNEgis)
 suppressMessages(library(scales))
 library(elevatr)
 suppressMessages(library(dplyr))
+library(progress)
 
 # ---- misc fxn ----
 # jsta::get_if_not_exists
@@ -99,10 +100,11 @@ get_csv   <- function(destfile, drive_name){
   )
 }
 
-# convert collection of depth contours to depth raster
-poly_to_filled_raster <- function(dt, depth_attr, width = 17, proj){
-  dt <- st_transform(dt, proj) # use state plane for given state
-  dt <- dplyr::select(dt, depth_attr)
+# convert collection of depth contours/points to a depth raster
+poly_to_filled_raster <- function(dt_raw, depth_attr, wh, proj){
+  # use state plane for given state
+  dt         <- st_transform(dt_raw, proj)
+  dt         <- dplyr::select(dt, depth_attr)
 
   r             <- raster(xmn = st_bbox(dt)[1], ymn = st_bbox(dt)[2],
                           xmx = st_bbox(dt)[3], ymx = st_bbox(dt)[4])
@@ -110,19 +112,44 @@ poly_to_filled_raster <- function(dt, depth_attr, width = 17, proj){
   r             <- rasterize(as_Spatial(dt), r, field = depth_attr)
   projection(r) <- as.character(st_crs(dt))[2]
 
-  r2 <- focal(r, w = matrix(1, width, width), fun = fill.na,
-              pad = TRUE, na.rm = FALSE)
-  # clip to r2
-  r2 <- mask(r2, dt)
-  r2
+  r2 <- r
+  r2[which.max(r2[])] <- NaN
+
+  while(
+    any(is.nan(extract(r2, concaveman::concaveman(dt))[[1]]))
+  ){
+    # print(wh)
+    w_mat <- matrix(1, wh, wh)
+    r2 <- tryCatch(raster::focal(r, w = w_mat,
+                        fun = function(x){fill.na(x, width = wh)},
+                        pad = TRUE, na.rm = FALSE),
+                   error = function(e) r2)
+    wh <- wh + 4
+  }
+  # plot(r2)
+
+  r3 <- mask(r2, concaveman::concaveman(dt))
+  # plot(r3)
+  list(r = r3, wh = wh)
 }
 
 # https://stackoverflow.com/a/45658609/3362993
-fill.na <- function(x) {
-  center = 0.5 + (width*width/2)
+fill.na <- function(x, width) {
+  center = 0.5 + (width * width / 2)
   if( is.na(x)[center] ) {
     return( round(mean(x, na.rm=TRUE),0) )
   } else {
     return( round(x[center],0) )
   }
 }
+
+# library(maptools)
+# library(spatstat)
+# test4 <- as(as_Spatial(dt), "ppp")
+# width <- ceiling(res(r)[2] / mean(spatstat::nndist(test4, k=1))) * 5
+# if(width %% 2 == 0){width <- width + 1}
+
+# ratio of bounding circle area to poly area
+# area_ratio <- st_area(
+#   lwgeom::st_minimum_bounding_circle(concaveman::concaveman(dt))) /
+#   st_area(concaveman::concaveman(dt))

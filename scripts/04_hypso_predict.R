@@ -79,4 +79,7 @@ prediction$confusion
 measure <- msr("classif.acc")
 prediction$score(measure)
 
-prediction$score()
+resampling = rsmp("cv", folds = 3L)
+rr = resample(class_task, learner, resampling)
+
+rr$aggregate(measure)
