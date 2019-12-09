@@ -19,22 +19,32 @@ lg_mi <- dplyr::filter(lg_poly, lagoslakeid %in% mi$lagoslakeid)
 
 pb <- progress_bar$new(
   format = "llid :llid [:bar] :percent",
-  total = length(unique(mi$lagoslakeid)[1:10]),
+  total = length(unique(mi$lagoslakeid)),
   clear = FALSE, width = 80)
 
-rsubs <- lapply(seq_along(unique(mi$lagoslakeid)[1:10]),
+rsubs <- lapply(seq_along(unique(mi$lagoslakeid)),
                 function(i){
   pb$tick(tokens = list(llid = unique(mi$lagoslakeid)[i]))
-  dt <- dplyr::filter(mi, lagoslakeid == unique(mi$lagoslakeid)[i])
-  dt <- suppressWarnings(st_cast(dt, "POINT"))
 
-  res <- poly_to_filled_raster(dt, "DEPTH", 27, proj = 32616)
+  fname <- paste0("data/mi_bathy/", unique(mi$lagoslakeid)[i], ".tif")
+  if(!file.exists(fname)){
+    dt <- dplyr::filter(mi, lagoslakeid == unique(mi$lagoslakeid)[i])
+    dt <- suppressWarnings(st_cast(dt, "POINT"))
+
+    res <- poly_to_filled_raster(dt, "DEPTH", 27, proj = 32616)
+    writeRaster(res$r, fname)
+  }else{
+    res    <- list()
+    res    <- raster(fname)
+    res$wh <- NA
+  }
 
   list(r = res$r, width = res$wh)
   })
 whs          <- unlist(lapply(rsubs, function(x) x$width))
 rsubs        <- lapply(rsubs, function(x) x$r)
 names(rsubs) <- unique(mi$lagoslakeid)[1:10]
+
 
 # TODO get hypsography csv
 get_hypso <- function(rsub){
