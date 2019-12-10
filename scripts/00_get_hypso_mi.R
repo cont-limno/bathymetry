@@ -26,6 +26,7 @@ rsubs <- lapply(seq_along(unique(mi$lagoslakeid)),
                 function(i){
   pb$tick(tokens = list(llid = unique(mi$lagoslakeid)[i]))
 
+                  # i <- 1
   fname <- paste0("data/mi_bathy/", unique(mi$lagoslakeid)[i], ".tif")
   if(!file.exists(fname)){
     dt <- dplyr::filter(mi, lagoslakeid == unique(mi$lagoslakeid)[i])
@@ -35,59 +36,71 @@ rsubs <- lapply(seq_along(unique(mi$lagoslakeid)),
     writeRaster(res$r, fname)
   }else{
     res    <- list()
-    res    <- raster(fname)
+    res$r  <- raster(fname)
     res$wh <- NA
   }
 
   list(r = res$r, width = res$wh)
   })
-whs          <- unlist(lapply(rsubs, function(x) x$width))
-rsubs        <- lapply(rsubs, function(x) x$r)
-names(rsubs) <- unique(mi$lagoslakeid)[1:10]
+# whs          <- unlist(lapply(rsubs, function(x) x$width))
+fnames <- list.files("data/mi_bathy/", pattern = "tif",
+                     include.dirs = TRUE, full.names = TRUE)
+rsubs <- lapply(fnames,
+                function(x) raster(x))
+names(rsubs) <- gsub(".tif", "", basename(fnames))
 
-
-# TODO get hypsography csv
+# get hypsography csv
 get_hypso <- function(rsub){
   # rsub <- rsubs[[1]]
+  # rsub <- rsubs[which(names(rsubs) == 128712)]
   maxdepth <-  abs(cellStats(rsub, "max"))
 
   # define depth intervals by raster resolution
   # min_res   <- res(rsub)[1]
   min_res   <- 0.5
-  depth_int <- seq(0, round(maxdepth/min_res) * min_res, by = min_res)
+  depth_int <- rev(seq(0, round(maxdepth/min_res) * min_res, by = min_res))
 
   # calculate area of raster between depth intervals
   # reclassify raster based on depth intervals
   # calculate area of each class
-  rc <- cut(rsub, breaks = depth_int) %>%
-    as.data.frame() %>% tidyr::drop_na(layer) %>%
-    group_by(layer) %>% tally() %>% cumsum() %>%
-    mutate(area_m2 = n * 5 * 5) %>%
+  rc <- raster::cut(rsub, breaks = depth_int) %>%
+    as.data.frame()
+  # drop depth_int entries for missing layers
+  depth_int <- depth_int[1:length(depth_int) %in% unique(rc$layer)]
+  depth_mid <- # add interval midpoints
+    c(as.numeric(na.omit((depth_int + lag(depth_int))/2)), 0)
+  # length(depth_int) == length(unique(tidyr::drop_na(rc, layer)$layer))
 
-    mutate(depth_int = rev(# add interval midpoints
-      as.numeric(na.omit((depth_int + lag(depth_int))/2))
-      )) %>%
+  rc <- rc %>% tidyr::drop_na(layer) %>%
+    group_by(layer) %>% tally()  %>% cumsum() %>%
+    mutate(area_m2 = n * res(rsub)[1] * res(rsub)[2]) %>%
+    mutate(depth_int = depth_mid) %>%
     mutate(area_percent = scales::rescale(area_m2, to = c(0, 100))) %>%
     mutate(depth_percent = scales::rescale(depth_int, to = c(0, 100)))
 
   rc
 }
 
-hypso <- lapply(seq_len(length(rsubs)),
-                function(x){
-                  # print(x)
-                  dplyr::mutate(get_hypso(rsubs[[x]]),
-                                llid = dt$llid[x])
-                })
+pb <- progress_bar$new(
+  format = "llid :llid [:bar] :percent",
+  total = length(rsubs),
+  clear = FALSE, width = 80)
+
+hypso <- lapply(seq_len(length(rsubs)), function(x){
+  pb$tick(tokens = list(llid = names(rsubs)[x]))
+  # which(lg_mi$lagoslakeid == 3791)
+  # which(names(rsubs) == 3791)
+  dplyr::mutate(get_hypso(rsubs[[x]]), llid = names(rsubs)[x])
+  })
 hypso <- dplyr::bind_rows(hypso)
 
 if(interactive()){
-  ggplot(data = hypso_mn) +
+  ggplot(data = hypso) +
     geom_line(aes(x = area_percent, y = depth_percent, group = llid))
   # TODO: plot the line of an ideal cone shape
 }
 
 hypso <- dplyr::select(hypso, llid, area_percent, depth_percent)
 
-write.csv(hypso, "data/mn_hypso.csv", row.names = FALSE)
-# hypso_mn <- read.csv("data/mn_hypso.csv", stringsAsFactors = FALSE)
+write.csv(hypso, "data/mi_hypso.csv", row.names = FALSE)
+# hypso_mi <- read.csv("data/mi_hypso.csv", stringsAsFactors = FALSE)
