@@ -1,6 +1,7 @@
 source("scripts/99_utils.R")
 
 fname <- "data/00_hypso/hypso_predictors.csv"
+# unlink("data/00_hypso/hypso_predictors.csv")
 if(!file.exists(fname)){
   hypso_classes <- read.csv("data/00_hypso/hypso_classes.csv",
                             stringsAsFactors = FALSE)
@@ -10,7 +11,7 @@ if(!file.exists(fname)){
     "data/00_lagosus_locus/LAGOS_Lake_Link_v2_20191017.csv",
     stringsAsFactors = FALSE)
   lg_x_walk <- lg_x_walk_raw %>%
-    dplyr::select(lagosne_lagoslakeid, lagoslakeid) %>%
+    dplyr::select(lagosne_lagoslakeid, lagoslakeid, lagosus_centroidstate) %>%
     dplyr::rename(lagosus_lagoslakeid = lagoslakeid) %>%
     distinct(lagosne_lagoslakeid, .keep_all = TRUE)
 
@@ -44,7 +45,7 @@ if(!file.exists(fname)){
     left_join(lg_geom, by = c("lagosus_lagoslakeid" = "lagoslakeid")) %>%
     left_join(lg_nws, by = c("lagosus_lagoslakeid" = "lagoslakeid")) %>%
     left_join(lg_ws, by = c("lagosus_lagoslakeid" = "lagoslakeid")) %>%
-    dplyr::select(-matches("shapeflag"), -matches("zoneid"), -matches("state"),
+    dplyr::select(-matches("shapeflag"), -matches("zoneid"),
                   -matches("oncoast"), -matches("onlandborder"),
                   -matches("inusa"), -matches("hu4inlet"))
 
@@ -52,8 +53,13 @@ if(!file.exists(fname)){
 }else{
   res <- read.csv(fname, stringsAsFactors = FALSE)
 }
-
 res$shape_class <- factor(res$shape_class)
+
+ggplot(data = dplyr::filter(res, lagosus_centroidstate == "CT")) +
+  geom_boxplot(aes(x = shape_class, y = lake_area_ha), outlier.shape = NA) +
+  ylim(c(0, 300))
+
+
 # logistic model yes/no bowl-shaped lake
 test <- glm(shape_class ~ lake_area_ha, data = res, family = "binomial")
 

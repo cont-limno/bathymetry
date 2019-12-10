@@ -9,16 +9,23 @@ data/00_hypso/hypso_classes.csv
 
 data/00_hypso/hypso.csv: scripts/01_hypso_merge.R \
 data/mn_hypso.csv \
-data/ct_hypso.csv
+data/ct_hypso.csv \
+data/mi_hypso.csv
+	Rscript $<
 
 data/00_hypso/hypso_classes.csv: scripts/03_hypso_classifier.R \
 data/00_hypso/hypso.csv
+	Rscript $<
 
 data/mn_hypso.csv: scripts/00_get_hypso_mn.R \
 data/lagosus_depth.csv
 	Rscript $<
 
 data/ct_hypso.csv: scripts/00_get_hypso_ct.R \
+data/lagosus_depth.csv
+	Rscript $<
+
+data/mi_hypso.csv: scripts/00_get_hypso_mi.R \
 data/lagosus_depth.csv
 	Rscript $<
 

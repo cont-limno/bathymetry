@@ -49,6 +49,10 @@ rsubs <- lapply(fnames,
                 function(x) raster(x))
 names(rsubs) <- gsub(".tif", "", basename(fnames))
 
+# remove rsubs with no data
+rsubs_good <- unlist(lapply(rsubs, function(x) cellStats(x, max) != 0))
+rsubs <- rsubs[rsubs_good]
+
 # get hypsography csv
 get_hypso <- function(rsub){
   # rsub <- rsubs[[1]]
@@ -96,7 +100,8 @@ hypso <- dplyr::bind_rows(hypso)
 
 if(interactive()){
   ggplot(data = hypso) +
-    geom_line(aes(x = area_percent, y = depth_percent, group = llid))
+    geom_line(aes(x = area_percent, y = depth_percent, group = llid)) +
+    geom_abline(slope = -1, intercept = 100, color = "red")
   # TODO: plot the line of an ideal cone shape
 }
 
