@@ -17,11 +17,27 @@ dt        <- dt[!is.na(raster::extract(r, llid_pnts)),]
 dt        <- arrange(dt, desc(max_depth_m))
 llid_poly <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", dt$llid) %>%
   st_transform(st_crs(r))
+
+pb <- progress_bar$new(
+  format = "llid :llid [:bar] :percent",
+  total = nrow(llid_poly),
+  clear = FALSE, width = 80)
+
 rsubs     <- lapply(st_geometry(llid_poly), function(x){
-  raster::crop(r,
+  pb$tick(tokens = list(llid = llid_poly[x,]$lagoslakeid))
+
+  fname <- paste0("data/mn_bathy/", llid_poly[x,]$lagoslakeid, ".tif")
+  # TODO if file !exists write to raster
+  if(!file.exists(fname)){
+    res <- raster::crop(r,
        raster::extent(
-         st_buffer(st_sf(st_as_sfc(st_bbox(x))), 100))) / 3.281 # ft to m
+         st_buffer(st_sf(st_as_sfc(st_bbox(x))), 100))) / 3.281  # ft to m
+    writeRaster(res, fname)
+  }
 })
+flist <- list.files("data/mn_bathy/", patter = "\\d.tif",
+                    full.names = TRUE, include.dirs = TRUE)
+rsubs <- lapply(flist, raster)
 names(rsubs) <- llid_poly$lagoslakeid
 
 # ---- function_definitions ----
