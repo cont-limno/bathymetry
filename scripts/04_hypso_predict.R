@@ -55,37 +55,39 @@ if(!file.exists(fname)){
 }
 res$shape_class <- factor(res$shape_class)
 
-ggplot(data = dplyr::filter(res, lagosus_centroidstate == "CT")) +
-  geom_boxplot(aes(x = shape_class, y = lake_area_ha), outlier.shape = NA) +
-  ylim(c(0, 300))
+if(interactive()){
+  ggplot(data = dplyr::filter(res, lagosus_centroidstate == "CT")) +
+    geom_boxplot(aes(x = shape_class, y = lake_area_ha), outlier.shape = NA) +
+    ylim(c(0, 300))
 
 
-# logistic model yes/no bowl-shaped lake
-test <- glm(shape_class ~ lake_area_ha, data = res, family = "binomial")
+  # logistic model yes/no bowl-shaped lake
+  test <- glm(shape_class ~ lake_area_ha, data = res, family = "binomial")
 
-library(mlr3)
+  library(mlr3)
 
-class_task <- TaskClassif$new(
-  backend = dplyr::select(res, lake_area_ha, shape_class,
-                          ws_mbgconhull_length_m, ws_area_ha,
-                          buffer100m_slope_max,
-                          -llid),
-  target = "shape_class", id = "shape")
-learner    <- lrn("classif.rpart")
-train_set  <- sample(class_task$nrow, 0.9 * class_task$nrow)
-test_set   <- setdiff(seq_len(class_task$nrow), train_set)
+  class_task <- TaskClassif$new(
+    backend = dplyr::select(
+      dplyr::filter(res, lagosus_centroidstate == "MI"),
+      lake_area_ha, shape_class, ws_mbgconhull_length_m, ws_area_ha,
+      buffer100m_slope_max, -llid),
+    target = "shape_class", id = "shape")
+  learner    <- lrn("classif.rpart")
+  train_set  <- sample(class_task$nrow, 0.9 * class_task$nrow)
+  test_set   <- setdiff(seq_len(class_task$nrow), train_set)
 
-learner$train(class_task, row_ids = train_set)
+  learner$train(class_task, row_ids = train_set)
 
-learner$importance()
+  learner$importance()
 
-prediction <- learner$predict(class_task, row_ids = test_set)
-prediction$confusion
+  prediction <- learner$predict(class_task, row_ids = test_set)
+  prediction$confusion
 
-measure <- msr("classif.acc")
-prediction$score(measure)
+  measure <- msr("classif.acc")
+  prediction$score(measure)
 
-resampling = rsmp("cv", folds = 3L)
-rr = resample(class_task, learner, resampling)
+  resampling = rsmp("cv", folds = 3L)
+  rr = resample(class_task, learner, resampling)
 
-rr$aggregate(measure)
+  rr$aggregate(measure)
+}
