@@ -2,19 +2,39 @@ source("scripts/99_utils.R")
 
 r  <- raster("data/mn_bathy/lake_bathymetric_elevation_model.tif")
 
-dt <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
-  dplyr::filter(effort == "LAGOSNE") %>%
-  dplyr::filter(lake_waterarea_ha >= 4 & lake_waterarea_ha <= 400) %>%
-  dplyr::filter(state == "MN") %>%
-  dplyr::filter(mean_depth_m != max_depth_m) %>%
-  dplyr::filter(mean_depth_m > 1) %>%
-  dplyr::filter(max_depth_m >= 5)
+lg_x_walk <- read.csv(
+  "data/00_lagosus_locus/LAGOS_Lake_Link_v2_20191017.csv",
+  stringsAsFactors = FALSE) %>%
+  dplyr::select(lagosne_lagoslakeid, lagoslakeid, lagosus_centroidstate) %>%
+  dplyr::rename(lagosus_lagoslakeid = lagoslakeid) %>%
+  distinct(lagosne_lagoslakeid, .keep_all = TRUE)
 
-llid_pnts <- query_gis("LAGOS_NE_All_Lakes_4ha_POINTS", "lagoslakeid", dt$llid)
+dt <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
+  # dplyr::filter(effort == "LAGOSNE") %>%
+  # dplyr::filter(lake_waterarea_ha >= 4 & lake_waterarea_ha <= 400) %>%
+  dplyr::filter(state == "MN") %>%
+  dplyr::filter(!is.na(max_depth_m)) %>%
+  dplyr::filter(mean_depth_m != max_depth_m | is.na(mean_depth_m)) %>%
+  dplyr::filter(mean_depth_m > 1 | is.na(mean_depth_m)) %>%
+  # dplyr::filter(max_depth_m < 20) %>%
+  dplyr::filter(max_depth_m >= 2) %>%
+  dplyr::filter(!duplicated(llid)) %>%
+  left_join(lg_x_walk, by = c("llid" = "lagosus_lagoslakeid")) %>%
+  dplyr::filter(!duplicated(lagosne_lagoslakeid))
+
+# send lagosne ids to query_gis instead of lagosus ids
+llid_pnts <- query_gis("LAGOS_NE_All_Lakes_4ha_POINTS", "lagoslakeid",
+                       dt$lagosne_lagoslakeid)
 llid_pnts <- st_transform(llid_pnts, st_crs(r))
+llid_pnts <- llid_pnts[!sf::st_is_empty(llid_pnts),]
+
+dt <- dplyr::filter(dt,
+                    lagosne_lagoslakeid %in% unique(llid_pnts$lagoslakeid))
 # limit to those intersecting topobathy values
 dt        <- dt[!is.na(raster::extract(r, llid_pnts)),]
 dt        <- arrange(dt, desc(max_depth_m))
+llid_pnts <- dplyr::filter(llid_pnts, lagoslakeid %in% dt$lagosne_lagoslakeid)
+
 llid_poly <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", dt$llid) %>%
   st_transform(st_crs(r))
 
@@ -23,7 +43,9 @@ pb <- progress_bar$new(
   total = nrow(llid_poly),
   clear = FALSE, width = 80)
 
-rsubs     <- lapply(st_geometry(llid_poly), function(x){
+rsubs     <- lapply(seq_len(nrow(llid_poly)), function(x){
+  # x <- 1
+  # x <- which(2109 == llid_poly$lagoslakeid)
   pb$tick(tokens = list(llid = llid_poly[x,]$lagoslakeid))
 
   fname <- paste0("data/mn_bathy/", llid_poly[x,]$lagoslakeid, ".tif")
@@ -31,7 +53,9 @@ rsubs     <- lapply(st_geometry(llid_poly), function(x){
   if(!file.exists(fname)){
     res <- raster::crop(r,
        raster::extent(
-         st_buffer(st_sf(st_as_sfc(st_bbox(x))), 100))) / 3.281  # ft to m
+         st_buffer(st_sf(st_as_sfc(st_bbox(
+           st_geometry(llid_poly)[x]))), 100)
+         )) / 3.281  # ft to m
     writeRaster(res, fname)
   }
 })
