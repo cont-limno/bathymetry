@@ -4,7 +4,7 @@ source("scripts/99_utils.R")
 dt_raw <- read.csv("data/00_hypso/hypso.csv", stringsAsFactors = FALSE)
 
 # round the x value and test if y is greater or less than a straight-line curve
-hypso_classes <- dt %>%
+hypso_classes <- dt_raw %>%
   dplyr::select(-state) %>%
   group_by(llid) %>%
   summarize_all(median) %>%
@@ -23,17 +23,10 @@ hypso_classes <- dt %>%
 if(interactive()){
   distinct(hypso_classes, llid, offset, .keep_all = TRUE) %>%
   dplyr::filter(state == "MI") %>%
-    arrange(offset) %>%
-    head()
-  plot(raster("data/mi_bathy/1558.tif"))
-  # convex
-
-  distinct(hypso_classes, llid, offset, .keep_all = TRUE) %>%
-    dplyr::filter(state == "MI") %>%
     arrange(desc(offset)) %>%
     head()
-  mapview::mapview(raster("data/mi_bathy/4225.tif"))
-  # concave
+  plot(raster("data/mi_bathy/807.tif")) # convex
+  plot(raster("data/mi_bathy/1338.tif")) # concave
 }
 
 res <- hypso_classes %>%
@@ -41,4 +34,3 @@ res <- hypso_classes %>%
 
 # save csv with llid, bowl_shaped_dummy_variable
 write.csv(res, "data/00_hypso/hypso_classes.csv", row.names = FALSE)
-

@@ -33,7 +33,9 @@ rsubs <- lapply(seq_along(unique(mi$lagoslakeid)),
     dt <- suppressWarnings(st_cast(dt, "POINT"))
 
     res <- poly_to_filled_raster(dt, "DEPTH", 27, proj = 32616)
-    writeRaster(res$r, fname)
+    if(cellStats(res$r, max) != 0){
+      writeRaster(res$r, fname)
+    }
   }else{
     res    <- list()
     res$r  <- raster(fname)
@@ -48,21 +50,24 @@ fnames <- list.files("data/mi_bathy/", pattern = "tif",
 rsubs <- lapply(fnames,
                 function(x) raster(x))
 names(rsubs) <- gsub(".tif", "", basename(fnames))
+rsubs <- rsubs[sapply(rsubs, maxValue) > 0.2]
 
 # remove rsubs with no data
-rsubs_good <- unlist(lapply(rsubs, function(x) cellStats(x, max) != 0))
-rsubs <- rsubs[rsubs_good]
+# rsubs_good <- unlist(lapply(rsubs, function(x) cellStats(x, max) != 0))
+# names(rsubs)[which(!rsubs_good)]
+# rsubs <- rsubs[rsubs_good]
 
 # get hypsography csv
 get_hypso <- function(rsub){
   # rsub <- rsubs[[1]]
-  # rsub <- rsubs[which(names(rsubs) == 128712)]
+  # rsub <- rsubs[[which(names(rsubs) == 89659)]]
   maxdepth <-  abs(cellStats(rsub, "max"))
 
   # define depth intervals by raster resolution
   # min_res   <- res(rsub)[1]
   min_res   <- 0.5
-  depth_int <- rev(seq(0, round(maxdepth/min_res) * min_res, by = min_res))
+  # 0 to max
+  depth_int <- seq(0, round(maxdepth/min_res) * min_res, by = min_res)
 
   # calculate area of raster between depth intervals
   # reclassify raster based on depth intervals
@@ -72,16 +77,19 @@ get_hypso <- function(rsub){
   # drop depth_int entries for missing layers
   depth_int <- depth_int[1:length(depth_int) %in% unique(rc$layer)]
   depth_mid <- # add interval midpoints
-    c(as.numeric(na.omit((depth_int + lag(depth_int))/2)), 0)
+    c(0, as.numeric(na.omit((depth_int + lag(depth_int))/2)))
+  # cbind(depth_int, depth_mid)
   # length(depth_int) == length(unique(tidyr::drop_na(rc, layer)$layer))
 
   rc <- rc %>% tidyr::drop_na(layer) %>%
-    group_by(layer) %>% tally()  %>% cumsum() %>%
+    group_by(layer) %>% tally() %>% arrange(desc(layer)) %>%
+    cumsum() %>%
     mutate(area_m2 = n * res(rsub)[1] * res(rsub)[2]) %>%
-    mutate(depth_int = depth_mid) %>%
+    mutate(depth_int = rev(depth_mid)) %>%
     mutate(area_percent = scales::rescale(area_m2, to = c(0, 100))) %>%
     mutate(depth_percent = scales::rescale(depth_int, to = c(0, 100)))
 
+  # plot(rc$area_percent, rc$depth_percent, ylim = c(100, 0))
   rc
 }
 
@@ -101,7 +109,8 @@ hypso <- dplyr::bind_rows(hypso)
 if(interactive()){
   ggplot(data = hypso) +
     geom_line(aes(x = area_percent, y = depth_percent, group = llid)) +
-    geom_abline(slope = -1, intercept = 100, color = "red")
+    geom_abline(slope = 1, intercept = -100, color = "red") +
+    ylim(c(100, 0))
   # TODO: plot the line of an ideal cone shape
 }
 
