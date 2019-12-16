@@ -49,7 +49,6 @@ rsubs     <- lapply(seq_len(nrow(llid_poly)), function(x){
   pb$tick(tokens = list(llid = llid_poly[x,]$lagoslakeid))
 
   fname <- paste0("data/mn_bathy/", llid_poly[x,]$lagoslakeid, ".tif")
-  # TODO if file !exists write to raster
   if(!file.exists(fname)){
     res <- raster::crop(r,
        raster::extent(
@@ -59,14 +58,16 @@ rsubs     <- lapply(seq_len(nrow(llid_poly)), function(x){
     writeRaster(res, fname)
   }
 })
-flist <- list.files("data/mn_bathy/", patter = "\\d.tif",
+flist        <- list.files("data/mn_bathy/", patter = "\\d.tif",
                     full.names = TRUE, include.dirs = TRUE)
-rsubs <- lapply(flist, raster)
-names(rsubs) <- llid_poly$lagoslakeid
+rsubs        <- lapply(flist, raster)
+rsubs <- rsubs[!is.na(sapply(rsubs, minValue))]
+rsubs <- rsubs[sapply(rsubs, minValue) < -0.2]
+names(rsubs) <- gsub("X", "", unlist(lapply(rsubs, names)))
 
 # ---- function_definitions ----
 get_hypso <- function(rsub){
-  # rsub <- rsubs[[46]]
+  # rsub <- rsubs[[82]]
   maxdepth <-  abs(cellStats(rsub, "min"))
 
   # define depth intervals by raster resolution
@@ -78,28 +79,41 @@ get_hypso <- function(rsub){
   # reclassify raster based on depth intervals
   # calculate area of each class
   rc <- cut(rsub, breaks = depth_int) %>%
-    as.data.frame() %>% tidyr::drop_na(layer) %>%
+    as.data.frame()
+  # drop depth_int entries for missing layers
+  depth_int <- depth_int[1:length(depth_int) %in% unique(rc$layer)]
+
+  rc <- rc %>%
+    tidyr::drop_na(layer) %>%
     group_by(layer) %>% tally() %>% cumsum() %>%
     mutate(area_m2 = n * 5 * 5) %>%
-    mutate(depth_int = rev(# add interval midpoints
-      as.numeric(na.omit((depth_int + lag(depth_int))/2)) * -1)) %>%
+    mutate(depth_int = c(rev(# add interval midpoints
+      as.numeric(na.omit((depth_int + lag(depth_int))/2)) * -1), 0)) %>%
     mutate(area_percent = scales::rescale(area_m2, to = c(0, 100))) %>%
     mutate(depth_percent = scales::rescale(depth_int, to = c(0, 100)))
 
   rc
 }
 
+pb <- progress_bar$new(
+  format = "llid :llid [:bar] :percent",
+  total = length(rsubs),
+  clear = FALSE, width = 80)
+
 hypso <- lapply(seq_len(length(rsubs)),
                function(x){
+                 pb$tick(tokens = list(llid = names(rsubs)[x]))
                  # print(x)
-                 dplyr::mutate(get_hypso(rsubs[[x]]),
-                               llid = dt$llid[x])
+                 # x <- which(names(rsubs) == 2005)
+                 dplyr::mutate(get_hypso(rsubs[[x]]), llid = names(rsubs)[x])
                  })
 hypso <- dplyr::bind_rows(hypso)
 
 if(interactive()){
-  ggplot(data = hypso_mn) +
-    geom_line(aes(x = area_percent, y = depth_percent, group = llid))
+  ggplot(data = hypso) +
+    geom_line(aes(x = area_percent, y = depth_percent, group = llid)) +
+    geom_abline(slope = 1, intercept = -100, color = "red") +
+    ylim(c(100, 0))
   # TODO: plot the line of an ideal cone shape
 }
 
