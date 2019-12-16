@@ -27,6 +27,10 @@ res <- dplyr::bind_rows(manual_raw, nla_raw, lagosne_raw) %>%
     grepl("Agency", source_type) | is.na(source_type) ~ "Government",
     !is.na(source_type) ~ source_type))
 
+res <- res %>%
+  dplyr::select(llid, name, legacy_name, state, max_depth_m,
+                mean_depth_m, source, source_type, effort, lat, long)
+
 # table(res$source_type)
 
 write.csv(res, "data/lagosus_depth.csv", row.names = FALSE)
