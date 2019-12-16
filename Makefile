@@ -5,7 +5,10 @@ figures:
 
 datasets: data/lagosus_depth.csv \
 data/00_hypso/hypso.csv \
-data/00_hypso/hypso_classes.csv
+data/00_hypso/hypso_classes.csv \
+data/lagosus_depth_predictors.csv \
+data/lagosne_depth_predictors.csv \
+data/00_hypso/hypso_predictors.csv
 
 data/00_hypso/hypso.csv: scripts/01_hypso_merge.R \
 data/mn_hypso.csv \
@@ -26,6 +29,14 @@ data/lagosus_depth.csv
 	Rscript $<
 
 data/mi_hypso.csv: scripts/00_get_hypso_mi.R \
+data/lagosus_depth.csv
+	Rscript $<
+
+data/lagosus_depth_predictors.csv: scripts/04_depth_predict.R \
+data/lagosus_depth.csv
+	Rscript $<
+
+data/lagosne_depth_predictors.csv: scripts/04_depth_predict.R \
 data/lagosus_depth.csv
 	Rscript $<
 
