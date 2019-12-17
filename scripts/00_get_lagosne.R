@@ -1,17 +1,23 @@
 source("scripts/99_utils.R")
 
-lg <- lagosne_load("1.087.3")
+lg_ne        <- lagosne_load("1.087.3")
+lg_x_walk    <- read.csv(
+  "data/00_lagosus_locus/LAGOS_Lake_Link_v2_20191017.csv",
+  stringsAsFactors = FALSE) %>%
+  dplyr::select(lagosne_lagoslakeid, lagoslakeid, lagosus_centroidstate) %>%
+  dplyr::rename(lagosus_lagoslakeid = lagoslakeid) %>%
+  distinct(lagosne_lagoslakeid, .keep_all = TRUE)
 
 # anticipated columns:
 # llid, name, legacy_name, state, max_depth_m, mean_depth_m, source, source_type, lat, long
-res <- mutate(lg$lakes_limno,
+res <- mutate(lg_ne$lakes_limno,
        legacy_name = NA) %>%
   # dplyr::filter(!is.na(maxdepth) | !is.na(meandepth)) %>%
-  left_join(dplyr::select(lg$locus, lagoslakeid, gnis_name, state_zoneid,
+  left_join(dplyr::select(lg_ne$locus, lagoslakeid, gnis_name, state_zoneid,
                           lake_area_ha)) %>%
-  left_join(dplyr::select(lg$state, state, state_zoneid)) %>%
-  left_join(dplyr::select(lg$lakes.geo, lagoslakeid, lakeconnection)) %>%
-  left_join(dplyr::select(lg$buffer100m.lulc,
+  left_join(dplyr::select(lg_ne$state, state, state_zoneid)) %>%
+  left_join(dplyr::select(lg_ne$lakes.geo, lagoslakeid, lakeconnection)) %>%
+  left_join(dplyr::select(lg_ne$buffer100m.lulc,
                           buffer100m_slope_mean, lagoslakeid)) %>%
   # rename to lagosus conny codes
   mutate(lakeconnection = case_when(lakeconnection == "DR_Stream" ~ "Drainage",
@@ -23,14 +29,40 @@ dplyr::select(llid = lagoslakeid, name = gnis_name, state,
               buffer100m_slope_mean,
               lake_connectivity_permanent = lakeconnection,
               lat = nhd_lat, long = nhd_long) %>%
-  left_join(dplyr::select(lg$lagos_source_program, programname, programtype),
+  left_join(dplyr::select(lg_ne$lagos_source_program, programname, programtype),
                   by = c("source" = "programname")) %>%
-  rename(source_type = programtype) %>%
-  # TODO: eventually cross-walk lagosne llids with lagosus llids
-  # for now: limit results to those with WQ data in epi_nutr
-  # dplyr::filter(llid %in% lg$epi_nutr$lagoslakeid) %>%
-  dplyr::mutate(# llid = NA,
-                effort = "LAGOSNE") # %>%
-  #dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
+  rename(source_type = programtype,
+         lagosne_lagoslakeid = llid) %>%
+  left_join(lg_x_walk, by = "lagosne_lagoslakeid") %>%
+  rename(llid = lagosus_lagoslakeid) %>%
+  dplyr::filter(!is.na(llid))
+
+  # TODO: deal with duplicates where depth is missing versus where present
+  # remove the smaller lake of duplicates with no depth data
+  res_na <- res %>%
+    group_by(llid) %>%
+    dplyr::filter(is.na(max_depth_m) & is.na(mean_depth_m)) %>%
+    dplyr::filter(lake_waterarea_ha == max(lake_waterarea_ha)) %>%
+    arrange(llid)
+
+  # remove the shallower lake of duplicates with depth data
+  res_values <- res %>%
+    distinct(llid, max_depth_m, .keep_all = TRUE) %>%
+    group_by(llid) %>%
+    dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m)) %>%
+    dplyr::filter(max_depth_m == max(max_depth_m)) %>%
+    dplyr::filter(mean_depth_m == max(mean_depth_m)) %>%
+    arrange(llid)
+
+  res <- dplyr::bind_rows(res_na, res_values)
+
+  # deal with lakes that have both missing and present depth in separate rows
+  dup_llids <- as.numeric(na.omit(res[duplicated(res$llid),]$llid))
+  res_na <- dplyr::filter(res, llid %in% dup_llids) %>%
+    arrange(llid) %>%
+    dplyr::filter(max_depth_m == max_depth_m)
+  res <- dplyr::filter(res, !(llid %in% res_na$llid))
+  res <- bind_rows(res, res_na) %>%
+    dplyr::mutate(effort = "LAGOSNE")
 
 write.csv(res, "data/00_lagosne/00_lagosne.csv", row.names = FALSE)
