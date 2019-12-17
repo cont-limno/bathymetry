@@ -5,18 +5,17 @@ source("scripts/99_utils.R")
 # unlink("data/00_manual/depth_log_all.csv")
 # drive_download(file = "depth_log_all",
 #                path = "data/00_manual/depth_log_all.csv", overwrite = TRUE)
-dt_raw <- invisible(
-  read_csv("data/00_manual/depth_log_all.csv", col_types = cols())
-)
+dt_raw <- suppressWarnings(suppressMessages(
+  read_csv("data/00_manual/depth_log_all.csv", col_types = cols())))
 
-dt_lw <- invisible(
+dt_lw <- invisible(suppressWarnings(suppressMessages(
   get_if_not_exists(x = drive_download,
                             destfile = "data/00_manual/lw.csv",
                             read_function = read_csv,
                            file = "FL_LAKEWATCH_sites_linked_R",
                             type = "csv", path = "data/00_manual/lw.csv",
                             overwrite = FALSE, col_types = cols())
-  )
+  )))
 
 # ---- convert_merge_ft_to_m ----
 
@@ -77,7 +76,7 @@ res_na <- res %>%
   dplyr::filter(is.na(max_depth_m) & is.na(mean_depth_m)) %>%
   dplyr::filter(lake_waterarea_ha == max(lake_waterarea_ha)) %>%
   arrange(llid) %>%
-  ungroup() %>% distinct(llid, lake_waterarea_ha)
+  ungroup() %>% distinct(llid, lake_waterarea_ha, .keep_all = TRUE)
 
 ## remove the shallower lake of duplicates with depth data
 res_values <- res %>%
@@ -114,15 +113,17 @@ ggplot(data = res, aes(x = max_depth_m)) +
     mutate(prop_maxdepth = round(mean(!is.na(max_depth_m)), 2)) %>%
     add_tally() %>%
     distinct(state, prop_maxdepth, n)  %>%
-    arrange(prop_maxdepth)
+    arrange(prop_maxdepth) %>%
+    data.frame()
 
 # outlier checks
-dplyr::filter(raw, max_depth_m < 1)
+dplyr::filter(raw, max_depth_m < 1) %>% View()
 raw[which.min(raw$max_depth_m),]
 
 # join with locus preview
-ll_locus <- read.csv("data/00_lagosus_locus/lake_characteristics.csv", stringsAsFactors = FALSE)
-test <- left_join(raw, ll_locus, by = c("linked_lagoslakeid" = "lagoslakeid"))
+ll_locus <- lagosus_load("locus")$locus$locus_characteristics
+test <- left_join(dplyr::select(raw, -lake_waterarea_ha), ll_locus,
+                  by = c("linked_lagoslakeid" = "lagoslakeid"))
 
 # labelled histogram of max depth availability by area class
 library(cutr) # devtools::install_github("moodymudskipper/cutr")
@@ -130,7 +131,7 @@ library(cutr) # devtools::install_github("moodymudskipper/cutr")
 test2 <- test %>%
   mutate(area_class =
            smart_cut(test$lake_waterarea_ha, c(1, 4, 40, 80, 400,
-                                                          1000, 20000, Inf),
+                                               1000, 20000, Inf),
              labels = ~paste(sep="-", thousand_k(.y[1]), thousand_k(.y[2])))
          ) %>%
   drop_na(area_class) %>%
