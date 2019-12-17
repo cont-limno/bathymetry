@@ -40,6 +40,10 @@ data/lagosne_depth_predictors.csv: scripts/04_depth_predict.R \
 data/lagosus_depth.csv
 	Rscript $<
 
+data/00_hypso/hypso_predictors.csv: scripts/04_hypso_predict.R \
+data/lagosus_depth_predictors.csv
+	Rscript $<
+
 data/lagosus_depth.csv: scripts/01_merge.R \
 data/00_manual/00_manual.csv \
 data/00_nla/00_nla.csv \
