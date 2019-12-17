@@ -37,14 +37,15 @@ if(interactive()){
       dplyr::filter(res, lake_centroidstate == "MI" &
                       !is.na(shape_class)),
       lake_waterarea_ha, shape_class, ws_mbgconhull_length_m, ws_area_ha,
-      buffer100m_slope_max, -llid),
+      lake_islandarea_ha, lake_elevation_m, lake_connectivity_class,
+      ws_lake_arearatio,
+      -llid),
     target = "shape_class", id = "shape")
   learner    <- lrn("classif.rpart")
   train_set  <- sample(class_task$nrow, 0.6 * class_task$nrow)
   test_set   <- setdiff(seq_len(class_task$nrow), train_set)
 
   learner$train(class_task, row_ids = train_set)
-
   learner$importance()
 
   prediction <- learner$predict(class_task, row_ids = test_set)
@@ -57,4 +58,5 @@ if(interactive()){
   rr = resample(class_task, learner, resampling)
 
   rr$aggregate(measure)
+  # TODO can I get resampling predictor importance summaries?
 }
