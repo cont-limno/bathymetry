@@ -20,12 +20,12 @@ nl2012 <- nla_load(2012)$wide_siteinfo %>%
   LAGOSNE::coordinatize("LAT_DD83", "LON_DD83")
 
 single_state <- function(x){
-  strsplit(x, ":")[[1]][1]
+  sapply(x, function(y) strsplit(y, ":")[[1]][1])
 }
 
 dt_2012 <- dt_raw_2012 %>%
   distinct(SITE_ID, .keep_all = TRUE) %>%
-  left_join(nl2012) %>%
+  left_join(nl2012, by = c("SITE_ID", "LON_DD83", "LAT_DD83")) %>%
   dplyr::filter(!is.na(INDEX_SITE_DEPTH)) %>%
   data.frame(stringsAsFactors = FALSE) %>%
   janitor::clean_names("snake") %>%
@@ -66,14 +66,17 @@ dt_2007 <- dt_raw_2007 %>%
 dt_2012 <- select(dt_2012, -siteid_07)
 
 # ---- join_lake_area ----
-locus <- read.csv("data/00_lagosus_locus/lake_characteristics_20190913.csv",
-                  stringsAsFactors = FALSE)
+locus <- lagosus_load(modules = "locus")$locus$locus_characteristics
 res     <- dplyr::bind_rows(dt_2007, dt_2012) %>%
   left_join(dplyr::select(locus, llid = lagoslakeid, lake_waterarea_ha,
                                     lake_connectivity_permanent),
                  by = c("llid" = "llid"))
 
-res <- mutate(res, effort = "NLA")
+res <- res %>%
+  arrange(llid) %>%
+  group_by(llid) %>%
+  dplyr::filter(max_depth_m == max(max_depth_m)) %>%
+  mutate(effort = "NLA")
 
 # join lake area and connectivity from locus preview
 write.csv(res, "data/00_nla/00_nla.csv", row.names = FALSE)
