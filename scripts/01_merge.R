@@ -9,7 +9,7 @@ manual_raw  <- read.csv("data/00_manual/00_manual.csv", stringsAsFactors = FALSE
 nla_raw     <- read.csv("data/00_nla/00_nla.csv", stringsAsFactors = FALSE)
 lagosne_raw <- read.csv("data/00_lagosne/00_lagosne.csv", stringsAsFactors = FALSE)
 
-res <- dplyr::bind_rows(manual_raw, nla_raw, lagosne_raw) %>%
+res_raw <- dplyr::bind_rows(manual_raw, nla_raw, lagosne_raw) %>%
   rowwise() %>%
   # dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m)) %>%
   dplyr::filter(is.na(max_depth_m) | is.na(mean_depth_m) |
@@ -27,9 +27,13 @@ res <- dplyr::bind_rows(manual_raw, nla_raw, lagosne_raw) %>%
     grepl("Agency", source_type) | is.na(source_type) ~ "Government",
     !is.na(source_type) ~ source_type))
 
-res <- res %>%
+res <- res_raw %>%
   dplyr::select(llid, name, legacy_name, state, max_depth_m,
-                mean_depth_m, source, source_type, effort, lat, long)
+                mean_depth_m, source, source_type, effort, lat, long, lake_waterarea_ha)
+
+# TODO deal smarter with duplicates rather than the code below
+# eliminate duplicates based on effort (nla > lagosne)
+res <- rm_dups(res)
 
 # table(res$source_type)
 
