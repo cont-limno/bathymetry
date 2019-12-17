@@ -88,13 +88,14 @@ get_rsub <- function(dt){
 
 # raster to hypso
 get_hypso <- function(rsub, id){
-  # rsub <- rsubs[[46]]
+  # rsub <- rsubs[[1]]
 
   maxdepth <- abs(cellStats(rsub, "max"))
 
   # calculate area of each class
   rc <- rsub %>%
     as.data.frame() %>%
+    setNames("layer") %>%
     group_by(layer) %>% tally() %>%
     tidyr::drop_na(layer) %>%
     arrange(desc(layer)) %>%
@@ -107,27 +108,37 @@ get_hypso <- function(rsub, id){
   rc
 }
 
-rsubs <- lapply(unique(ps$lagoslakeid), function(x){
-  message(x)
-  dt <- dplyr::filter(ps, lagoslakeid == x)
-  get_rsub(dt)
+pb <- progress_bar$new(
+  format = "llid :llid [:bar] :percent",
+  total = length(unique(ps$lagoslakeid)),
+  clear = FALSE, width = 80)
+
+rsubs <- lapply(seq_along(unique(ps$lagoslakeid)), function(x){
+  # x <- 1
+  llid_current <- unique(ps$lagoslakeid)[x]
+  pb$tick(tokens = list(llid = llid_current))
+  fname <- paste0("data/ct_bathy/",
+                  snakecase::to_snake_case(llid_current), ".tif")
+  if(!file.exists(fname)){
+    rsub <- get_rsub(dplyr::filter(ps, lagoslakeid == x))
+    writeRaster(rsub, fname, format = "GTiff")
+  }else{
+    rsub <- raster(fname)
+  }
+  rsub
 })
 names(rsubs) <- unique(ps$lagoslakeid)
 
-if(!interactive()){
-  for(i in 1:length(rsubs)){
-    x <- names(rsubs[i])
-    fname <- paste0("data/ct_bathy/",
-                    snakecase::to_snake_case(x))
-    if(!file.exists(paste0(fname, ".tif"))){
-      writeRaster(rsubs[[i]], fname, format='GTiff')
-    }
-  }
-}
+pb <- progress_bar$new(
+  format = "llid :llid [:bar] :percent",
+  total = length(rsubs),
+  clear = FALSE, width = 80)
 
 hypso <- lapply(seq_len(length(rsubs)), function(x){
-  dplyr::mutate(get_hypso(rsubs[[x]]),
-                llid = names(rsubs)[x])
+  # x <- 1
+  pb$tick(tokens = list(llid = names(rsubs)[x]))
+  dplyr::mutate(
+    get_hypso(rsubs[[x]]), llid = names(rsubs)[x])
 })
 hypso <- dplyr::bind_rows(hypso)
 
