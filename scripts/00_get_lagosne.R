@@ -37,15 +37,15 @@ dplyr::select(llid = lagoslakeid, name = gnis_name, state,
   rename(llid = lagosus_lagoslakeid) %>%
   dplyr::filter(!is.na(llid))
 
-  # TODO: deal with duplicates where depth is missing versus where present
-  # remove the smaller lake of duplicates with no depth data
+  # deal with duplicates where depth is missing versus where present
+  ## remove the smaller lake of duplicates with no depth data
   res_na <- res %>%
     group_by(llid) %>%
     dplyr::filter(is.na(max_depth_m) & is.na(mean_depth_m)) %>%
     dplyr::filter(lake_waterarea_ha == max(lake_waterarea_ha)) %>%
     arrange(llid)
 
-  # remove the shallower lake of duplicates with depth data
+  ## remove the shallower lake of duplicates with depth data
   res_values <- res %>%
     distinct(llid, max_depth_m, .keep_all = TRUE) %>%
     group_by(llid) %>%
@@ -56,7 +56,7 @@ dplyr::select(llid = lagoslakeid, name = gnis_name, state,
 
   res <- dplyr::bind_rows(res_na, res_values)
 
-  # deal with lakes that have both missing and present depth in separate rows
+  ## deal with lakes that have both missing and present depth in separate rows
   dup_llids <- as.numeric(na.omit(res[duplicated(res$llid),]$llid))
   res_na <- dplyr::filter(res, llid %in% dup_llids) %>%
     arrange(llid) %>%
