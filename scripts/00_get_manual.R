@@ -41,7 +41,7 @@ raw <- dt_raw %>%
 raw <- raw %>%
   coordinatize("lat", "lon") %>%
   mutate(has_max = !is.na(max_depth_m) & nchar(max_depth_m) > 0) %>%
-  st_join(jsta::usa_sf()) %>%
+  st_join(st_transform(jsta::usa_sf(), 4326)) %>%
   mutate(state.x = case_when(
     state.x == "Western States GLNC" & !is.na(state.y) ~ state.y,
     TRUE ~ state.x)) %>%
@@ -53,8 +53,7 @@ raw <- raw %>%
   janitor::clean_names("snake")
 
 # ---- join_lake_area ----
-locus <- read.csv("data/00_lagosus_locus/lake_characteristics_20190913.csv",
-                  stringsAsFactors = FALSE)
+locus <- lagosus_load("locus")$locus$locus_characteristics
 raw <- left_join(raw, dplyr::select(locus, lagoslakeid, lake_waterarea_ha,
                                     lake_connectivity_permanent),
                  by = c("linked_lagoslakeid" = "lagoslakeid"))
