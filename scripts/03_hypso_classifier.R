@@ -8,7 +8,6 @@ hypso_classes <- dt_raw %>%
   dplyr::select(-state) %>%
   group_by(llid) %>%
   summarize_all(median) %>%
-  left_join(dplyr::select(dt_raw, llid, state)) %>%
   mutate(area_percent_rounded = round(area_percent)) %>%
   left_join(data.frame(y = rev(seq(0, 100, by = 1)), x = seq(0, 100, by = 1)),
             by = c("area_percent_rounded" = "x")) %>%
@@ -17,13 +16,15 @@ hypso_classes <- dt_raw %>%
          shape_class = case_when(depth_percent < y ~ "convex",
                                  depth_percent > y ~ "concave",
                                  TRUE ~ "neither")) %>%
-  ungroup() %>%  dplyr::filter(!is.na(shape_class))
+  ungroup() %>%  dplyr::filter(!is.na(shape_class)) %>%
+  left_join(dplyr::distinct(
+    dplyr::select(dt_raw, llid, state), llid, .keep_all = TRUE), by = "llid")
 
 # qa outliers
 if(interactive()){
   distinct(hypso_classes, llid, offset, .keep_all = TRUE) %>%
   dplyr::filter(state == "MI") %>%
-    arrange(desc(offset)) %>%
+    arrange(offset) %>%
     head()
   plot(raster("data/mi_bathy/807.tif")) # convex
   plot(raster("data/mi_bathy/1338.tif")) # concave
