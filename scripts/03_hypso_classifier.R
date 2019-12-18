@@ -35,3 +35,4 @@ res <- hypso_classes %>%
 
 # save csv with llid, bowl_shaped_dummy_variable
 write.csv(res, "data/00_hypso/hypso_classes.csv", row.names = FALSE)
+# res  <- read.csv("data/00_hypso/hypso_classes.csv", stringsAsFactors = FALSE)
