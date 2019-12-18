@@ -33,6 +33,7 @@ if(interactive()){
   dt_sub <- res %>%
     dplyr::filter(lake_centroidstate %in% c("MN", "MI", "CT")) %>%
     dplyr::select(# & !is.na(shape_class)
+    buffer100m_slope_max,
     lake_waterarea_ha, shape_class, ws_mbgconhull_length_m, ws_area_ha,
     lake_islandarea_ha, lake_elevation_m, lake_connectivity_class,
     ws_lake_arearatio,

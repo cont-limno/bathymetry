@@ -54,6 +54,9 @@ if(!file.exists("data/lagosus_depth_predictors.csv")){
 
 
 if(interactive()){
+
+# ---- correlation-heatmap ----
+
   library(corrr)
   library(pheatmap)
 
@@ -78,4 +81,18 @@ if(interactive()){
   pheatmap(t(test),
           color = colorRampPalette(
             RColorBrewer::brewer.pal(n = 7, name = "Reds"))(100))
+
+# ---- oliver-random-huc-slopes ----
+  names(dt_raw_ne)
+
+
+# ---- jsta-random-shape-class-slopes ----
+
+  # depth ~ max_slope | shape_class
+  # or
+  # # after getting distance from the deepest point to the shore
+  # inlake_slope ~ max_slope | shape_class
+  # depth = distance * tan(inlake_slope)
+
+
 }
