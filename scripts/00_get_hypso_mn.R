@@ -37,6 +37,7 @@ llid_pnts <- dplyr::filter(llid_pnts, lagoslakeid %in% dt$lagosne_lagoslakeid)
 
 llid_poly <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", dt$llid) %>%
   st_transform(st_crs(r))
+llid_poly <- llid_poly[as.numeric(st_area(llid_poly)) != 0,]
 
 pb <- progress_bar$new(
   format = "llid :llid [:bar] :percent",
@@ -45,7 +46,7 @@ pb <- progress_bar$new(
 
 rsubs     <- lapply(seq_len(nrow(llid_poly)), function(x){
   # x <- 1
-  # x <- which(2109 == llid_poly$lagoslakeid)
+  # x <- which(140544 == llid_poly$lagoslakeid)
   pb$tick(tokens = list(llid = llid_poly[x,]$lagoslakeid))
 
   fname <- paste0("data/mn_bathy/", llid_poly[x,]$lagoslakeid, ".tif")
@@ -60,6 +61,9 @@ rsubs     <- lapply(seq_len(nrow(llid_poly)), function(x){
 })
 flist        <- list.files("data/mn_bathy/", patter = "\\d.tif",
                     full.names = TRUE, include.dirs = TRUE)
+flist <- flist[
+  gsub(".tif", "", basename(flist)) %in% unique(llid_poly$lagoslakeid)]
+
 rsubs        <- lapply(flist, raster)
 rsubs <- rsubs[!is.na(sapply(rsubs, minValue))]
 rsubs <- rsubs[sapply(rsubs, minValue) < -0.2]

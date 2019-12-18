@@ -50,6 +50,10 @@ fnames <- list.files("data/mi_bathy/", pattern = "tif",
 rsubs <- lapply(fnames,
                 function(x) raster(x))
 names(rsubs) <- gsub(".tif", "", basename(fnames))
+
+## only select files that match unique(mi$lagoslakeid)?
+# any(!(names(rsubs) %in% unique(mi$lagoslakeid)))
+
 rsubs <- rsubs[sapply(rsubs, maxValue) > 0.2]
 
 # remove rsubs with no data
