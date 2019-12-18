@@ -1,5 +1,6 @@
 source("scripts/99_utils.R")
 
+# unlink("data/lagosus_depth_predictors.csv")
 if(!file.exists("data/lagosus_depth_predictors.csv")){
   lg        <- lagosus_load(modules = "locus")
   lg_ne     <- lagosne_load()
@@ -8,9 +9,10 @@ if(!file.exists("data/lagosus_depth_predictors.csv")){
     stringsAsFactors = FALSE) %>%
     dplyr::select(lagosne_lagoslakeid, lagoslakeid, lagosus_centroidstate) %>%
     dplyr::rename(lagosus_lagoslakeid = lagoslakeid) %>%
-    distinct(lagosne_lagoslakeid, .keep_all = TRUE)
+    distinct(lagosus_lagoslakeid, .keep_all = TRUE)
 
   dt_raw <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
+    dplyr::select(-contains("waterarea")) %>%
     dplyr::filter(!is.na(max_depth_m)) %>%
     left_join(lg$locus$locus_characteristics,
               by = c("llid" = "lagoslakeid")) %>%
