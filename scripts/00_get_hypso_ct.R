@@ -1,5 +1,8 @@
 source("scripts/99_utils.R")
 
+# CT data comes as separate polygons for each contour (has lake-level labels)
+#   higher numbers represent deeper depths
+
 # ---- get-raw-data ----
 if(!file.exists("data/ct_bathy/ct_bathy.gpkg")){
   library(esri2sf) # install_github("yonghah/esri2sf")
@@ -167,7 +170,11 @@ select(-n) %>% group_by(llid, WBNAME) %>%
   dplyr::filter(n > 3) %>%
   filter(!str_detect(WBNAME, "Cove"))
 
-hypso <- dplyr::select(hypso, llid, area_percent, depth_percent)
+hypso <- hypso %>%
+  group_by(llid) %>%
+  mutate(maxdepth = max(depth) / 3.281) %>% # ft to m
+  ungroup() %>%
+  dplyr::select(llid, area_percent, depth_percent, maxdepth)
 
 write.csv(hypso, "data/ct_hypso.csv", row.names = FALSE)
-# hypso1 <- read.csv("data/ct_hypso.csv", stringsAsFactors = FALSE)
+# hypso <- read.csv("data/ct_hypso.csv", stringsAsFactors = FALSE)

@@ -1,5 +1,8 @@
 source("scripts/99_utils.R")
 
+# MN data comes as a topobathymetric raster
+#   lower (more negative) numbers represent deeper depths
+
 r  <- raster("data/mn_bathy/lake_bathymetric_elevation_model.tif")
 
 lg_x_walk <- read.csv(
@@ -121,7 +124,11 @@ if(interactive()){
   # TODO: plot the line of an ideal cone shape
 }
 
-hypso <- dplyr::select(hypso, llid, area_percent, depth_percent)
+hypso <- hypso %>%
+  group_by(llid) %>%
+  mutate(maxdepth = max(depth_int)) %>%
+  ungroup() %>%
+  dplyr::select(llid, area_percent, depth_percent, maxdepth)
 
 write.csv(hypso, "data/mn_hypso.csv", row.names = FALSE)
 # hypso_mn <- read.csv("data/mn_hypso.csv", stringsAsFactors = FALSE)

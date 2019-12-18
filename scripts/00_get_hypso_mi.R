@@ -1,6 +1,7 @@
 source("scripts/99_utils.R")
 
-# MI data come in
+# MI data comes as contours with no lake-level labels
+#   higher numbers represent deeper depths
 
 if(!file.exists("data/mi_bathy/contours.geojson")){
 # https://gisago.mcgi.state.mi.us/arcgis/rest/services/OpenData/hydro/MapServer/4
@@ -118,7 +119,11 @@ if(interactive()){
   # TODO: plot the line of an ideal cone shape
 }
 
-hypso <- dplyr::select(hypso, llid, area_percent, depth_percent)
+hypso <- hypso %>%
+  group_by(llid) %>%
+  mutate(maxdepth = max(depth_int) / 3.281) %>% # ft to meters
+  ungroup() %>%
+  dplyr::select(llid, area_percent, depth_percent, maxdepth)
 
 write.csv(hypso, "data/mi_hypso.csv", row.names = FALSE)
 # hypso_mi <- read.csv("data/mi_hypso.csv", stringsAsFactors = FALSE)
