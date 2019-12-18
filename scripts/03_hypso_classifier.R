@@ -23,11 +23,11 @@ hypso_classes <- dt_raw %>%
 # qa outliers
 if(interactive()){
   distinct(hypso_classes, llid, offset, .keep_all = TRUE) %>%
-  dplyr::filter(state == "MI") %>%
+  dplyr::filter(state == "MN") %>%
     arrange(offset) %>%
     head()
-  plot(raster("data/mi_bathy/807.tif")) # convex
-  plot(raster("data/mi_bathy/1338.tif")) # concave
+  plot(raster("data/mn_bathy/2063.tif")) # convex
+  plot(raster("data/mn_bathy/3082.tif")) # concave
 }
 
 res <- hypso_classes %>%
