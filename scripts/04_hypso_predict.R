@@ -65,8 +65,7 @@ if(interactive()){
   pred = rr$prediction()
   pred$confusion
   pred$score(measure)
-  agr = rr$aggregate()
-  pred$importance()
+  agr = rr$aggregate(measure)
 
   # TODO can I get resampling predictor importance summaries?
 }
