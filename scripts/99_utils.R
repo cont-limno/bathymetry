@@ -20,6 +20,7 @@ library(elevatr)
 suppressMessages(library(dplyr))
 library(progress)
 suppressMessages(library(LAGOSUS))
+library(polylabelr)
 
 # ---- misc fxn ----
 # jsta::get_if_not_exists
