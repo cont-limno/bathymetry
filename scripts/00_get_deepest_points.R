@@ -4,6 +4,7 @@ source("scripts/99_utils.R")
 #   that "bends" below the deepest point in the raw data
 
 compare_deepest_center <- function(r){
+  # r <- raster("data/mn_bathy/542.tif")
   dt_poly      <- st_zm(concaveman::concaveman(
     st_sf(st_sfc(
       st_multipoint(rasterToPoints(r)), crs = st_crs(r)))
@@ -21,17 +22,24 @@ compare_deepest_center <- function(r){
                                 st_cast(dt_poly, "MULTILINESTRING"))
   dist_between <- st_distance(pnt_deepest, pnt_viscenter)
 
+  # mapview::mapview(dt_poly) +
+  #   mapview::mapview(pnt_viscenter) +
+  # mapview::mapview(r) +
+  #   mapview::mapview(pnt_deepest)
+
   list(pnt_deepest = pnt_deepest, pnt_viscenter = pnt_viscenter,
        dist_deepest = dist_deepest, dist_viscenter = dist_viscenter,
        dist_between = dist_between)
 }
-# dt           <- raster("data/mn_bathy/10310.tif")
+
+# dt           <- raster("data/mn_bathy/2419.tif")
 # compare_deepest_center(dt)
 
 flist        <- list.files("data/mn_bathy/", patter = "\\d.tif",
                            full.names = TRUE, include.dirs = TRUE)
 rsubs <- lapply(flist, function(x) raster(x))
 rsubs <- rsubs[!is.na(sapply(rsubs, minValue))]
+rsubs <- rsubs[sapply(rsubs, ncell) < 4470000] # rm super large rasters
 
 pb <- progress_bar$new(
   format = "llid :llid [:bar] :percent",
@@ -45,10 +53,17 @@ res <- lapply(rsubs,
                 compare_deepest_center(x)
                 })
 
-# mapview::mapview(dt_poly) +
-#   mapview::mapview(pnt_viscenter) +
-# mapview::mapview(dt) +
-#   mapview::mapview(pnt_deepest)
+# saveRDS(res, "test.rds")
+
+res <- bind_rows(res)
+res$llid <- gsub("X", "", unlist(lapply(rsubs, names)))
+
+arrange(res, desc(dist_between)) %>%
+  View()
+
+hist(res$dist_between)
+plot(res$dist_deepest, res$dist_viscenter)
+abline(0, 1)
 
 # pnt_surface  <- st_point_on_surface(dt_poly)
 ## point furthest from shore
