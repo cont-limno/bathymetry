@@ -6,12 +6,13 @@ hypso_mn <- read.csv("data/mn_hypso.csv", stringsAsFactors = FALSE) %>%
   mutate(state = "MN")
 hypso_mi <- read.csv("data/mi_hypso.csv", stringsAsFactors = FALSE) %>%
   mutate(state = "MI")
+hypso_nh <- read.csv("data/nh_hypso.csv", stringsAsFactors = FALSE) %>%
+  mutate(state = "NH")
 
 # hypso_ks <- read.csv("data/ks_hypso.csv", stringsAsFactors = FALSE)
-# hypso_nh <- read.csv("data/nh_hypso.csv", stringsAsFactors = FALSE)
 
 # merge csv's and save
-res <- dplyr::bind_rows(hypso_mn, hypso_ct, hypso_mi)
+res <- dplyr::bind_rows(hypso_mn, hypso_ct, hypso_mi, hypso_nh)
 write.csv(res, "data/00_hypso/hypso.csv", row.names = FALSE)
 # res <- read.csv("data/00_hypso/hypso.csv", stringsAsFactors = FALSE)
 
@@ -32,10 +33,17 @@ if(interactive()){
                             lagoslakeid, maxdepth, lagosname1),
               by = c("lagosne_lagoslakeid" = "lagoslakeid"))
 
-  ggplot(data = test) +
+  (gg <- ggplot(data = test) +
     geom_point(aes(x = maxdepth, y = maxdepth_hypso,
                    color = lake_centroidstate)) +
-    geom_abline(aes(slope = 1, intercept = 0))
+    geom_abline(aes(slope = 1, intercept = 0)))
+
+  # plotly::ggplotly(gg)
+  bad_llids <- c(70357, 9914, 83617)
+  View(dplyr::filter(test, lagosne_lagoslakeid %in% bad_llids))
+  mapview::mapview(query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", 83617)) +
+  mapview::mapview(raster("data/mn_bathy/83617.tif"))
+
 }
 
 
