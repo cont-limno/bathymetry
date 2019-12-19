@@ -178,6 +178,25 @@ rm_dups <- function(res){
   res
 }
 
+convert_ft_m <- function(dt_raw){
+  dt_raw %>%
+    mutate_at(vars(contains("depth")), as.numeric) %>%
+    # ## the ft value should always be greater than the m value if both are present
+    assert_rows(row_redux, greater_than_0, c(max_depth_ft, max_depth_m)) %>%
+    assert_rows(row_redux, greater_than_0, c(mean_depth_ft, mean_depth_m)) %>%
+    # ## max_depth_m > mean_depth_m
+    assert_rows(row_redux, greater_than_0, c(max_depth_m, mean_depth_m)) %>%
+    mutate(max_depth_m = case_when(
+      is.na(max_depth_m) & !is.na(max_depth_ft) ~ max_depth_ft * 0.3048,
+      TRUE ~ max_depth_m
+    )) %>%
+    mutate(mean_depth_m = case_when(
+      is.na(mean_depth_m) & !is.na(mean_depth_ft) ~ mean_depth_ft * 0.3048,
+      TRUE ~ mean_depth_m
+    )) %>%
+    dplyr::select(-mean_depth_ft, -max_depth_ft)
+}
+
 # library(maptools)
 # library(spatstat)
 # test4 <- as(as_Spatial(dt), "ppp")
