@@ -6,10 +6,13 @@ source("scripts/99_utils.R")
 # llid, name, legacy_name, state, max_depth_m, mean_depth_m, source, lat, long
 
 manual_raw  <- read.csv("data/00_manual/00_manual.csv", stringsAsFactors = FALSE)
+manual_extra_raw <- read.csv("data/00_manual_extra/00_manual_extra.csv",
+                             stringsAsFactors = FALSE)
 nla_raw     <- read.csv("data/00_nla/00_nla.csv", stringsAsFactors = FALSE)
 lagosne_raw <- read.csv("data/00_lagosne/00_lagosne.csv", stringsAsFactors = FALSE)
 
-res_raw <- dplyr::bind_rows(manual_raw, nla_raw, lagosne_raw) %>%
+res_raw <- dplyr::bind_rows(manual_raw, manual_extra_raw,
+                            nla_raw, lagosne_raw) %>%
   rowwise() %>%
   # dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m)) %>%
   dplyr::filter(is.na(max_depth_m) | is.na(mean_depth_m) |
