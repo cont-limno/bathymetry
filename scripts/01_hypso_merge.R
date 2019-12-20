@@ -8,11 +8,11 @@ hypso_mi <- read.csv("data/mi_hypso.csv", stringsAsFactors = FALSE) %>%
   mutate(state = "MI")
 hypso_nh <- read.csv("data/nh_hypso.csv", stringsAsFactors = FALSE) %>%
   mutate(state = "NH")
-
-# hypso_ks <- read.csv("data/ks_hypso.csv", stringsAsFactors = FALSE)
+hypso_ks <- read.csv("data/ks_hypso.csv", stringsAsFactors = FALSE) %>%
+  mutate(state = "KS")
 
 # merge csv's and save
-res <- dplyr::bind_rows(hypso_mn, hypso_ct, hypso_mi, hypso_nh)
+res <- dplyr::bind_rows(hypso_mn, hypso_ct, hypso_mi, hypso_nh, hypso_ks)
 write.csv(res, "data/00_hypso/hypso.csv", row.names = FALSE)
 # res <- read.csv("data/00_hypso/hypso.csv", stringsAsFactors = FALSE)
 
