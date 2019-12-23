@@ -179,14 +179,43 @@ rm_dups <- function(res){
   res
 }
 
+# https://stackoverflow.com/a/5173906/3362993
+decimalplaces <- function(x){
+  # x <- 0.1
+  # x <- 0.100
+  if(!is.na(x)){
+    if(abs(x - round(x)) > .Machine$double.eps^0.5){
+      nchar(
+        strsplit(as.character(x),
+          # sub('0+$', '', as.character(x)), # uncomment 2 ignore trailing zeros
+          ".", fixed = TRUE)[[1]][[2]])
+    } else {
+      return(0)
+    }
+  }else{
+    NA
+  }
+}
+
 convert_ft_m <- function(dt_raw){
-  dt_raw %>%
+  # track decimal sig figs ft to m based on conversion factor:
+  # 0 = 4, 0.1 = 5, 0.01 = 6
+  target_decimals <- data.frame(decimal_places_ft = c(0, 1, 2),
+                                decimal_places_target = c(4, 5, 6),
+                                stringsAsFactors = FALSE)
+
+  res <- dt_raw %>%
     mutate_at(vars(contains("depth")), as.numeric) %>%
     # ## the ft value should always be greater than the m value if both are present
     assert_rows(row_redux, greater_than_0, c(max_depth_ft, max_depth_m)) %>%
     assert_rows(row_redux, greater_than_0, c(mean_depth_ft, mean_depth_m)) %>%
     # ## max_depth_m > mean_depth_m
     assert_rows(row_redux, greater_than_0, c(max_depth_m, mean_depth_m)) %>%
+    mutate(decimal_places_ft = sapply(max_depth_ft, decimalplaces)) %>%
+    arrange(desc(decimal_places_ft))
+
+    res <- res %>%
+      left_join(target_decimals, by = "decimal_places_ft") %>%
     mutate(max_depth_m = case_when(
       is.na(max_depth_m) & !is.na(max_depth_ft) ~ max_depth_ft * 0.3048,
       TRUE ~ max_depth_m
@@ -195,7 +224,13 @@ convert_ft_m <- function(dt_raw){
       is.na(mean_depth_m) & !is.na(mean_depth_ft) ~ mean_depth_ft * 0.3048,
       TRUE ~ mean_depth_m
     )) %>%
-    dplyr::select(-mean_depth_ft, -max_depth_ft)
+      # dplyr::select(max_depth_m, max_depth_ft,
+      #               decimal_places_ft, decimal_places_target) %>%
+      mutate(decimal_places_m = sapply(max_depth_m, decimalplaces)) %>%
+      # arrange(desc(decimal_places_m)) %>%
+    dplyr::select(-mean_depth_ft, -max_depth_ft, -contains("decimal_places"))
+
+  res
 }
 
 # library(maptools)
