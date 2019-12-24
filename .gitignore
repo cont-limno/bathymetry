@@ -23,3 +23,5 @@ data/nh_bathy/Bathymetry_Lakes*
 data/nh_bathy/bathymetry_lakes*
 data/bathybase_bathy/
 data/elevatr/
+data/nh_bathy/*.zip
+data/00_lagosus_locus/
