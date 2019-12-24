@@ -233,6 +233,13 @@ convert_ft_m <- function(dt_raw){
   res
 }
 
+# single_state("AS:PO")
+# single_state("AS PO")
+single_state <- function(x){
+  res <- sapply(x, function(y) strsplit(y, ":")[[1]][1])
+  sapply(res, function(y) strsplit(y, " ")[[1]][1])
+}
+
 # library(maptools)
 # library(spatstat)
 # test4 <- as(as_Spatial(dt), "ppp")

@@ -19,10 +19,6 @@ nl2012 <- nla_load(2012)$wide_siteinfo %>%
   slice(which.max(INDEX_SITE_DEPTH)) %>%
   LAGOSNE::coordinatize("LAT_DD83", "LON_DD83")
 
-single_state <- function(x){
-  sapply(x, function(y) strsplit(y, ":")[[1]][1])
-}
-
 dt_2012 <- dt_raw_2012 %>%
   distinct(SITE_ID, .keep_all = TRUE) %>%
   left_join(nl2012, by = c("SITE_ID", "LON_DD83", "LAT_DD83")) %>%
