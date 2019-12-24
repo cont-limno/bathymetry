@@ -18,7 +18,7 @@ metadata <- dplyr::bind_rows(metadata)
 unique(metadata$Source)
 
 # calculate hypso
-dt <- raster("data/bathybase_bathy/1-99/1/bathy.tiff")
+rsub <- raster("data/bathybase_bathy/1-99/1/bathy.tiff")
 get_hypso <- function(rsub){
   # rsub <- rsubs[[1]]
   # rsub <- rsubs[[which(names(rsubs) == 89659)]]
@@ -54,11 +54,11 @@ get_hypso <- function(rsub){
   rc
 }
 
-hypso <- get_hypso(dt)
+hypso <- get_hypso(rsub)
 
 # compare to hypso.tsv files
 test <- janitor::clean_names(
-read_tsv("data/bathybase_bathy/1-99/1/hypso.tsv"))
+  read_tsv("data/bathybase_bathy/1-99/1/hypso.tsv"))
 
 plot(test$area_m_2, test$depth_m)
-plot(hypso$area_m2, hypso$depth_int)
+lines(hypso$area_m2, hypso$depth_int)
