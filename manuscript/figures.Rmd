@@ -1,0 +1,18 @@
+---
+title: "Figures"
+output:
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+header-includes: 
+- \usepackage{colortbl}
+---
+
+\arrayrulecolor{white}
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 5, fig.height = 6, dev = c("pdf"))
+```
+
+\pagebreak
+
+# map
