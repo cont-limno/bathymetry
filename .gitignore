@@ -16,3 +16,8 @@ RAW
 data/*.zip
 *.asc
 prediction-grids/
+data/*_bathy/*.tif
+*.gdb
+*.tfw
+data/nh_bathy/Bathymetry_Lakes*
+data/nh_bathy/bathymetry_lakes*
