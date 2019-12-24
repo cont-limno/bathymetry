@@ -17,7 +17,8 @@ res_raw <- dplyr::bind_rows(manual_raw, manual_extra_raw,
   dplyr::filter(is.na(max_depth_m) | is.na(mean_depth_m) |
                   max_depth_m != mean_depth_m) %>%
   dplyr::filter(is.na(max_depth_m) | is.na(mean_depth_m) |
-                  max_depth_m > mean_depth_m)
+                  max_depth_m > mean_depth_m) %>%
+  dplyr::filter(max_depth_m >= 0.3048 | is.na(max_depth_m))
 
 # source classification
 res_raw <- res_raw %>%
