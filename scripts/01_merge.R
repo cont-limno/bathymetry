@@ -1,5 +1,7 @@
 source("scripts/99_utils.R")
 
+lg <- lagosus_load(module = "locus")
+
 # merge manual, nla, and lagosne data
 
 # anticipated columns:
@@ -32,11 +34,20 @@ res_raw <- dplyr::bind_rows(manual_raw, manual_extra_raw,
 
 res <- res_raw %>%
   dplyr::select(llid, name, legacy_name, state, max_depth_m,
-                mean_depth_m, source, source_type, effort, lat, long, lake_waterarea_ha)
+                mean_depth_m, source, source_type, effort, lat, long, lake_waterarea_ha) %>%
+  left_join(lg$locus$locus_information, by = c("llid" = "lagoslakeid"))
+
+res <- res %>%
+  dplyr::select(lagoslakeid = llid, lake_namegnis, lake_states,
+                lake_lat_decdeg, lake_lon_decdeg,
+                lake_maxdepth_m = max_depth_m,
+                lake_meandepth_m = mean_depth_m,
+                lake_waterarea_ha, programtype_depth = source_type,
+                programlink_depth = source, effort)
 
 # TODO deal smarter with duplicates rather than the code below
 # eliminate duplicates based on effort (nla > lagosne)
-res <- rm_dups(res)
+# res <- rm_dups(res)
 
 # table(res$source_type)
 
