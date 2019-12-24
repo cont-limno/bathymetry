@@ -240,6 +240,16 @@ single_state <- function(x){
   sapply(res, function(y) strsplit(y, " ")[[1]][1])
 }
 
+calc_depth <- function(slope_rise, distance){
+  rad_conversion_fac <- 180 / pi
+  lagos_slope_run    <- 10
+
+  theta <- atan(lagos_slope_run / slope_rise) * rad_conversion_fac
+  theta_prime <- (90 - theta) / rad_conversion_fac
+
+  tan(theta_prime) * distance
+}
+
 # library(maptools)
 # library(spatstat)
 # test4 <- as(as_Spatial(dt), "ppp")
