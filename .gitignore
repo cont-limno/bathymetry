@@ -21,3 +21,5 @@ data/*_bathy/*.tif
 *.tfw
 data/nh_bathy/Bathymetry_Lakes*
 data/nh_bathy/bathymetry_lakes*
+data/bathybase_bathy/
+data/elevatr/
