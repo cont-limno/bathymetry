@@ -4,9 +4,7 @@ source("scripts/99_utils.R")
 if(!file.exists("data/lagosus_depth_predictors.csv")){
   lg        <- lagosus_load(modules = "locus")
   lg_ne     <- lagosne_load()
-  lg_x_walk <- read.csv(
-    "data/00_lagosus_locus/LAGOS_Lake_Link_v2_20191017.csv",
-    stringsAsFactors = FALSE) %>%
+  lg_x_walk <- lagosus_load(modules = "locus")$locus$locus_link %>%
     dplyr::select(lagosne_lagoslakeid, lagoslakeid, lagosus_centroidstate) %>%
     dplyr::rename(lagosus_lagoslakeid = lagoslakeid) %>%
     distinct(lagosus_lagoslakeid, .keep_all = TRUE)
