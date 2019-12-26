@@ -10,7 +10,7 @@ lg_x_walk <- lagosus_load(modules = "locus")$locus$locus_link %>%
   dplyr::rename(lagosus_lagoslakeid = lagoslakeid) %>%
   distinct(lagosne_lagoslakeid, .keep_all = TRUE)
 
-dt <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
+dt_raw <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
   dplyr::filter(lake_state == "MN") %>%
   dplyr::filter(!is.na(lake_maxdepth_m)) %>%
   dplyr::filter(lake_meandepth_m != lake_maxdepth_m | is.na(lake_meandepth_m)) %>%
@@ -21,19 +21,20 @@ dt <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
   left_join(lg_x_walk, by = c("lagoslakeid" = "lagosus_lagoslakeid")) %>%
   dplyr::filter(!duplicated(lagosne_lagoslakeid))
 
+lg_pnts <- query_gis_(query = paste0(
+  "SELECT * FROM LAGOS_NE_All_Lakes_4ha_POINTS WHERE ",
+  paste0("State_Name LIKE '", "Minnesota", "'", collapse = " OR "), " AND Lake_Area_Ha > 15"))
 # send lagosne ids to query_gis instead of lagosus ids
 llid_pnts <- query_gis("LAGOS_NE_All_Lakes_4ha_POINTS", "lagoslakeid",
-                       dt$lagosne_lagoslakeid)
-llid_pnts <- st_transform(llid_pnts, st_crs(r))
+          dt_raw$lagosne_lagoslakeid[
+            !(dt_raw$lagosne_lagoslakeid %in% lg_pnts$lagoslakeid)])
+llid_pnts <- do.call("rbind", list(lg_pnts, llid_pnts))
 llid_pnts <- llid_pnts[!sf::st_is_empty(llid_pnts),]
+llid_pnts <- st_transform(llid_pnts, st_crs(r))
 
-dt <- dplyr::filter(dt,
-                    lagosne_lagoslakeid %in% unique(llid_pnts$lagoslakeid))
+dt <- st_drop_geometry(llid_pnts)
 # limit to those intersecting topobathy values
-dt        <- dt[!is.na(raster::extract(r, llid_pnts)),]
-dt        <- arrange(dt, desc(lake_maxdepth_m))
-llid_pnts <- dplyr::filter(llid_pnts, lagoslakeid %in% dt$lagosne_lagoslakeid)
-
+dt <- dt[!is.na(raster::extract(r, llid_pnts)),]
 llid_poly <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", dt$lagoslakeid) %>%
   st_transform(st_crs(r))
 llid_poly <- llid_poly[as.numeric(st_area(llid_poly)) != 0,]
