@@ -8,15 +8,21 @@ locus <- lagosus_load("locus")$locus$locus_characteristics
 # lapply(files, function(x) drive_download(file = x,
 #                path = paste0("data/00_manual_extra/", x, ".csv"),
 #                overwrite = TRUE))
+# drive_download(file = "mt_fwp",
+#                path = paste0("data/00_manual_extra/", "mt_fwp", ".csv"),
+#                overwrite = TRUE)
 
 flist <- list.files("data/00_manual_extra/", pattern = ".csv",
                     full.names = TRUE, include.dirs = TRUE)
+flist <- flist[!grepl("00_manual_extra.csv", flist)]
+
 dt_raw <- lapply(flist, function(x) read.csv(x, stringsAsFactors = FALSE))
 
-dt  <- dplyr::bind_rows(dt_raw) %>%
+dt_raw  <- dplyr::bind_rows(dt_raw) %>%
   dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m) |
                 !is.na(max_depth_ft) | !is.na(mean_depth_ft))
-dt  <- convert_ft_m(dt)
+
+dt  <- convert_ft_m(dt_raw)
 dt  <- left_join(dt, dplyr::select(locus, lagoslakeid, lake_waterarea_ha,
                                     lake_connectivity_permanent),
                  by = c("llid" = "lagoslakeid"))
