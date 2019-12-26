@@ -5,24 +5,20 @@ source("scripts/99_utils.R")
 
 r  <- raster("data/mn_bathy/lake_bathymetric_elevation_model.tif")
 
-lg_x_walk <- read.csv(
-  "data/00_lagosus_locus/LAGOS_Lake_Link_v2_20191017.csv",
-  stringsAsFactors = FALSE) %>%
+lg_x_walk <- lagosus_load(modules = "locus")$locus$locus_link %>%
   dplyr::select(lagosne_lagoslakeid, lagoslakeid, lagosus_centroidstate) %>%
   dplyr::rename(lagosus_lagoslakeid = lagoslakeid) %>%
   distinct(lagosne_lagoslakeid, .keep_all = TRUE)
 
 dt <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
-  # dplyr::filter(effort == "LAGOSNE") %>%
-  # dplyr::filter(lake_waterarea_ha >= 4 & lake_waterarea_ha <= 400) %>%
   dplyr::filter(state == "MN") %>%
-  dplyr::filter(!is.na(max_depth_m)) %>%
-  dplyr::filter(mean_depth_m != max_depth_m | is.na(mean_depth_m)) %>%
-  dplyr::filter(mean_depth_m > 1 | is.na(mean_depth_m)) %>%
-  # dplyr::filter(max_depth_m < 20) %>%
-  dplyr::filter(max_depth_m >= 2) %>%
-  dplyr::filter(!duplicated(llid)) %>%
-  left_join(lg_x_walk, by = c("llid" = "lagosus_lagoslakeid")) %>%
+  dplyr::filter(!is.na(lake_maxdepth_m)) %>%
+  dplyr::filter(lake_meandepth_m != lake_maxdepth_m | is.na(lake_meandepth_m)) %>%
+  dplyr::filter(lake_meandepth_m > 1 | is.na(lake_meandepth_m)) %>%
+  # dplyr::filter(lake_maxdepth_m < 20) %>%
+  dplyr::filter(lake_maxdepth_m >= 2) %>%
+  dplyr::filter(!duplicated(lagoslakeid)) %>%
+  left_join(lg_x_walk, by = c("lagoslakeid" = "lagosus_lagoslakeid")) %>%
   dplyr::filter(!duplicated(lagosne_lagoslakeid))
 
 # send lagosne ids to query_gis instead of lagosus ids
@@ -35,7 +31,7 @@ dt <- dplyr::filter(dt,
                     lagosne_lagoslakeid %in% unique(llid_pnts$lagoslakeid))
 # limit to those intersecting topobathy values
 dt        <- dt[!is.na(raster::extract(r, llid_pnts)),]
-dt        <- arrange(dt, desc(max_depth_m))
+dt        <- arrange(dt, desc(lake_maxdepth_m))
 llid_pnts <- dplyr::filter(llid_pnts, lagoslakeid %in% dt$lagosne_lagoslakeid)
 
 llid_poly <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", dt$llid) %>%
