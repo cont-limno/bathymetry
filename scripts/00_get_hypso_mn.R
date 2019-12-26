@@ -11,7 +11,7 @@ lg_x_walk <- lagosus_load(modules = "locus")$locus$locus_link %>%
   distinct(lagosne_lagoslakeid, .keep_all = TRUE)
 
 dt <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
-  dplyr::filter(state == "MN") %>%
+  dplyr::filter(lake_state == "MN") %>%
   dplyr::filter(!is.na(lake_maxdepth_m)) %>%
   dplyr::filter(lake_meandepth_m != lake_maxdepth_m | is.na(lake_meandepth_m)) %>%
   dplyr::filter(lake_meandepth_m > 1 | is.na(lake_meandepth_m)) %>%
@@ -34,7 +34,7 @@ dt        <- dt[!is.na(raster::extract(r, llid_pnts)),]
 dt        <- arrange(dt, desc(lake_maxdepth_m))
 llid_pnts <- dplyr::filter(llid_pnts, lagoslakeid %in% dt$lagosne_lagoslakeid)
 
-llid_poly <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", dt$llid) %>%
+llid_poly <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", dt$lagoslakeid) %>%
   st_transform(st_crs(r))
 llid_poly <- llid_poly[as.numeric(st_area(llid_poly)) != 0,]
 
@@ -71,7 +71,7 @@ names(rsubs) <- gsub("X", "", unlist(lapply(rsubs, names)))
 # ---- function_definitions ----
 get_hypso <- function(rsub){
   # rsub <- rsubs[[82]]
-  maxdepth <-  abs(cellStats(rsub, "min"))
+  maxdepth <-  abs(cellStats(rsub, "min")) # MN depths are negative
 
   # define depth intervals by raster resolution
   # min_res   <- res(rsub)[1]
