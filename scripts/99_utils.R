@@ -162,7 +162,13 @@ rm_dups <- function(res){
     distinct(llid, max_depth_m, .keep_all = TRUE) %>%
     group_by(llid) %>%
     dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m)) %>%
-    # TODO fill NA mean depth within llids with present mean depth data
+    # fill NA mean depth within llids with present mean depth data
+    # https://stackoverflow.com/a/40515261/3362993
+    # arrange(desc(max_depth_m)) %>%
+    # add_count() %>%
+    # arrange(desc(n), llid) %>%
+    # mutate(mean_test = mean_depth_m[which(!is.na(mean_depth_m))[1]]) # %>%
+    # View()
     dplyr::filter(max_depth_m == max(max_depth_m)) %>%
     arrange(llid)
 
