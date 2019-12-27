@@ -18,14 +18,15 @@ res_raw <- dplyr::bind_rows(manual_raw, manual_extra_raw,
                   max_depth_m != mean_depth_m) %>%
   dplyr::filter(is.na(max_depth_m) | is.na(mean_depth_m) |
                   max_depth_m > mean_depth_m) %>%
-  dplyr::filter(max_depth_m >= 0.3048 | is.na(max_depth_m))
+  dplyr::filter(max_depth_m >= 0.3048 | is.na(max_depth_m)) %>%
+  mutate(source = urltools::domain(source))
 
 # source classification
 res_raw <- res_raw %>%
-  mutate(source = urltools::domain(source)) %>%
   mutate(source_type = case_when(
-    is.na(source_type) & grepl("\\.gov|\\.us$|dnr|dwq|dep", source) ~ "Government",
+    grepl("\\.gov|\\.us$|_dnr_|dwq|_dep_|_deq_|_dfw_|^epa_", source) ~ "Government",
     is.na(source_type) & grepl("\\.edu", source) ~ "University",
+    grepl("mn_mpca", source) ~ "Citizen Monitoring",
     !is.na(source_type) ~ source_type,
     TRUE ~ NA_character_)) %>%
   mutate(source_type = case_when(
