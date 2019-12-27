@@ -25,3 +25,14 @@ data/bathybase_bathy/
 data/elevatr/
 data/nh_bathy/*.zip
 data/00_lagosus_locus/
+*.geojson
+*.shp
+*.shx
+*.shp*
+*.prj
+*.dbf
+*.cpg
+*.sbn
+*.sbx
+data/ma_bathy/*.zip
+*.lyr
