@@ -2,20 +2,17 @@ source("scripts/99_utils.R")
 
 fname <- "data/00_hypso/hypso_predictors.csv"
 # unlink("data/00_hypso/hypso_predictors.csv")
-if(!file.exists(fname)){
-  hypso_classes <- read.csv("data/00_hypso/hypso_classes.csv",
-                            stringsAsFactors = FALSE)
-  dt_raw <- read.csv("data/lagosus_depth_predictors.csv",
-                     stringsAsFactors = FALSE)
 
-  res <- left_join(hypso_classes, dt_raw,
-                   by = c("llid"))
+hypso_classes <- read.csv("data/00_hypso/hypso_classes.csv",
+                          stringsAsFactors = FALSE)
+dt_raw <- read.csv("data/lagosus_depth_predictors.csv",
+                   stringsAsFactors = FALSE)
 
-  write.csv(res, fname, row.names = FALSE)
-}else{
-  res <- read.csv(fname, stringsAsFactors = FALSE)
-}
+res <- left_join(hypso_classes, dt_raw,
+                 by = c("llid" = "lagoslakeid"))
 res$shape_class <- factor(res$shape_class)
+
+write.csv(res, fname, row.names = FALSE)
 
 if(interactive()){
   ggplot(data = dplyr::filter(res,
