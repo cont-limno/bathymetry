@@ -22,6 +22,7 @@ library(progress)
 suppressMessages(library(LAGOSUS))
 library(polylabelr)
 library(esri2sf) # install_github("yonghah/esri2sf")
+library(rnaturalearth)
 
 # ---- misc fxn ----
 # jsta::get_if_not_exists

@@ -1,0 +1,64 @@
+---
+output: pdf_document
+header-includes: 
+  - \pagenumbering{gobble}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fig.height = 4.5)
+# setwd("figures")
+source("../scripts/99_utils.R")
+```
+
+```{r 11_map, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+study_bbox    <- st_read("../data/gis.gpkg", "study_bbox", quiet = TRUE)
+dt            <- st_read("../data/gis.gpkg", "dt", quiet = TRUE) %>%
+  mutate(maxdepth_class = smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, Inf)))
+states_all    <- st_read("../data/gis.gpkg", "states_all", quiet = TRUE)
+states_focal  <- st_read("../data/gis.gpkg", "states_focal", quiet = TRUE)
+hu4_focal     <- st_read("../data/gis.gpkg", "hu4s_focal_simple", quiet = TRUE)
+hu4_focal     <- st_crop(st_transform(
+  lwgeom::st_make_valid(hu4_focal), st_crs(study_bbox)), 
+  study_bbox)
+
+# outline <- ne_countries(country = c("canada", "mexico", "united states of america"), 
+#                      returnclass = "sf")
+# inset_bbox <- mapedit::drawFeatures()
+# sf::st_write(inset_bbox, "../data/inset_bbox.gpkg", 
+#              layer_options = "OVERWRITE=YES")
+# inset_bbox <- st_read("../data/inset_bbox.gpkg")
+# outline <- st_crop(outline, inset_bbox)
+# outline <- outline %>%
+#   st_transform(LAGOSNEgis:::albers_conic()) %>%
+#   st_snap(x = ., y = ., tolerance = 0.000001) %>%
+#   st_union()
+
+gg_states <- 
+  ggplot() + 
+    geom_sf(data = study_bbox, alpha = 1, size = 0.6, 
+          color = "black", fill = "#1D9DCF") +
+    geom_sf(data = states_all, fill = "gray", color = "black", size = 0.3) +
+    # geom_sf(data = outline, color = "black", alpha = 0, size = 0.8) +
+    # geom_sf(data = hu4, fill = "grey") +
+    geom_sf(data = states_focal, fill = "white", color = "black", size = 0.4) + 
+    geom_sf(data = dt, aes(color = maxdepth_class), size = 0.9) +
+    # scale_fill_brewer(palette = "Set2") +
+    coord_sf(datum = NA) +
+    theme_void()
+
+gg_states
+
+# gg_hu4 <- 
+#   ggplot() + 
+#       geom_sf(data = study_bbox, alpha = 1, size = 0.6, 
+#               color = "black", fill = "#1D9DCF") +
+#       geom_sf(data = states_all, fill = "gray", color = "black", size = 0.3) +
+#       geom_sf(data = hu4_focal, fill = "white", color = "black", size = 0.4) +
+#       # geom_sf(data = ep, size = 1) +
+#       coord_sf(datum = NA) +
+#       theme_void() + 
+#       theme(legend.position = 0)
+# 
+# cowplot::plot_grid(gg_states, gg_hu4, ncol = 2, labels = "AUTO", 
+#                    vjust = 8, hjust = -1)
+```
