@@ -1,5 +1,7 @@
 # https://maps.outdoornebraska.gov/arcgis/rest/services/Programs/LakeMapping/MapServer
 
+dir.create("data/ne_bathy", showWarnings = FALSE)
+
 if(!file.exists("data/ne_bathy/ne_bathy.gpkg")){
   base_url <- "https://maps.outdoornebraska.gov/arcgis/rest/services/Programs/LakeMapping/MapServer/"
   contours <- esri2sf(paste0(base_url, "1"))
