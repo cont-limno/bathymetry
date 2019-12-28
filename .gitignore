@@ -36,3 +36,6 @@ data/00_lagosus_locus/
 *.sbx
 data/ma_bathy/*.zip
 *.lyr
+manuscript/figures.tex
+figures/00_maps.tex
+data/gis.gpkg
