@@ -15,4 +15,6 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 5, fig.
 
 \pagebreak
 
-# map
+```{r maps, fig.cap = "Caption for maps figure", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/00_map-1.pdf")
+```

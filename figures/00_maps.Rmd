@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fi
 source("../scripts/99_utils.R")
 ```
 
-```{r 11_map, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+```{r 00_map, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 study_bbox    <- st_read("../data/gis.gpkg", "study_bbox", quiet = TRUE)
 dt            <- st_read("../data/gis.gpkg", "dt", quiet = TRUE) %>%
   mutate(maxdepth_class = smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, Inf)))
