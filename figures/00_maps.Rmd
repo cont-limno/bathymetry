@@ -13,7 +13,8 @@ source("../scripts/99_utils.R")
 ```{r 00_map, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 study_bbox    <- st_read("../data/gis.gpkg", "study_bbox", quiet = TRUE)
 dt            <- st_read("../data/gis.gpkg", "dt", quiet = TRUE) %>%
-  mutate(maxdepth_class = smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, Inf)))
+  mutate(maxdepth_class = smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, Inf))) %>%
+  dplyr::filter(!is.na(maxdepth_class))
 states_all    <- st_read("../data/gis.gpkg", "states_all", quiet = TRUE)
 states_focal  <- st_read("../data/gis.gpkg", "states_focal", quiet = TRUE)
 hu4_focal     <- st_read("../data/gis.gpkg", "hu4s_focal_simple", quiet = TRUE)
@@ -35,13 +36,14 @@ hu4_focal     <- st_crop(st_transform(
 
 gg_states <- 
   ggplot() + 
-    geom_sf(data = study_bbox, alpha = 1, size = 0.6, 
+    geom_sf(data = study_bbox[2,], alpha = 1, size = 0.6, 
           color = "black", fill = "#1D9DCF") +
     geom_sf(data = states_all, fill = "gray", color = "black", size = 0.3) +
     # geom_sf(data = outline, color = "black", alpha = 0, size = 0.8) +
     # geom_sf(data = hu4, fill = "grey") +
     geom_sf(data = states_focal, fill = "white", color = "black", size = 0.4) + 
-    geom_sf(data = dt, aes(color = maxdepth_class), size = 0.9) +
+    geom_sf(data = dt, aes(color = maxdepth_class), size = 0.6, alpha = 0.8) +
+    labs(color = "Max depth (m)") +
     # scale_fill_brewer(palette = "Set2") +
     coord_sf(datum = NA) +
     theme_void()
