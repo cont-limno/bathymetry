@@ -12,8 +12,14 @@ source("../scripts/99_utils.R")
 
 ```{r 00_map, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 study_bbox    <- st_read("../data/gis.gpkg", "study_bbox", quiet = TRUE)
-dt            <- st_read("../data/gis.gpkg", "dt", quiet = TRUE) %>%
-  mutate(maxdepth_class = smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, Inf))) %>%
+dt            <- st_read("../data/gis.gpkg", "dt", quiet = TRUE)
+max_depth <- dt$lake_maxdepth_m
+dt <- dt %>%
+  mutate(lake_maxdepth_m = round(lake_maxdepth_m, 2)) %>%
+  mutate(maxdepth_class = 
+           smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, max(max_depth)), 
+                     brackets = NULL, sep = " - ")
+         ) %>% # unique(dt$maxdepth_class)
   dplyr::filter(!is.na(maxdepth_class))
 states_all    <- st_read("../data/gis.gpkg", "states_all", quiet = TRUE)
 states_focal  <- st_read("../data/gis.gpkg", "states_focal", quiet = TRUE)
