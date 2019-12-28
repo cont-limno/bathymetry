@@ -15,6 +15,6 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 5, fig.
 
 \pagebreak
 
-```{r maps, fig.cap = "Caption for maps figure", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r maps, fig.cap = "Map of lake maximum depth in the continental United States.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/00_map-1.pdf")
 ```
