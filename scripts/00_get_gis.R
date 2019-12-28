@@ -33,7 +33,7 @@ hu4_focal <- left_join(st_drop_geometry(dt), hu4_zones) %>%
 # hu4s       <- LAGOSUSgis::query_gis("hu4", "hu4_zoneid", hu4_zones$hu4_zoneid)
 hu4s_focal <- LAGOSUSgis::query_gis("hu4", "hu4_zoneid", hu4_focal$hu4_zoneid)
 
-study_bbox   <- st_transform(st_as_sfc(st_bbox(hu4s_focal)), st_crs(study_bbox))
+study_bbox   <- st_as_sfc(st_bbox(states_all))
 
 hu4s_focal_simple <- rmapshaper::ms_simplify(
   st_crop(lwgeom::st_make_valid(hu4s_focal),
