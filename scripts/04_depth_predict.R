@@ -49,33 +49,6 @@ write.csv(dt_raw_ne, "data/lagosne_depth_predictors.csv", row.names = FALSE)
 
 if(interactive()){
 
-# ---- correlation-heatmap ----
-
-  library(corrr)
-  library(pheatmap)
-
-  pretty_names <- gsub("mbgconhull_", "", names(dt_raw_ne))
-  pretty_names <- gsub("lake_", "", pretty_names)
-  pretty_names <- gsub("_nounits", "", pretty_names)
-  pretty_names <- gsub("focallake", "", pretty_names)
-
-  test <- dt_raw_ne %>%
-    setNames(pretty_names) %>%
-    dplyr::select_if(is.numeric) %>%
-    dplyr::select(-llid, -contains("decdeg"),
-                  -contains("nhd"),
-                  -contains("lagoslakeid"),
-                  -huc12) %>%
-    correlate() %>%
-    data.frame()
-  test_rowname    <- test$rowname
-  test            <- dplyr::select(test, -rowname)
-  row.names(test) <- test_rowname
-
-  pheatmap(t(test),
-          color = colorRampPalette(
-            RColorBrewer::brewer.pal(n = 7, name = "Reds"))(100))
-
 # ---- oliver-random-huc-slopes ----
   names(dt_raw_ne)
 

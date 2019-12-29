@@ -1,0 +1,41 @@
+---
+output: pdf_document
+header-includes: 
+  - \pagenumbering{gobble}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fig.height = 5)
+# setwd("figures")
+source("../scripts/99_utils.R")
+```
+
+```{r 01_heatmap, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+library(corrr)
+library(pheatmap)
+
+dt_raw_ne <- read.csv("../data/lagosne_depth_predictors.csv", 
+                      stringsAsFactors = FALSE)
+
+pretty_names <- gsub("mbgconhull_", "", names(dt_raw_ne))
+pretty_names <- gsub("lake_", "", pretty_names)
+pretty_names <- gsub("_nounits", "", pretty_names)
+pretty_names <- gsub("focallake", "", pretty_names)
+
+test <- dt_raw_ne %>%
+  setNames(pretty_names) %>%
+  dplyr::select_if(is.numeric) %>%
+  dplyr::select(-lagoslakeid, -contains("decdeg"),
+                -contains("nhd"),
+                -contains("lagoslakeid"),
+                -huc12) %>%
+  correlate() %>%
+  data.frame()
+test_rowname    <- test$rowname
+test            <- dplyr::select(test, -rowname)
+row.names(test) <- test_rowname
+
+pheatmap(t(test),
+        color = colorRampPalette(
+          RColorBrewer::brewer.pal(n = 7, name = "Reds"))(100))
+```
