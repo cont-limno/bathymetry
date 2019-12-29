@@ -5,7 +5,7 @@ header-includes:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fig.height = 4.5)
+knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 4, fig.height = 4)
 # setwd("figures")
 source("../scripts/99_utils.R")
 ```

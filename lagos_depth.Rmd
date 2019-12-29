@@ -111,36 +111,6 @@ ggplot() +
 
 \newpage 
 
-## What are reasonable cutoffs for depth prediction efforts?
-
-> Oliver used 4 ha < max_depth < 1000 ha
-
-```{r cutoffs, eval = TRUE, echo=FALSE, fig.height = 4}
- 
- dt_plot <- dplyr::bind_rows(
-   read.csv("data/00_manual/00_manual.csv", stringsAsFactors = FALSE), 
-   read.csv("data/00_lagosne/00_lagosne.csv", stringsAsFactors = FALSE)) %>%
-  mutate(area_class =
-           smart_cut(lake_waterarea_ha, c(1, 4, 40, 80, 400,
-                                                          1000, 20000, Inf),
-             labels = ~paste(sep="-", thousand_k(.y[1]), thousand_k(.y[2])))
-         ) %>%
-  drop_na(area_class) %>%
-  group_by(area_class) %>%
-  mutate(prop_maxdepth = round(mean(!is.na(max_depth_m)), 2)) %>%
-  add_tally() %>%
-  distinct(area_class, prop_maxdepth, n) %>%
-  arrange(area_class)
-
-dt_plot %>%
-  ggplot() +
-  geom_col(aes(y = n, x = area_class)) +
-  geom_text(aes(y = n, x = area_class, label = prop_maxdepth),
-            vjust = -0.5, size = 4) +
-  ylim(0, 100000) + xlab("Area (ha)") +
-  ggtitle("Proportion max depth availability by \n lake area class (LAGOSNE and Manual)")
-```
-
 ```{r classify, eval=TRUE}
 # round the x value and test if y is greater or less than a straight-line curve
 hypso_ct_classes <- hypso_ct %>%
