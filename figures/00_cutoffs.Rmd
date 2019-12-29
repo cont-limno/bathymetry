@@ -1,0 +1,47 @@
+---
+output: pdf_document
+header-includes: 
+  - \pagenumbering{gobble}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fig.height = 4.5)
+# setwd("figures")
+source("../scripts/99_utils.R")
+```
+
+```{r 00_cutoffs, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+lg <- lagosus_load("locus")
+dt <- read.csv("../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
+  dplyr::select(lagoslakeid, lake_maxdepth_m)
+  
+dt_plot <- lg$locus$locus_characteristics %>%
+  left_join(dt) %>%
+  mutate(area_class =
+           smart_cut(lake_waterarea_ha, c(1, 4, 40, 80, 300,
+                                          400, 1000, 20000, Inf),
+             labels = ~paste(sep="-", thousand_k(.y[1]), thousand_k(.y[2])))
+         ) %>% drop_na(area_class) %>% group_by(area_class) %>%
+  mutate(prop_maxdepth = round(mean(!is.na(lake_maxdepth_m)), 2)) %>%
+  add_tally() %>%
+  distinct(area_class, prop_maxdepth, n) %>%
+  arrange(area_class)
+
+# dt_plot %>%
+#   ggplot() +
+#   geom_col(aes(y = n, x = area_class)) +
+#   geom_text(aes(y = n, x = area_class, label = prop_maxdepth),
+#             vjust = -0.5, size = 4) +
+#   ylim(0, max(dt_plot$n) + 10000) + 
+#   xlab("Area (ha)") +
+#   ggtitle("Proportion max depth availability by \n lake area class")
+
+dt_plot %>%
+  ggplot() +
+  geom_point(aes(y = prop_maxdepth, x = area_class)) +
+  # ylim(0, max(dt_plot$n) + 10000) + 
+  ylim(1, 0) +
+  xlab("Area (ha)") +
+  ylab("Max depth availability (prop)") + 
+  theme(axis.text.x = element_text(angle = 90))
+```

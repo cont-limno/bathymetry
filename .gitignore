@@ -39,3 +39,4 @@ data/ma_bathy/*.zip
 manuscript/figures.tex
 figures/00_maps.tex
 data/gis.gpkg
+figures/00_cutoffs.tex

@@ -18,3 +18,13 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 5, fig.
 ```{r maps, fig.cap = "Map of lake maximum depth in the continental United States.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/00_map-1.pdf")
 ```
+
+```{r cutoffs, fig.cap = "Proportion max depth availability by lake area class.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/00_cutoffs-1.pdf")
+```
+
+# exploratory analyses
+
+# hypsography classification figure (panelized by state)
+
+
