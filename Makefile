@@ -81,7 +81,9 @@ data/00_lagosne/00_lagosne.csv: scripts/00_get_lagosne.R
 
 manuscript/figures.pdf: manuscript/figures.Rmd \
 figures/00_map-1.pdf \
-figures/00_cutoffs-1.pdf
+figures/00_cutoffs-1.pdf \
+figures/01_heatmap-1.pdf \
+figures/01_hypsography-1.pdf
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	-pdftk manuscript/figures.pdf cat 2-end output manuscript/figures2.pdf
 	-mv manuscript/figures2.pdf manuscript/figures.pdf
@@ -92,6 +94,14 @@ figures/00_map-1.pdf: figures/00_maps.Rmd data/gis.gpkg
 	pdfcrop $@ $@
 
 figures/00_cutoffs-1.pdf: figures/00_cutoffs.Rmd data/lagosus_depth.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
+figures/01_heatmap-1.pdf: figures/01_heatmap.Rmd data/lagosne_depth_predictors.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
+figures/01_hypsography-1.pdf: figures/01_hypsography.Rmd data/00_hypso/hypso.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
