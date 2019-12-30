@@ -46,7 +46,7 @@ pb <- progress_bar$new(
 
 rsubs     <- lapply(seq_len(nrow(llid_poly)), function(x){
   # x <- 1
-  # x <- which(140544 == llid_poly$lagoslakeid)
+  # x <- which(2654 == llid_poly$lagoslakeid)
   pb$tick(tokens = list(llid = llid_poly[x,]$lagoslakeid))
 
   fname <- paste0("data/mn_bathy/", llid_poly[x,]$lagoslakeid, ".tif")
@@ -56,6 +56,8 @@ rsubs     <- lapply(seq_len(nrow(llid_poly)), function(x){
          st_buffer(st_sf(st_as_sfc(st_bbox(
            st_geometry(llid_poly)[x]))), 100)
          )) / 3.281  # ft to m
+
+    res <- mask(res, llid_poly[x,])
     writeRaster(res, fname)
   }
 })
