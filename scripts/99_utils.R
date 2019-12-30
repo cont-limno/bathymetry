@@ -23,6 +23,7 @@ suppressMessages(library(LAGOSUS))
 library(polylabelr)
 library(esri2sf) # install_github("yonghah/esri2sf")
 library(rnaturalearth)
+library(mapview)
 
 # ---- misc fxn ----
 # jsta::get_if_not_exists
@@ -247,14 +248,15 @@ single_state <- function(x){
   sapply(res, function(y) strsplit(y, " ")[[1]][1])
 }
 
-calc_depth <- function(slope_rise, distance){
-  rad_conversion_fac <- 180 / pi
-  lagos_slope_run    <- 10
+calc_depth <- function(slope, distance, grain = 1){
+  # dplyr::filter(test, llid == 2654) %>%
+  #   dplyr::select(inlake_slope, dist_deepest)
 
-  theta <- atan(lagos_slope_run / slope_rise) * rad_conversion_fac
-  theta_prime <- (90 - theta) / rad_conversion_fac
+  # rad_conversion_fac <- 180 / pi
 
-  tan(theta_prime) * distance
+  theta <- atan(slope / grain)
+  depth <- tan(theta) * distance
+  depth
 }
 
 # library(maptools)
