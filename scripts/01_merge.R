@@ -10,10 +10,12 @@ nla_raw          <- read.csv(
   "data/00_nla/00_nla.csv", stringsAsFactors = FALSE)
 lagosne_raw      <- read.csv(
   "data/00_lagosne/00_lagosne.csv", stringsAsFactors = FALSE)
+bathy_raw        <- read.csv(
+  "data/00_bathy_depth/00_bathy_depth.csv", stringsAsFactors = FALSE)
 
 # quality assurance
 res_raw <- dplyr::bind_rows(manual_raw, manual_extra_raw,
-                            nla_raw, lagosne_raw) %>%
+                            nla_raw, lagosne_raw, bathy_raw) %>%
   dplyr::filter(is.na(max_depth_m) | is.na(mean_depth_m) |
                   max_depth_m != mean_depth_m) %>%
   dplyr::filter(is.na(max_depth_m) | is.na(mean_depth_m) |

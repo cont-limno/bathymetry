@@ -6,7 +6,8 @@ data/00_hypso/hypso_classes.csv \
 data/lagosus_depth_predictors.csv \
 data/lagosne_depth_predictors.csv \
 data/00_hypso/hypso_predictors.csv \
-data/gis.gpkg
+data/gis.gpkg \
+data/00_bathy_depth/bathy_geometry.csv
 
 data/00_hypso/hypso.csv: scripts/01_hypso_merge.R \
 data/ct_hypso.csv \
@@ -62,7 +63,8 @@ data/lagosus_depth.csv: scripts/01_merge.R \
 data/00_manual/00_manual.csv \
 data/00_manual_extra/00_manual_extra.csv \
 data/00_nla/00_nla.csv \
-data/00_lagosne/00_lagosne.csv
+data/00_lagosne/00_lagosne.csv \
+data/00_bathy_depth/00_bathy_depth.csv
 	Rscript $<
 
 data/00_manual/00_manual.csv: scripts/00_get_manual.R
@@ -77,7 +79,13 @@ data/00_nla/00_nla.csv: scripts/00_get_nla.R
 data/00_lagosne/00_lagosne.csv: scripts/00_get_lagosne.R
 	Rscript $<
 
-# TODO add line for deepest bathymetry point product
+data/00_bathy_depth/00_bathy_depth.csv: scripts/00_get_geometry.R \
+data/00_hypso/hypso.csv
+	Rscript $<
+
+data/00_bathy_depth/bathy_geometry.csv: scripts/00_get_geometry.R \
+data/00_hypso/hypso.csv
+	Rscript $<
 
 manuscript/figures.pdf: manuscript/figures.Rmd \
 figures/00_map-1.pdf \

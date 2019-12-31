@@ -1,5 +1,7 @@
 source("scripts/99_utils.R")
 
+lg <- lagosus_load("locus")
+
 # given a raster, find:
 #   the max depth
 #   the deepest point
@@ -7,9 +9,9 @@ source("scripts/99_utils.R")
 #   the distance from each point to land
 #   the distance between these points
 #   the true in-lake "slope"
-get_geometry <- function(r, llid, deep_positive = TRUE){
-  # r <- raster("data/mn_bathy/2654.tif")
-  test_poly <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", 2654)
+get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
+  # r <- raster("data/ct_bathy/6614.tif")
+  # test_poly <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", 6614)
 
   # r <- raster("data/ct_bathy/101661.tif")
   dt_poly      <- st_zm(concaveman::concaveman(
@@ -19,10 +21,10 @@ get_geometry <- function(r, llid, deep_positive = TRUE){
 
   if(!deep_positive){
     xy       <- xyFromCell(r, which.min(r[]))
-    maxdepth <- abs(r[which.min(r[])][1])
+    maxdepth <- abs(r[which.min(r[])][1]) / ft
   }else{
     xy       <- xyFromCell(r, which.max(r[]))
-    maxdepth <- abs(r[which.max(r)][1])
+    maxdepth <- abs(r[which.max(r)][1]) / ft
   }
   pnt_deepest   <- st_sfc(st_multipoint(xy), crs = st_crs(r))
   pnt_viscenter <- as.numeric(
@@ -50,7 +52,7 @@ rm_bad_rasters <- function(rsubs){
   rsubs
 }
 
-loop_state <- function(fpath, outname, deep_positive){
+loop_state <- function(fpath, outname, deep_positive, ft){
   flist <- list.files(fpath, pattern = "\\d.tif",
                          full.names = TRUE, include.dirs = TRUE)
   if(!file.exists(outname)){
@@ -65,7 +67,7 @@ loop_state <- function(fpath, outname, deep_positive){
       # x <- rsubs[[1]]
       pb$tick(tokens = list(llid = gsub("X", "", names(x))))
       get_geometry(x, deep_positive = deep_positive,
-                   llid = gsub("X", "", names(x)))
+                   llid = gsub("X", "", names(x)), ft = ft)
     })
 
     saveRDS(res, outname)
@@ -78,63 +80,103 @@ loop_state <- function(fpath, outname, deep_positive){
 res_all         <- list()
 
 # MN
-res_all <- rbind(res_all, bind_rows(
+res_all <- rbind(res_all, mutate(bind_rows(
   loop_state("data/mn_bathy/",
              "data/00_bathy_depth/00_bathy_depth_mn.rds",
              deep_positive = FALSE)
-))
+), state = "MN", source = "https://gisdata.mn.gov/dataset/water-lake-bathymetry"))
 # unlink("data/00_bathy_depth/00_bathy_depth_mn.rds")
 
 # CT
-res_all <- rbind(res_all, bind_rows(
+res_all <- rbind(res_all, mutate(bind_rows(
   loop_state("data/ct_bathy/",
              "data/00_bathy_depth/00_bathy_depth_ct.rds",
-             deep_positive = TRUE)
-))
+             deep_positive = TRUE,
+             ft = 3.281)
+), state = "CT", source = "https://cteco.uconn.edu/ctmaps/rest/services/Elevation/Lake_Bathymetry/MapServer/"))
+# unlink("data/00_bathy_depth/00_bathy_depth_ct.rds")
 
 # KS
-res_all <- rbind(res_all, bind_rows(
+res_all <- rbind(res_all, mutate(bind_rows(
   loop_state("data/ks_bathy/",
              "data/00_bathy_depth/00_bathy_depth_ks.rds",
-             deep_positive = TRUE)
-))
+             deep_positive = TRUE,
+             ft = 3.281)
+), state = "KS", source = "http://kars.ku.edu/arcgis/rest/services/WaterResources/BathymetryContour/MapServer/"))
 
 # MA
-res_all <- rbind(res_all, bind_rows(
+res_all <- rbind(res_all, mutate(bind_rows(
   loop_state("data/ma_bathy/",
              "data/00_bathy_depth/00_bathy_depth_ma.rds",
-             deep_positive = TRUE)
-))
+             deep_positive = TRUE,
+             ft = 3.281)
+), state = "MA", source = "http://download.massgis.digital.mass.gov/shapefiles/state/dfwbathy.zip"))
 
 # MI
-res_all <- rbind(res_all, bind_rows(
+res_all <- rbind(res_all, mutate(bind_rows(
   loop_state("data/mi_bathy/",
              "data/00_bathy_depth/00_bathy_depth_mi.rds",
-             deep_positive = TRUE)
-))
+             deep_positive = TRUE,
+             ft = 3.281)
+), state = "MI", source = "https://opendata.arcgis.com/datasets/d49160d2e5af4123b15d48c2e9c70160_4"))
 
 # NE
-res_all <- rbind(res_all, bind_rows(
+res_all <- rbind(res_all, mutate(bind_rows(
   loop_state("data/ne_bathy/",
              "data/00_bathy_depth/00_bathy_depth_ne.rds",
-             deep_positive = TRUE)
-))
+             deep_positive = TRUE,
+             ft = 3.281)
+), state = "NE", source = "https://maps.outdoornebraska.gov/arcgis/rest/services/Programs/LakeMapping/MapServer/"))
 
 # NH
-res_all <- rbind(res_all, bind_rows(
+res_all <- rbind(res_all, mutate(bind_rows(
   loop_state("data/nh_bathy/",
              "data/00_bathy_depth/00_bathy_depth_nh.rds",
-             deep_positive = TRUE)
-))
+             deep_positive = TRUE,
+             ft = 3.281)
+), state = "NH", source = "http://www.granit.unh.edu/cgi-bin/nhsearch?dset=bathymetry_lakes_polygons/nh"))
 
-dt_raw_ne <- read.csv("data/lagosne_depth_predictors.csv",
-                      stringsAsFactors = FALSE) %>%
-  mutate(llid = as.character(lagoslakeid))
-test      <- left_join(res_all, dt_raw_ne) %>%
-  data.frame()
-test$calc_depth_lgne <- calc_depth(test$buffer100m_slope_max, test$dist_deepest,
-                                  grain = 10)
-test$calc_depth_lgus <- calc_depth(test$inlake_slope, test$dist_deepest)
+write.csv(select(res_all, -contains("pnt")),
+          "data/00_bathy_depth/bathy_geometry.csv", row.names = FALSE)
+
+res_final <- res_all %>%
+  mutate(effort = "bathymetry") %>%
+  dplyr::select(llid, state, max_depth_m = maxdepth, source,
+                effort, -contains("pnt"), -contains("dist")) %>%
+  left_join(mutate(dplyr::select(lg$locus$locus_characteristics,
+                          lagoslakeid, lake_waterarea_ha,
+                          lake_connectivity_permanent),
+                   lagoslakeid = as.character(lagoslakeid)),
+            by = c("llid" = "lagoslakeid")) %>%
+  left_join(mutate(dplyr::select(lg$locus$locus_information, lagoslakeid,
+                          lake_lat_decdeg, lake_lon_decdeg),
+                   lagoslakeid = as.character(lagoslakeid)),
+            by = c("llid" = "lagoslakeid")) %>%
+  mutate(lag = lake_lat_decdeg, long = lake_lon_decdeg) %>%
+  write.csv("data/00_bathy_depth/00_bathy_depth.csv", row.names = FALSE)
+
+# res_all <- read.csv("data/00_bathy_depth/bathy_geometry.csv",
+#                     stringsAsFactors = FALSE)
+
+# dt_raw_ne <- read.csv("data/lagosne_depth_predictors.csv",
+#                       stringsAsFactors = FALSE) %>%
+#   mutate(llid = as.character(lagoslakeid))
+# test      <- left_join(res_all, dt_raw_ne) %>%
+#   data.frame()
+# test$calc_depth_lgne <- calc_depth(test$buffer100m_slope_max, test$dist_deepest,
+#                                   grain = 10)
+# test$calc_depth_lgus <- calc_depth(test$inlake_slope, test$dist_deepest)
+# plot(test$maxdepth, test$calc_depth_lgus)
+# plot(test$lake_maxdepth_m, test$calc_depth_lgus)
+# abline(0, 1)
+#
+# ggplot(data = test) +
+#   geom_point(aes(x = lake_maxdepth_m, y = calc_depth_lgus)) +
+#   geom_abline(aes(slope = 1, intercept = 0)) +
+#   facet_wrap(~state)
+
+# plotly::ggplotly())
+
 #
 # hist(test$inlake_slope)
 # hist(test$dist_deepest)
@@ -142,14 +184,10 @@ test$calc_depth_lgus <- calc_depth(test$inlake_slope, test$dist_deepest)
 #
 # plot(test$calc_depth_lgne, test$calc_depth_lgus)
 # plot(test$lake_maxdepth_m, test$calc_depth_lgne)
-# plot(test$lake_maxdepth_m, test$calc_depth_lgus)
-# plot(test$maxdepth, test$calc_depth_lgus)
-# abline(0, 1)
+
 #
 # # 2654
 #
-# plotly::ggplotly(ggplot(data = test) +
-#                    geom_point(aes(x = maxdepth, y = calc_depth_lgus, color = llid)))
 #
 #
 # arrange(res, desc(dist_between)) %>%
