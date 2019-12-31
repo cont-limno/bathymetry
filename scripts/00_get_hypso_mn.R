@@ -2,6 +2,7 @@ source("scripts/99_utils.R")
 
 # MN data comes as a topobathymetric raster
 #   lower (more negative) numbers represent deeper depths
+# https://gisdata.mn.gov/dataset/water-lake-bathymetry
 
 r  <- raster("data/mn_bathy/lake_bathymetric_elevation_model.tif")
 
