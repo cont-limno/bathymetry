@@ -8,7 +8,9 @@ source("scripts/99_utils.R")
 #   the distance between these points
 #   the true in-lake "slope"
 get_geometry <- function(r, llid, deep_positive = TRUE){
-  # r <- raster("data/mn_bathy/1001.tif")
+  # r <- raster("data/mn_bathy/2654.tif")
+  test_poly <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", 2654)
+
   # r <- raster("data/ct_bathy/101661.tif")
   dt_poly      <- st_zm(concaveman::concaveman(
     st_sf(st_sfc(
@@ -81,6 +83,7 @@ res_all <- rbind(res_all, bind_rows(
              "data/00_bathy_depth/00_bathy_depth_mn.rds",
              deep_positive = FALSE)
 ))
+# unlink("data/00_bathy_depth/00_bathy_depth_mn.rds")
 
 # CT
 res_all <- rbind(res_all, bind_rows(
@@ -89,31 +92,72 @@ res_all <- rbind(res_all, bind_rows(
              deep_positive = TRUE)
 ))
 
+# KS
+res_all <- rbind(res_all, bind_rows(
+  loop_state("data/ks_bathy/",
+             "data/00_bathy_depth/00_bathy_depth_ks.rds",
+             deep_positive = TRUE)
+))
 
+# MA
+res_all <- rbind(res_all, bind_rows(
+  loop_state("data/ma_bathy/",
+             "data/00_bathy_depth/00_bathy_depth_ma.rds",
+             deep_positive = TRUE)
+))
 
-# saveRDS(res, "test.rds")
-res <- readRDS("test.rds")
-res <- bind_rows(res)
-res$llid <- gsub("X", "", unlist(lapply(rsubs, names)))
+# MI
+res_all <- rbind(res_all, bind_rows(
+  loop_state("data/mi_bathy/",
+             "data/00_bathy_depth/00_bathy_depth_mi.rds",
+             deep_positive = TRUE)
+))
+
+# NE
+res_all <- rbind(res_all, bind_rows(
+  loop_state("data/ne_bathy/",
+             "data/00_bathy_depth/00_bathy_depth_ne.rds",
+             deep_positive = TRUE)
+))
+
+# NH
+res_all <- rbind(res_all, bind_rows(
+  loop_state("data/nh_bathy/",
+             "data/00_bathy_depth/00_bathy_depth_nh.rds",
+             deep_positive = TRUE)
+))
 
 dt_raw_ne <- read.csv("data/lagosne_depth_predictors.csv",
                       stringsAsFactors = FALSE) %>%
-  mutate(llid = as.character(llid))
-
-res <- left_join(res, dt_raw_ne)
-
-res$calc_depth <- calc_depth(res$buffer100m_slope_max, res$dist_deepest)
-
-plot(res$max_depth_m, res$calc_depth)
-abline(0, 1)
-
-
-arrange(res, desc(dist_between)) %>%
-  View()
-
-hist(res$dist_between)
-plot(res$dist_deepest, res$dist_viscenter)
-abline(0, 1)
+  mutate(llid = as.character(lagoslakeid))
+test      <- left_join(res_all, dt_raw_ne) %>%
+  data.frame()
+test$calc_depth_lgne <- calc_depth(test$buffer100m_slope_max, test$dist_deepest,
+                                  grain = 10)
+test$calc_depth_lgus <- calc_depth(test$inlake_slope, test$dist_deepest)
+#
+# hist(test$inlake_slope)
+# hist(test$dist_deepest)
+# hist(test$calc_depth_lgus)
+#
+# plot(test$calc_depth_lgne, test$calc_depth_lgus)
+# plot(test$lake_maxdepth_m, test$calc_depth_lgne)
+# plot(test$lake_maxdepth_m, test$calc_depth_lgus)
+# plot(test$maxdepth, test$calc_depth_lgus)
+# abline(0, 1)
+#
+# # 2654
+#
+# plotly::ggplotly(ggplot(data = test) +
+#                    geom_point(aes(x = maxdepth, y = calc_depth_lgus, color = llid)))
+#
+#
+# arrange(res, desc(dist_between)) %>%
+#   View()
+#
+# hist(res$dist_between)
+# plot(res$dist_deepest, res$dist_viscenter)
+# abline(0, 1)
 
 # pnt_surface  <- st_point_on_surface(dt_poly)
 ## point furthest from shore
