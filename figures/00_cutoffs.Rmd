@@ -11,6 +11,7 @@ source("../scripts/99_utils.R")
 ```
 
 ```{r 00_cutoffs, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+# proportion max depth availability by lake area class
 lg <- lagosus_load("locus")
 dt <- read.csv("../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
   dplyr::select(lagoslakeid, lake_maxdepth_m)
