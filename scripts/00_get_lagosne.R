@@ -1,7 +1,8 @@
 source("scripts/99_utils.R")
 
 lg_ne        <- lagosne_load("1.087.3")
-lg_x_walk    <- lagosus_load(modules = "locus")$locus$locus_link %>%
+lg           <- lagosus_load(modules = "locus")
+lg_x_walk    <- lg$locus$locus_link %>%
   dplyr::select(lagosne_lagoslakeid, lagoslakeid, lagosus_centroidstate) %>%
   dplyr::rename(lagosus_lagoslakeid = lagoslakeid) %>%
   distinct(lagosne_lagoslakeid, .keep_all = TRUE)
@@ -33,7 +34,14 @@ dplyr::select(llid = lagoslakeid, name = gnis_name, state,
          lagosne_lagoslakeid = llid) %>%
   left_join(lg_x_walk, by = "lagosne_lagoslakeid") %>%
   rename(llid = lagosus_lagoslakeid) %>%
-  dplyr::filter(!is.na(llid))
+  dplyr::filter(!is.na(llid)) %>%
+  # join replace state and coords with lagosus values
+  left_join(dplyr::select(lg$locus$locus_information,
+                    llid = lagoslakeid, lake_lat_decdeg, lake_lon_decdeg)) %>%
+  dplyr::mutate(state = lagosus_centroidstate,
+                lat = lake_lat_decdeg,
+                long = lake_lon_decdeg) %>%
+  dplyr::select(-lake_lat_decdeg, -lake_lon_decdeg)
 
 res <- rm_dups(res) %>%
     dplyr::mutate(effort = "LAGOSNE")
