@@ -1,4 +1,5 @@
 # ---- load packages ----
+library(tidyselect) # >= 0.2.99.9000
 library(googledrive)
 suppressMessages(library(LAGOSNE))
 suppressMessages(library(sf))

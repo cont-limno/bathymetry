@@ -14,7 +14,7 @@ dt_raw <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
   left_join(lg$locus$locus_characteristics,
             by = "lagoslakeid") %>%
   left_join(dplyr::select(lg$locus$locus_information,
-                          -contains("zoneid"),
+                          -matches("\\b(?!hu4)\\w*zoneid\\b", perl = TRUE),
                           # -contains("name"),
                           -contains("reachcode"),
                           -lake_states, -contains("decdeg"),
