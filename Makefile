@@ -44,15 +44,15 @@ data/ne_hypso.csv: scripts/00_get_hypso_ne.R
 data/ma_hypso.csv: scripts/00_get_hypso_ma.R
 	Rscript $<
 
-data/lagosus_depth_predictors.csv: scripts/04_depth_predict.R \
+data/lagosus_depth_predictors.csv: scripts/04_depth_predictors.R \
 data/lagosus_depth.csv
 	Rscript $<
 
-data/lagosne_depth_predictors.csv: scripts/04_depth_predict.R \
+data/lagosne_depth_predictors.csv: scripts/04_depth_predictors.R \
 data/lagosus_depth.csv
 	Rscript $<
 
-data/00_hypso/hypso_predictors.csv: scripts/04_hypso_predict.R \
+data/00_hypso/hypso_predictors.csv: scripts/04_hypso_predictors.R \
 data/lagosus_depth_predictors.csv
 	Rscript $<
 
