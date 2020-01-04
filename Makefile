@@ -67,7 +67,8 @@ data/00_lagosne/00_lagosne.csv \
 data/00_bathy_depth/00_bathy_depth.csv
 	Rscript $<
 
-data/00_manual/00_manual.csv: scripts/00_get_manual.R
+data/00_manual/00_manual.csv: scripts/00_get_manual.R \
+data/00_manual/depth_log_all.csv
 	Rscript $<
 
 data/00_manual_extra/00_manual_extra.csv: scripts/00_get_manual_extra.R
