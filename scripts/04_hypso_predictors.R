@@ -1,12 +1,14 @@
 source("scripts/99_utils.R")
 
 fname <- "data/00_hypso/hypso_predictors.csv"
+# res <- read.csv(fname, stringsAsFactors = FALSE)
 # unlink("data/00_hypso/hypso_predictors.csv")
 
 hypso_classes <- read.csv("data/00_hypso/hypso_classes.csv",
                           stringsAsFactors = FALSE)
 dt_raw <- read.csv("data/lagosus_depth_predictors.csv",
-                   stringsAsFactors = FALSE)
+                   stringsAsFactors = FALSE) %>%
+  distinct(lagoslakeid, .keep_all = TRUE)
 
 res <- left_join(hypso_classes, dt_raw,
                  by = c("llid" = "lagoslakeid"))
