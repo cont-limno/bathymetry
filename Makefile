@@ -114,5 +114,12 @@ figures/01_hypsography-1.pdf: figures/01_hypsography.Rmd data/00_hypso/hypso.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
+manuscript/tables.pdf: tables/01_predictors.pdf
+	pdftk $^ cat output manuscript/tables.pdf
+
+tables/01_predictors.pdf: tables/01_predictors.Rmd data/lagosus_depth.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
 lagos_depth.pdf: lagos_depth.Rmd
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
