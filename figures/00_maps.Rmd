@@ -71,8 +71,13 @@ dt_plot <- dplyr::select(lg$locus$locus_information,
   dplyr::filter(!is.na(prop_maxdepth))
 st_geometry(dt_plot) <- dt_plot$geom
   
+# add text labels of proportions
+
 ggplot() + 
   geom_sf(data = dt_plot, aes(fill = prop_maxdepth)) + 
+  geom_sf_text(data = dt_plot, 
+               aes(label = round(prop_maxdepth, 2)), 
+               size = 2.5) +
   labs(fill = "") +
   coord_sf(datum = NA) + theme_void()
 
