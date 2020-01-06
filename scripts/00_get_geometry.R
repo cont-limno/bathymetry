@@ -52,7 +52,7 @@ rm_bad_rasters <- function(rsubs){
   rsubs
 }
 
-loop_state <- function(fpath, outname, deep_positive, ft){
+loop_state <- function(fpath, outname, deep_positive, ft = 1){
   flist <- list.files(fpath, pattern = "\\d.tif",
                          full.names = TRUE, include.dirs = TRUE)
   if(!file.exists(outname)){
@@ -144,6 +144,7 @@ saveRDS(st_as_sf(res_all),
 # write geometry stats without pnt geometry
 write.csv(select(res_all, -contains("pnt")),
           "data/00_bathy_depth/bathy_geometry.csv", row.names = FALSE)
+# res_all <- read.csv("data/00_bathy_depth/bathy_geometry.csv", stringsAsFactors = FALSE)
 
 # write max depth formatted like other max depth sources
 res_final <- res_all %>%
