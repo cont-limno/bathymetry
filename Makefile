@@ -56,7 +56,7 @@ data/00_hypso/hypso_predictors.csv: scripts/04_hypso_predictors.R \
 data/lagosus_depth_predictors.csv
 	Rscript $<
 
-data/gis.gpkg: scripts/00_get_gis.R
+data/gis.gpkg: scripts/00_get_gis.R data/lagosus_depth.csv
 	Rscript $<
 
 data/lagosus_depth.csv: scripts/01_merge.R \
