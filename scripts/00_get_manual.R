@@ -8,14 +8,52 @@ source("scripts/99_utils.R")
 dt_raw <- suppressWarnings(suppressMessages(
   read_csv("data/00_manual/depth_log_all.csv", col_types = cols())))
 
-dt_lw <- invisible(suppressWarnings(suppressMessages(
-  get_if_not_exists(x = drive_download,
-                            destfile = "data/00_manual/lw.csv",
-                            read_function = read_csv,
-                           file = "FL_LAKEWATCH_sites_linked_R",
-                            type = "csv", path = "data/00_manual/lw.csv",
-                            overwrite = FALSE, col_types = cols())
-  )))
+# collected in very early efforts and lack a lagoslakeid
+one_off_files <- c("data/00_manual/ar.csv" = "AR_ADEQ_SWQM_sites_lakedepth",
+                   "data/00_manual/ca.csv" = "CA_USGS_WSC_sites_lakedepth",
+                   "data/00_manual/fl.csv" = "FL_LAKEWATCH_station_lakedepth")
+one_off_skips <- c(0, 0, 1)
+# lapply(seq_len(length(misc_one_offs)),
+#        function(x) drive_download(
+#          file = as.character(misc_one_offs[x]),
+#          path = names(misc_one_offs)[x],
+#          overwrite = TRUE))
+
+one_offs <- lapply(seq_len(length(one_off_files)), function(i){
+  # i <- 3
+  state <- toupper(gsub(".csv", "", basename(names(one_off_files)[i])))
+  message(paste0("dealing with one-off file from ", state))
+  res <- read.csv(names(one_off_files)[i], stringsAsFactors = FALSE,
+                    header = TRUE, skip = one_off_skips[i]) %>%
+    janitor::clean_names() %>%
+    mutate(file_name = as.character(one_off_files[i]),
+           state = state) %>%
+    select(lat = latitude_measure, lon = longitude_measure,
+           name = lake_name_google_earth, file_name, state,
+           max_depth_ft, mean_depth_ft,
+           max_depth_m, mean_depth_m, url = url_with_depth_info,
+           comments) %>%
+    mutate(lon = as.numeric(lon), lat = as.numeric(lat)) %>%
+    dplyr::filter(!is.na(lat) & !is.na(lon))
+
+  # pull lagos polys
+  lg_poly <- LAGOSUSgis::query_gis_(query = paste0("SELECT * FROM LAGOS_US_All_Lakes_1ha WHERE lake_centroidstate LIKE '", state, "' AND lake_totalarea_ha > 4"))
+  lg_poly <- lwgeom::st_make_valid(lg_poly)
+
+  res_final <- res %>%
+    coordinatize(latname = "lat", longname = "lon") %>%
+    st_transform(crs = st_crs(lg_poly)) %>%
+    st_join(lg_poly) %>%
+    dplyr::filter(!is.na(lagoslakeid)) %>%
+    st_drop_geometry() %>%
+    dplyr::distinct(lagoslakeid, max_depth_m, max_depth_ft, .keep_all = TRUE) %>%
+    dplyr::select(c("lagoslakeid", names(res))) %>%
+    dplyr::rename(Linked_lagoslakeid = lagoslakeid)
+
+  res_final
+  })
+
+dt_raw <- dplyr::bind_rows(dt_raw, dplyr::bind_rows(one_offs))
 
 # ---- convert_merge_ft_to_m ----
 raw <- convert_ft_m(dt_raw)
