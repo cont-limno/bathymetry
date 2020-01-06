@@ -110,7 +110,7 @@ get_csv   <- function(destfile, drive_name){
 poly_to_filled_raster <- function(dt_raw, depth_attr, wh, proj){
   # use state plane for given state
   dt         <- st_transform(dt_raw, proj)
-  dt         <- dplyr::select(dt, depth_attr)
+  dt         <- dplyr::select(dt, all_of(depth_attr))
 
   r             <- raster(xmn = st_bbox(dt)[1], ymn = st_bbox(dt)[2],
                           xmx = st_bbox(dt)[3], ymx = st_bbox(dt)[4])
