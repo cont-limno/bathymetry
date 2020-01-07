@@ -3,6 +3,7 @@ source("scripts/99_utils.R")
 # unlink("data/lagosus_depth_predictors.csv")
 lg        <- lagosus_load(modules = "locus")
 lg_ne     <- lagosne_load()
+# need x_walk to join lagosne slope data
 lg_x_walk <- lagosus_load(modules = "locus")$locus$locus_link %>%
   dplyr::select(lagosne_lagoslakeid, lagoslakeid, lagosus_centroidstate) %>%
   dplyr::rename(lagosus_lagoslakeid = lagoslakeid) %>%
@@ -37,7 +38,7 @@ dt_raw <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
   # remove duplicate columns in original depth product
   dplyr::select(-contains("_lat_"), -contains("_lon_"),
                 -contains("program"), -contains("effort"),
-                -contains("gnis"),  -contains("state"),
+                -contains("gnis"), -contains("states"),
                 -contains("border"), -contains("namelagos"),
                 -contains("predicted"))
 # fill missing nws data with ws data?
@@ -45,6 +46,7 @@ dt_raw <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
 dt_raw_ne <- dplyr::filter(dt_raw, !is.na(buffer100m_slope_max))
 
 write.csv(dt_raw, "data/lagosus_depth_predictors.csv", row.names = FALSE)
+# dt_raw <- read.csv("data/lagosus_depth_predictors.csv", stringsAsFactors = FALSE)
 write.csv(dt_raw_ne, "data/lagosne_depth_predictors.csv", row.names = FALSE)
 
 if(interactive()){
