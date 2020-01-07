@@ -119,6 +119,7 @@ res_all <- rbind(res_all, mutate(bind_rows(
              deep_positive = TRUE,
              ft = 3.281)
 ), state = "MI", source = "https://opendata.arcgis.com/datasets/d49160d2e5af4123b15d48c2e9c70160_4"))
+# unlink("data/00_bathy_depth/00_bathy_depth_mi.rds")
 
 # NE
 res_all <- rbind(res_all, mutate(bind_rows(

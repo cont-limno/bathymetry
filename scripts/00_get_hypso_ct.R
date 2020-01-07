@@ -43,9 +43,8 @@ ps_large_filled       <- lapply(seq_len(nrow(ps_large)), function(x)
 ps_large_filled       <- do.call(rbind, ps_large_filled)
 st_geometry(ps_large) <- ps_large_filled$polygons
 
-lg_pnts <- query_gis_(query = paste0(
-  "SELECT * FROM LAGOS_NE_All_Lakes_4ha_POINTS WHERE ",
-  paste0("State_Name LIKE '", "Connecticut", "'", collapse = " OR ")))
+lg_pnts <- LAGOSUSgis::query_gis_(query =
+                  "SELECT * FROM LAGOS_US_All_Lakes_1ha_points WHERE lake_centroidstate LIKE 'CT' AND lake_totalarea_ha > 4")
 lg_pnts <- sf::st_join(lg_pnts, st_transform(ps_large, st_crs(lg_pnts))) %>%
   dplyr::filter(!is.na(WBNAME))
 

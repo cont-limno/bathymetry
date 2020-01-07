@@ -9,8 +9,8 @@ download.file("https://opendata.arcgis.com/datasets/d49160d2e5af4123b15d48c2e9c7
               "data/mi_bathy/contours.geojson")
 }
 
-lg_poly <- query_gis_(query = paste0("SELECT * FROM LAGOS_NE_All_Lakes_4ha WHERE ",
-                                   paste0("State_Name LIKE '", "Michigan'", collapse = " OR ")))
+lg_poly <- LAGOSUSgis::query_gis_(query =
+                                    "SELECT * FROM LAGOS_US_All_Lakes_1ha WHERE lake_centroidstate LIKE 'MI' AND lake_totalarea_ha > 4")
 mi      <- st_read("data/mi_bathy/contours.geojson")
 mi      <- st_transform(mi, st_crs(lg_poly))
 mi      <- st_join(mi, lg_poly) %>%
@@ -46,11 +46,16 @@ rsubs <- lapply(seq_along(unique(mi$lagoslakeid)),
   list(r = res$r, width = res$wh)
   })
 # whs          <- unlist(lapply(rsubs, function(x) x$width))
-fnames <- list.files("data/mi_bathy/", pattern = "tif",
-                     include.dirs = TRUE, full.names = TRUE)
-rsubs <- lapply(fnames,
-                function(x) raster(x))
-names(rsubs) <- gsub(".tif", "", basename(fnames))
+flist        <- list.files("data/mi_bathy/", patter = "\\d.tif",
+                           full.names = TRUE, include.dirs = TRUE)
+## rm flist not in list
+# flist_rm <- flist[!
+#   gsub(".tif", "", basename(flist)) %in% unique(lg_poly$lagoslakeid)]
+# sapply(flist_rm, unlink)
+flist <- flist[
+  gsub(".tif", "", basename(flist)) %in% unique(lg_poly$lagoslakeid)]
+rsubs        <- lapply(flist, raster)
+names(rsubs) <- gsub(".tif", "", basename(flist))
 
 ## only select files that match unique(mi$lagoslakeid)?
 # any(!(names(rsubs) %in% unique(mi$lagoslakeid)))
@@ -106,7 +111,7 @@ pb <- progress_bar$new(
 hypso <- lapply(seq_len(length(rsubs)), function(x){
   pb$tick(tokens = list(llid = names(rsubs)[x]))
   # which(lg_mi$lagoslakeid == 3791)
-  # which(names(rsubs) == 3791)
+  # which(names(rsubs) == 1293)
   dplyr::mutate(get_hypso(rsubs[[x]]), llid = names(rsubs)[x])
   })
 hypso <- dplyr::bind_rows(hypso)
