@@ -8,8 +8,11 @@ lg_x_walk <- lagosus_load(modules = "locus")$locus$locus_link %>%
   dplyr::select(lagosne_lagoslakeid, lagoslakeid, lagosus_centroidstate) %>%
   dplyr::rename(lagosus_lagoslakeid = lagoslakeid) %>%
   distinct(lagosus_lagoslakeid, .keep_all = TRUE)
+hypso_classes <- read.csv(
+  "data/00_hypso/hypso_classes.csv", stringsAsFactors = FALSE)
 
 dt_raw <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
+  dplyr::left_join(hypso_classes, by = c("lagoslakeid" = "llid")) %>%
   dplyr::select(-contains("waterarea")) %>%
   dplyr::filter(!is.na(lake_maxdepth_m)) %>%
   left_join(lg$locus$locus_characteristics,
