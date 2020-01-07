@@ -96,7 +96,9 @@ figures/00_cutoffs-1.pdf \
 figures/01_heatmap-1.pdf \
 figures/01_hypsography-1.pdf \
 figures/01_contrasts_depth-1.pdf \
-figures/01_contrasts_tally-1.pdf
+figures/01_contrasts_tally-1.pdf \
+figures/slope_diagram.pdf \
+figures/lake_shape.pdf
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	-pdftk manuscript/figures.pdf cat 2-end output manuscript/figures2.pdf
 	-mv manuscript/figures2.pdf manuscript/figures.pdf
