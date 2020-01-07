@@ -45,7 +45,8 @@ data/ma_hypso.csv: scripts/00_get_hypso_ma.R
 	Rscript $<
 
 data/lagosus_depth_predictors.csv: scripts/04_depth_predictors.R \
-data/lagosus_depth.csv
+data/lagosus_depth.csv \
+data/00_hypso/hypso_classes.csv
 	Rscript $<
 
 data/lagosne_depth_predictors.csv: scripts/04_depth_predictors.R \
@@ -92,7 +93,9 @@ manuscript/figures.pdf: manuscript/figures.Rmd \
 figures/00_map-1.pdf \
 figures/00_cutoffs-1.pdf \
 figures/01_heatmap-1.pdf \
-figures/01_hypsography-1.pdf
+figures/01_hypsography-1.pdf \
+figures/01_contrasts_depth-1.pdf \
+figures/01_contrasts_tally-1.pdf
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	-pdftk manuscript/figures.pdf cat 2-end output manuscript/figures2.pdf
 	-mv manuscript/figures2.pdf manuscript/figures.pdf
@@ -111,6 +114,17 @@ figures/01_heatmap-1.pdf: figures/01_heatmap.Rmd data/lagosne_depth_predictors.c
 	pdfcrop $@ $@
 
 figures/01_hypsography-1.pdf: figures/01_hypsography.Rmd data/00_hypso/hypso.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
+figures/01_contrasts_depth-1.pdf: figures/01_contrasts.Rmd \
+data/00_hypso/hypso_predictors.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
+figures/01_contrasts_tally-1.pdf: figures/01_contrasts.Rmd \
+data/00_hypso/hypso_predictors.csv \
+data/lagosus_depth.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
