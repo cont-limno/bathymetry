@@ -80,5 +80,4 @@ ggplot() +
                size = 2.5) +
   labs(fill = "") +
   coord_sf(datum = NA) + theme_void()
-
 ```
