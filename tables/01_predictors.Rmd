@@ -1,0 +1,77 @@
+---
+output:
+  pdf_document
+header-includes: 
+  - \pagenumbering{gobble}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.path = "../figures/", fig.width = 5, fig.height = 6)
+# setwd("figures")
+```
+
+```{r summary_table, eval=TRUE}
+library(kableExtra)
+suppressMessages(library(dplyr))
+library(magrittr)
+
+# pred_key <- read.csv("../data/predictor_key.csv", 
+#                      stringsAsFactors = FALSE)
+# 
+# # scripts/02_aggregate_predictors.R
+# dt_units <- readRDS("../data/dt_units.rds")
+
+# cdl_vars <- readRDS("../data/dt.rds") %>%
+#   dplyr::select(ag:wheat) %>%
+#   summarize_all(median, na.rm = TRUE) %>%
+#   tidyr::gather() %>%
+#   dplyr::filter(value >= 1.4) %>%
+#   arrange(desc(value)) %>%
+#   pull(key)
+
+# setwd("tables")
+dt <- read.csv("../data/lagosus_depth_predictors.csv", 
+               stringsAsFactors = FALSE) %>%
+  distinct(lagoslakeid, .keep_all = TRUE) %>%
+  dplyr::select(-contains("lagoslakeid"), 
+                -contains("lake_nhd"), 
+                -contains("lake_huc")) %>%
+  tidyr::gather(key = "variable") %>%
+  group_by(variable) %>%
+  mutate(value = as.numeric(value)) %>%
+  mutate(q10 = quantile(value, probs = c(0.1), na.rm = TRUE),
+         q25 = quantile(value, probs = c(0.25), na.rm = TRUE),
+         q50 = quantile(value, probs = c(0.5), na.rm = TRUE),
+         q75 = quantile(value, probs = c(0.75), na.rm = TRUE),
+         q90 = quantile(value, probs = c(0.9), na.rm = TRUE), 
+         ratio = q90 / q10, 
+         n = sum(!is.na(value), na.rm = TRUE)) %>%
+  dplyr::filter(!is.na(q50)) %>%
+  dplyr::distinct(signif(q10, 2), signif(q25, 2), signif(q50, 2), signif(q75, 2), signif(q90, 2), ratio, n) %>%
+  dplyr::mutate_if(is.numeric, funs(as.character(signif(., 3)))) %>%
+  dplyr::select(variable, 
+         q10 = `signif(q10, 2)`,
+         q25 = `signif(q25, 2)`,
+         q50 = `signif(q50, 2)`,
+         q75 = `signif(q75, 2)`,
+         q90 = `signif(q90, 2)`,
+         q10_q90_ratio = ratio,
+         n)#  %>%
+  # left_join(dt_units, by = "variable") %>%
+  # dplyr::select(variable, units, everything())
+
+dt <- ungroup(dt)
+# dt <- left_join(dt, pred_key, by = c("variable" = "var"))
+# dt <- dplyr::filter(dt, !is.na(pretty))
+
+# dt <- mutate(dt, pretty = case_when(
+#   nchar(units) > 0 ~ paste0(pretty, " (", units, ")"),
+#   TRUE ~ pretty), 
+#   IQR = paste0(q25, " - ", q75))
+# dt <- dplyr::select(dt, Variable = pretty, 
+#                     Median = q50, Q25 = q25, Q75 = q75)
+
+knitr::kable(dt, digits = 0, format = "markdown") 
+#%>%
+ # add_header_above(c(" ", " ", Ranges = 3, " ", " "))
+```
