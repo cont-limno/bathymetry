@@ -1,0 +1,36 @@
+---
+output: pdf_document
+header-includes: 
+  - \pagenumbering{gobble}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fig.height = 4.5)
+# setwd("figures")
+source("../scripts/99_utils.R")
+```
+
+```{r 01_hypsography, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+
+ids <- factor(c("convex", "concave"))
+polys <- data.frame(
+  id = rep(ids, each = 3),
+  x = c(0, 100, 0, 
+        0, 100, 100), 
+  y = c(100, 0, 0, 
+        100, 100, 0))
+
+dt_raw <- read.csv("../data/00_hypso/hypso.csv", stringsAsFactors = FALSE)
+
+ggplot(data = dt_raw) +
+  geom_polygon(data = polys, aes(x = x, y = y, group = id, fill = id), alpha = 0.2) +
+  geom_line(aes(x = area_percent, y = depth_percent, group = llid)) +
+  geom_abline(intercept = -100, slope = 1, color = "red") +
+  ylim(c(100, 0)) +
+  ylab("Depth (percent)") + xlab("Area (percent)") + 
+  ggtitle(paste0("Normalized hypsography", " (n=", length(unique(dt_raw$llid)), ") lakes")) + 
+  theme(legend.position = c(0.84, 0.2), 
+        legend.title = element_blank()) +
+  facet_wrap(~state)
+
+```
