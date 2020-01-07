@@ -100,7 +100,7 @@ figures/01_contrasts_tally-1.pdf
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	-pdftk manuscript/figures.pdf cat 2-end output manuscript/figures2.pdf
 	-mv manuscript/figures2.pdf manuscript/figures.pdf
-	cd figures && make pnglatest
+#	cd figures && make pnglatest
 
 figures/00_map-1.pdf: figures/00_maps.Rmd data/gis.gpkg
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
