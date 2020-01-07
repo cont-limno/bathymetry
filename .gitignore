@@ -44,3 +44,6 @@ figures/01_heatmap.tex
 figures/01_hypsography.tex
 test.rds
 elev.tif
+data/ct_bathy/ct_bathy.gpkg
+data/ks_bathy/ks_bathy.gpkg
+data/ne_bathy/ne_bathy.gpkg
