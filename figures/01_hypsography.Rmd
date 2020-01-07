@@ -28,7 +28,7 @@ ggplot(data = dt_raw) +
   geom_abline(intercept = -100, slope = 1, color = "red") +
   ylim(c(100, 0)) +
   ylab("Depth (percent)") + xlab("Area (percent)") + 
-  ggtitle(paste0("Normalized hypsography", " (n=", length(unique(dt_raw$llid)), ") lakes")) + 
+  ggtitle(paste0("Normalized hypsography for ", length(unique(dt_raw$llid)), " lakes")) + 
   theme(legend.position = c(0.84, 0.2), 
         legend.title = element_blank()) +
   facet_wrap(~state)
