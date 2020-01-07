@@ -33,6 +33,8 @@ knitr::include_graphics("../figures/00_cutoffs-1.pdf")
 knitr::include_graphics("../figures/01_heatmap-1.pdf")
 ```
 
+![Lake shape caption](../figures/lake_shape.pdf){width=100%}
+
 ```{r hypsography, fig.cap = "Hypsography classification by state.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/01_hypsography-1.pdf")
 ```
@@ -50,5 +52,3 @@ knitr::kable('\\includegraphics[width=6.5in]{"../tables/01_predictors"}', col.na
 ```
 
 ![Slope diagram caption](../figures/slope_diagram.pdf){width=100%}
-
-![Lake shape caption](../figures/lake_shape.pdf){width=100%}

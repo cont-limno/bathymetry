@@ -68,8 +68,8 @@ dt <- ungroup(dt)
 #   nchar(units) > 0 ~ paste0(pretty, " (", units, ")"),
 #   TRUE ~ pretty), 
 #   IQR = paste0(q25, " - ", q75))
-# dt <- dplyr::select(dt, Variable = pretty, 
-#                     Median = q50, Q25 = q25, Q75 = q75)
+dt <- dplyr::select(dt, variable, # Variable = pretty,
+                    Median = q50, Q25 = q25, Q75 = q75, n)
 
 knitr::kable(dt, digits = 0, format = "markdown") 
 #%>%
