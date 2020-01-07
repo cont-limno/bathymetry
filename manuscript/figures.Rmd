@@ -44,3 +44,7 @@ knitr::include_graphics("../figures/01_contrasts_depth-1.pdf")
 ```{r contrasts_tally, fig.cap = "Number of lakes by categories.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/01_contrasts_tally-1.pdf")
 ```
+
+```{r 01_predictors, results='asis', warning=FALSE, echo = FALSE}
+knitr::kable('\\includegraphics[width=6.5in]{"../tables/01_predictors"}', col.names = NULL, caption = "Summary of lake depth predictor variables.")
+```

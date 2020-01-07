@@ -90,6 +90,7 @@ data/00_hypso/hypso.csv
 	Rscript $<
 
 manuscript/figures.pdf: manuscript/figures.Rmd \
+manuscript/tables.pdf \
 figures/00_map-1.pdf \
 figures/00_cutoffs-1.pdf \
 figures/01_heatmap-1.pdf \
