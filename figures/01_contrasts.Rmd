@@ -44,13 +44,33 @@ geom_pointrange(aes(x = lake_connectivity_class, y = `50%`,
 ```
 
 
-```{r 01_contrasts_depth, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height = 4}
+```{r gg_depth_glaciated, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+
+gg_depth_glaciated_class <- dt %>%
+  dplyr::filter(!is.na(lake_glaciatedlatewisc)) %>%
+  group_by(lake_glaciatedlatewisc) %>%
+  summarize(lake_maxdepth_m = list(tibble::enframe(
+    quantile(lake_maxdepth_m, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
+  unnest() %>%
+  tidyr::spread(name, value) %>%
+  ggplot() +
+geom_pointrange(aes(x = lake_glaciatedlatewisc, y = `50%`, 
+                      ymin = `5%`, ymax = `95%`)) +
+  ylab("Depth (m)") + xlab("")
+```
+
+```{r 01_contrasts_depth, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height = 3.5}
+theme_opts <- theme(axis.text.x = element_text(angle = 90))
+  
 cowplot::plot_grid(gg_depth_shape_class + 
-                     theme(axis.text.x = element_text(angle = 90)), 
+                     theme_opts, 
                    gg_depth_conny_class + 
-                     theme(# axis.text.y = element_blank(), 
-                           axis.title.y = element_blank(), 
-                           axis.text.x = element_text(angle = 90)))
+                     theme_opts +
+                     theme(axis.title.y = element_blank()), 
+                   gg_depth_glaciated_class + 
+                     theme_opts +
+                     theme(axis.title.y = element_blank()), 
+                   nrow = 1)
 ```
 
 ```{r gg_tally_profileshapeclass, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
