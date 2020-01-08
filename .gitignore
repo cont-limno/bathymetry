@@ -52,3 +52,4 @@ tables/01_predictors.tex
 lagos_depth.Rmd
 lagos_depth.pdf
 check_progress.Rmd
+figures/*.tex

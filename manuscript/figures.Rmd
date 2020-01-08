@@ -43,8 +43,16 @@ knitr::include_graphics("../figures/01_hypsography-1.pdf")
 knitr::include_graphics("../figures/01_contrasts_depth-1.pdf")
 ```
 
-```{r contrasts_tally, fig.cap = "Number of lakes by categories.", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r glaciated_vs_shapeclass, fig.cap = "Cross tabulation between lake glaciation and shape class. Circles are proportional to the number of lakes in each category. If a lake has been glaciated it is more likely to be convex. However, if a lake has not been glaciated there is no tendencey towards a particular shape class.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/glaciated_vs_shapeclass-1.pdf")
+```
+
+```{r contrasts_tally, fig.cap = "Number of lake depth measurements by categories.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/01_contrasts_tally-1.pdf")
+```
+
+```{r 01_programs_tally, fig.cap = "Number of programs by categories.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/01_programs_tally-1.pdf")
 ```
 
 ```{r 01_predictors, results='asis', warning=FALSE, echo = FALSE}
@@ -52,3 +60,17 @@ knitr::kable('\\includegraphics[width=6.5in]{"../tables/01_predictors"}', col.na
 ```
 
 ![Slope diagram caption](../figures/slope_diagram.pdf){width=100%}
+
+```{r 02_depth_model_fitted, fig.cap = "A model that does not include shape class over predicts depth in concave lakes but does not systematically under predict depth in convex lakes.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/02_depth_model_fitted-1.pdf")
+```
+
+![Lake shape caption](../figures/lake_shape.pdf){width=100%}
+
+```{r 02_hypso_model_fitted, fig.cap = "Confusion matrix comparing two classification methods", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/02_hypso_model_fitted-1.pdf")
+```
+
+```{r 02_hypso_model_importance, fig.cap = "Recusive Partitioning variable importance.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/02_hypso_model_importance-1.pdf")
+```

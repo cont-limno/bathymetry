@@ -1,0 +1,73 @@
+---
+output: pdf_document
+header-includes: 
+  - \pagenumbering{gobble}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fig.height = 4.5)
+# setwd("figures")
+source("../scripts/99_utils.R")
+```
+
+```{r 02_depth_model, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+
+dt <- readRDS("../data/01_depth_model/depth_model.rds")
+```
+
+```{r 02_depth_model_fitted, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+
+gg_noshape <- ggplot() +
+  geom_point(data = dplyr::filter(dt$no_shape, shape_class == "convex"),
+             aes(y = lake_maxdepth_m, x = fitted_values, color = shape_class),
+             alpha = 0.3) +
+  geom_point(data = dplyr::filter(dt$no_shape, shape_class == "concave"),
+             aes(y = lake_maxdepth_m, x = fitted_values, color = shape_class),
+             alpha = 0.3) +
+  geom_abline(slope = 1, intercept = 0) +
+  ylab("Measured max depth") + xlab("Predicted max depth") +
+  ylim(0, 80) + xlim(0, 80) +
+  labs(color = "") +
+  ggtitle("Max depth ~ Lake Area + Buffer slope")
+  # theme(legend.position = "none")
+
+gg_shape <- ggplot() +
+  geom_point(data = dplyr::filter(dt$shape, shape_class == "convex"),
+             aes(y = lake_maxdepth_m, x = fitted_values, color = shape_class),
+             alpha = 0.3) +
+  geom_point(data = dplyr::filter(dt$shape, shape_class == "concave"),
+             aes(y = lake_maxdepth_m, x = fitted_values, color = shape_class),
+             alpha = 0.3) +
+  geom_abline(slope = 1, intercept = 0) +
+  ylab("Measured max depth") + xlab("Predicted max depth") +
+  ylim(0, 80) + xlim(0, 80) +
+  labs(color = "") +
+  ggtitle("Max depth ~ Lake Area + Buffer slope + Shape class")
+
+legend <- get_legend(
+  # create some space to the left of the legend
+  gg_noshape + theme(#legend.box.margin = margin(0, 0, 0, 12), 
+                     legend.direction = "horizontal")
+)
+
+theme_opts <- theme(legend.position = "none", 
+                    plot.title = element_text(size = 8))
+cowplot::plot_grid(gg_noshape + theme_opts, 
+                   gg_shape + theme_opts,
+                   legend, 
+                   rel_heights = c(1, 0.1)
+                   )
+
+```
+
+```{r 02_depth_model_resid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+# residual = observed - predicted
+# positive value = underprediction
+# negative value = overprediction
+
+ggplot() +
+  geom_boxplot(data = dt$no_shape, aes(y = resid, x = shape_class),
+               outlier.shape = NA) +
+  ylim(-20, 20)
+
+```

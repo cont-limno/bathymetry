@@ -1,0 +1,76 @@
+---
+output: pdf_document
+header-includes: 
+  - \pagenumbering{gobble}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fig.height = 4.5)
+# setwd("figures")
+source("../scripts/99_utils.R")
+```
+
+```{r 02_hypso_model, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+
+dt <- readRDS("../data/01_hypso_model/hypso_model.rds")
+```
+
+```{r 02_hypso_model_fitted, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=4}
+
+# names(dt$ranger)
+# class(dt$ranger$confusion)
+
+dt_sub <- data.frame(dt$ranger$confusion) %>%
+  mutate(goodbad = ifelse(data.frame(dt$ranger$confusion)$response == 
+                      data.frame(dt$ranger$confusion)$truth, "good", "bad")) %>%
+  group_by(truth) %>%
+  mutate(prop = Freq/sum(Freq))
+
+gg_ranger <- ggplot(data = dt_sub, 
+                    aes(x = truth, y = response, 
+                        fill = goodbad, alpha = prop)) +
+  geom_tile() +
+  geom_text(aes(label = Freq), vjust = .5, fontface  = "bold", alpha = 1) +
+  scale_fill_manual(values = c(good = "green", bad = "red")) +
+  theme_bw() + 
+  ggtitle(paste0("Random Forest (acc=", 
+                 round(dt$ranger$score, 2), ")"))
+
+dt_sub <- data.frame(dt$rpart$confusion) %>%
+  mutate(goodbad = ifelse(data.frame(dt$rpart$confusion)$response == 
+                      data.frame(dt$rpart$confusion)$truth, "good", "bad")) %>%
+  group_by(truth) %>%
+  mutate(prop = Freq/sum(Freq))
+
+gg_rpart <- ggplot(data = dt_sub, 
+                    aes(x = truth, y = response, 
+                        fill = goodbad, alpha = prop)) +
+  geom_tile() +
+  geom_text(aes(label = Freq), vjust = .5, fontface  = "bold", alpha = 1) +
+  scale_fill_manual(values = c(good = "green", bad = "red")) +
+  theme_bw() + 
+  ggtitle(paste0("Recursive Partitioning (acc=", 
+                 round(dt$rpart$score, 2), ")"))
+
+theme_opts <- theme(legend.position = "none", 
+                    plot.title = element_text(size = 8.5))
+cowplot::plot_grid(gg_rpart + theme_opts, 
+                   gg_ranger + theme_opts,
+                   rel_heights = c(1, 0.1)
+                   )
+
+```
+
+```{r 02_hypso_model_importance, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=4}
+
+# names(dt$rpart)
+data.frame(importance = dt$rpart$importance, stringsAsFactors = FALSE) %>% 
+  mutate(variable = row.names(.)) %>%
+  mutate(variable = forcats::fct_reorder(variable, importance)) %>%
+  arrange(desc(importance)) %>%
+  ggplot() + 
+  geom_col(aes(x = variable, y = importance)) +
+  coord_flip() +
+  ggtitle("Recursive Partitioning Importance")
+
+```
