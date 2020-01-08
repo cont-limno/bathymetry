@@ -10,8 +10,9 @@ lg <- lagosus_load("locus")
 #   the distance between these points
 #   the true in-lake "slope"
 get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
-  # r <- raster("data/ct_bathy/6614.tif")
-  # test_poly <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", 6614)
+  # r <- raster("data/mi_bathy/257862.tif")
+  # test_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha", "lagoslakeid", c(257862, 3958))
+  # TODO: see if theres a way to fix or auto remove problematic lakes like 257862
 
   # r <- raster("data/ct_bathy/101661.tif")
   dt_poly      <- st_zm(concaveman::concaveman(
