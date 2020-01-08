@@ -49,3 +49,6 @@ data/ks_bathy/ks_bathy.gpkg
 data/ne_bathy/ne_bathy.gpkg
 figures/01_contrasts.tex
 tables/01_predictors.tex
+lagos_depth.Rmd
+lagos_depth.pdf
+check_progress.Rmd
