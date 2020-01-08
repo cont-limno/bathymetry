@@ -30,7 +30,7 @@ knitr::kable(setNames(dt, c("Variable name", "Description")))
 
 Figures: [manuscript/figures.pdf](manuscript/figures.pdf)
 
-Appendix: [manuscript/appendix.pdf](manuscript/figures.pdf)
+Tables: [manuscript/tables.pdf](manuscript/tables.pdf)
 
 ### Abstract
 

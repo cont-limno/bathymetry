@@ -29,7 +29,7 @@ DOI](https://zenodo.org/badge/123951266.svg)](https://zenodo.org/badge/latestdoi
 
 Figures: [manuscript/figures.pdf](manuscript/figures.pdf)
 
-Appendix: [manuscript/appendix.pdf](manuscript/figures.pdf)
+Tables: [manuscript/tables.pdf](manuscript/tables.pdf)
 
 ### Abstract
 
