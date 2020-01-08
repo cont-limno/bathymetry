@@ -86,9 +86,7 @@ gg_tally_profileshapeclass <- read.csv(
 ```
 
 ```{r gg_tally_programtype, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
-# panel histograms that tally number of lakes with max depth by programtype_depth
-# include sum across all types
-
+# tally number of lakes with max depth by programtype_depth
 gg_tally_programtype <- read.csv(
   "../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>% 
    dplyr::filter(!is.na(lake_maxdepth_m)) %>%
@@ -162,3 +160,33 @@ cowplot::plot_grid(gg_tally_programtype, gg_tally_maxdepthclass,
                    gg_tally_waterareaclass, gg_tally_hypsoclass, 
                    ncol = 1)
 ```
+
+```{r 01_programs_tally, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+# number of programs in each type
+read.csv(
+  "../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>% 
+   dplyr::filter(!is.na(lake_maxdepth_m)) %>%
+   group_by(programtype_depth, programlink_depth) %>% 
+   tally() %>% 
+   ungroup() %>% group_by(programtype_depth) %>%
+   tally() %>%
+   ggplot(aes(x = programtype_depth, y = n)) + 
+   geom_col() + 
+   geom_text(aes(label = n), vjust = -0.5) + 
+   ylim(0, 250) +
+  xlab("Program type")
+```
+
+```{r glaciated_vs_shapeclass, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+dt_sub <- dplyr::filter(dt, !is.na(shape_class), shape_class != "neither")
+as.data.frame(
+  table(paste(dt_sub$lake_glaciatedlatewisc, dt_sub$shape_class))) %>%
+  tidyr::separate(Var1, c("glaciation", "shape_class"), sep = " ") %>%
+  ggplot() + 
+  geom_point(aes(glaciation, shape_class, size = Freq)) +
+  scale_size_continuous(range = c(5, 20)) +
+  theme(legend.position = "none")
+```
+
+
+
