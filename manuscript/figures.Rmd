@@ -74,3 +74,5 @@ knitr::include_graphics("../figures/02_hypso_model_fitted-1.pdf")
 ```{r 02_hypso_model_importance, fig.cap = "Recusive Partitioning variable importance.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/02_hypso_model_importance-1.pdf")
 ```
+
+![Messager et al. 2016 equation table](../figures/messager_eq_table.png){width=100%}
