@@ -138,6 +138,14 @@ res_all <- rbind(res_all, mutate(bind_rows(
              ft = 3.281)
 ), state = "NH", source = "http://www.granit.unh.edu/cgi-bin/nhsearch?dset=bathymetry_lakes_polygons/nh"))
 
+# IA
+res_all <- rbind(res_all, mutate(bind_rows(
+  loop_state("data/ia_bathy/",
+             "data/00_bathy_depth/00_bathy_depth_ia.rds",
+             deep_positive = TRUE,
+             ft = 3.281)
+), state = "IA", source = "http://iowageodata.s3.amazonaws.com/inlandWaters/lakes_bathymetry.zip"))
+
 # write geometry to an rds file containing an sf object with two geometries
 #         pnt_deepest and pnt_viscenter
 saveRDS(st_as_sf(res_all),

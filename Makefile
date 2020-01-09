@@ -16,7 +16,8 @@ data/mi_hypso.csv \
 data/nh_hypso.csv \
 data/ks_hypso.csv \
 data/ne_hypso.csv \
-data/ma_hypso.csv
+data/ma_hypso.csv \
+data/ia_hypso.csv
 	Rscript $<
 
 data/00_hypso/hypso_classes.csv: scripts/03_hypso_classifier.R \
@@ -42,6 +43,9 @@ data/ne_hypso.csv: scripts/00_get_hypso_ne.R
 	Rscript $<
 
 data/ma_hypso.csv: scripts/00_get_hypso_ma.R
+	Rscript $<
+
+data/ia_hypso.csv: scripts/00_get_hypso_ia.R
 	Rscript $<
 
 data/lagosus_depth_predictors.csv: scripts/04_depth_predictors.R \
