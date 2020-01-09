@@ -103,6 +103,7 @@ figures/01_contrasts_depth-1.pdf \
 figures/01_contrasts_tally-1.pdf \
 figures/slope_diagram.pdf \
 figures/lake_shape.pdf \
+figures/01_geometry-1.pdf \
 figures/02_depth_model_fitted-1.pdf \
 figures/02_hypso_model_fitted-1.pdf
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
@@ -134,6 +135,11 @@ data/00_hypso/hypso_predictors.csv
 figures/01_contrasts_tally-1.pdf: figures/01_contrasts.Rmd \
 data/00_hypso/hypso_predictors.csv \
 data/lagosus_depth.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
+figures/01_geometry-1.pdf: figures/01_geometry.Rmd \
+data/00_bathy_depth/bathy_pnts.rds
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 

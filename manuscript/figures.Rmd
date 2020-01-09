@@ -59,8 +59,6 @@ knitr::include_graphics("../figures/01_programs_tally-1.pdf")
 knitr::kable('\\includegraphics[width=6.5in]{"../tables/01_predictors"}', col.names = NULL, caption = "Summary of lake depth predictor variables.")
 ```
 
-![Slope diagram caption](../figures/slope_diagram.pdf){width=100%}
-
 ```{r 02_depth_model_fitted, fig.cap = "A model that does not include shape class over predicts depth in concave lakes but does not systematically under predict depth in convex lakes.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/02_depth_model_fitted-1.pdf")
 ```
@@ -76,3 +74,14 @@ knitr::include_graphics("../figures/02_hypso_model_importance-1.pdf")
 ```
 
 ![Messager et al. 2016 equation table](../figures/messager_eq_table.png){width=100%}
+
+```{r 01_geometry_points, fig.cap = "Caption.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/01_geometry-1.pdf")
+```
+
+```{r 01_geometry_map, fig.cap = "Green points show the 'visual center' of the lake. Red points show the true deepest point of a lake.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/01_geometry-2.pdf")
+```
+
+![Slope diagram caption](../figures/slope_diagram.pdf){width=100%}
+

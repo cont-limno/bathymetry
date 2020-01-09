@@ -1,0 +1,60 @@
+---
+output: pdf_document
+header-includes: 
+  - \pagenumbering{gobble}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fig.height = 4.5)
+# setwd("figures")
+source("../scripts/99_utils.R")
+```
+
+```{r 01_geometry, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+# example map of true deepest point versus visual center
+
+dt <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
+
+# plot of true deepest versus visual centers
+
+(gg_test <- ggplot(data = st_drop_geometry(dt)) + 
+  geom_point(aes(x = dist_deepest, y = dist_viscenter)) + # , color = llid)) +
+  geom_abline(aes(intercept = 0, slope = 1)) +
+  xlab("Distance to shore from deepest point") +
+  ylab("Distance to shore from visual center"))
+
+# plotly::ggplotly(gg_test)
+# plot(res$dist_deepest, res$dist_viscenter)
+
+get_pnt_map <- function(x){
+  # x <- 3
+  lg_example <- LAGOSUSgis::query_gis(
+    "LAGOS_US_All_Lakes_1ha", "lagoslakeid", dt$llid[x])
+  crs_example <- st_crs(
+    raster(list.files(paste0("../data/", tolower(dt$state[x]), "_bathy"), 
+               include.dirs = TRUE, full.names = TRUE)[1])
+    )
+  st_crs(dt$pnt_deepest)   <- crs_example
+  st_crs(dt$pnt_viscenter) <- crs_example
+  
+  ggplot() + 
+    geom_sf(data = lg_example) +
+    geom_sf(data = dt$pnt_deepest[x], color = "red") + 
+    geom_sf(data = dt$pnt_viscenter[x], color = "green") +
+    theme_void()
+}
+
+# which(dt$llid == 5636)
+# which(dt$llid == 257862)
+# get_pnt_map(2352)
+cowplot::plot_grid(get_pnt_map(which(dt$llid == 3791)) +
+                     ggtitle(3791), 
+                   get_pnt_map(which(dt$llid == 2772)) +
+                     ggtitle(2772), 
+                   get_pnt_map(which(dt$llid == 2655)) +
+                     ggtitle(2655), 
+                   get_pnt_map(which(dt$llid == 1822)) +
+                     ggtitle(1822)
+                   )
+
+```
