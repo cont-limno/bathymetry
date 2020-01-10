@@ -3,7 +3,6 @@
 .RData
 .Ruserdata
 .httr-oauth
-data/*.csv
 data/backups
 data/00_manual/*.csv
 data/00_nla/*.csv
@@ -55,3 +54,5 @@ check_progress.Rmd
 figures/*.tex
 data/ia_bathy/*.CPG
 data/ia_bathy/*.zip
+data/*_hypso.csv
+data/*_todo.csv
