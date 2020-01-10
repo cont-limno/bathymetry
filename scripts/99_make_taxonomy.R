@@ -11,7 +11,7 @@ taxonomy_key <- data.frame(
                   "unique lake identifier developed for LAGOS-US",
                   "lake name from the gnis database",
                   "abbreviation(s) of state(s) intersecting the lake polygon",
-                  "abbrevaiation of the state used to search for a lake's depth",
+                  "abbreviation of the state used to search for a lake's depth",
                   "the latitude of the lake center point (NAD83).",
                   "the longitude of the lake center point (NAD83).",
                   "lake maximum depth in meters",

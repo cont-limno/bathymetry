@@ -2,7 +2,7 @@
 "lagoslakeid","unique lake identifier developed for LAGOS-US"
 "lake_namegnis","lake name from the gnis database"
 "lake_states","abbreviation(s) of state(s) intersecting the lake polygon"
-"lake_state","abbrevaiation of the state used to search for a lake's depth"
+"lake_state","abbreviation of the state used to search for a lake's depth"
 "lake_lat_decdeg","the latitude of the lake center point (NAD83)."
 "lake_lon_decdeg","the longitude of the lake center point (NAD83)."
 "lake_maxdepth_m","lake maximum depth in meters"

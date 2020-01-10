@@ -14,7 +14,7 @@ DOI](https://zenodo.org/badge/123951266.svg)](https://zenodo.org/badge/latestdoi
 | lagoslakeid            | unique lake identifier developed for LAGOS-US                      |
 | lake\_namegnis         | lake name from the gnis database                                   |
 | lake\_states           | abbreviation(s) of state(s) intersecting the lake polygon          |
-| lake\_state            | abbrevaiation of the state used to search for a lake’s depth       |
+| lake\_state            | abbreviation of the state used to search for a lake’s depth        |
 | lake\_lat\_decdeg      | the latitude of the lake center point (NAD83).                     |
 | lake\_lon\_decdeg      | the longitude of the lake center point (NAD83).                    |
 | lake\_maxdepth\_m      | lake maximum depth in meters                                       |
