@@ -166,5 +166,13 @@ tables/01_predictors.pdf: tables/01_predictors.Rmd data/lagosus_depth.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
+data/lagosus_depth_taxonomy.csv: scripts/99_make_taxonomy.R
+	Rscript $<
+
+README.md: README.Rmd \
+data/lagosus_depth_taxonomy.csv
+	Rscript -e "rmarkdown::render('$<')"
+
 lagos_depth.pdf: lagos_depth.Rmd
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+

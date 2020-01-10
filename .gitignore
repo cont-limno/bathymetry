@@ -58,3 +58,4 @@ data/*_hypso.csv
 data/*_todo.csv
 data/00_hypso/hypso.csv
 data/00_hypso/hypso_classes.csv
+README.html
