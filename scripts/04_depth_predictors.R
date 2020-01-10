@@ -46,10 +46,16 @@ dt_raw <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
                 -contains("predicted"))
 # fill missing nws data with ws data?
 
-dt_raw_ne <- dplyr::filter(dt_raw, !is.na(buffer100m_slope_max))
+# add reservoir class labels
+dt_raw <- dt_raw %>%
+  left_join(dplyr::select(read.csv(
+  "data/00_reservoir_classification/reservoir_classes_clean.csv",
+  stringsAsFactors = FALSE), lagoslakeid, reservoir_class), by = "lagoslakeid")
 
 write.csv(dt_raw, "data/lagosus_depth_predictors.csv", row.names = FALSE)
 # dt_raw <- read.csv("data/lagosus_depth_predictors.csv", stringsAsFactors = FALSE)
+
+dt_raw_ne <- dplyr::filter(dt_raw, !is.na(buffer100m_slope_max))
 write.csv(dt_raw_ne, "data/lagosne_depth_predictors.csv", row.names = FALSE)
 
 if(interactive()){

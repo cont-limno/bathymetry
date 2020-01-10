@@ -48,13 +48,19 @@ data/ma_hypso.csv: scripts/00_get_hypso_ma.R
 data/ia_hypso.csv: scripts/00_get_hypso_ia.R
 	Rscript $<
 
+data/00_reservoir_classification/reservoir_classes_clean.csv: scripts/00_get_reservoir_class.R
+	Rscript $<
+
 data/lagosus_depth_predictors.csv: scripts/04_depth_predictors.R \
 data/lagosus_depth.csv \
-data/00_hypso/hypso_classes.csv
+data/00_hypso/hypso_classes.csv \
+data/00_reservoir_classification/reservoir_classes_clean.csv
 	Rscript $<
 
 data/lagosne_depth_predictors.csv: scripts/04_depth_predictors.R \
-data/lagosus_depth.csv
+data/lagosus_depth.csv \
+data/00_hypso/hypso_classes.csv \
+data/00_reservoir_classification/reservoir_classes_clean.csv
 	Rscript $<
 
 data/00_hypso/hypso_predictors.csv: scripts/04_hypso_predictors.R \
