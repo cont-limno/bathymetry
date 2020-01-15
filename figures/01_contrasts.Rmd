@@ -61,7 +61,7 @@ geom_pointrange(aes(x = lake_glaciatedlatewisc, y = `50%`,
 
 ```{r gg_depth_reservoir, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 
-gg_depth_reservoir <- dt %>%
+(gg_depth_reservoir <- dt %>%
   dplyr::filter(!is.na(reservoir_class)) %>%
   group_by(reservoir_class) %>%
   summarize(lake_maxdepth_m = list(tibble::enframe(
@@ -71,7 +71,7 @@ gg_depth_reservoir <- dt %>%
   ggplot() +
 geom_pointrange(aes(x = reservoir_class, y = `50%`, 
                       ymin = `5%`, ymax = `95%`)) +
-  ylab("Depth (m)") + xlab("")
+  ylab("Depth (m)") + xlab(""))
 ```
 
 ```{r gg_depth_xtabs, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
@@ -83,7 +83,7 @@ dt_sub <- dplyr::filter(dt,
 #   arrange(lake_glaciatedlatewisc) %>%
 #   gridExtra::grid.table()
   
-gg_depth_xtabs <- group_by(dt_sub, 
+(gg_depth_xtabs <- group_by(dt_sub, 
                            lake_glaciatedlatewisc, reservoir_class) %>%
     summarize(lake_maxdepth_m = list(tibble::enframe(
     quantile(lake_maxdepth_m, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
@@ -93,7 +93,7 @@ gg_depth_xtabs <- group_by(dt_sub,
   ggplot() +
 geom_pointrange(aes(x = cat, y = `50%`, 
                       ymin = `5%`, ymax = `95%`)) +
-  ylab("Depth (m)") + xlab("")
+  ylab("Depth (m)") + xlab(""))
 
 ```
 
