@@ -55,19 +55,15 @@ gg_states
 lg <- lagosus_load("locus")
 dt <- read.csv("../data/lagosus_depth.csv", stringsAsFactors = FALSE)
 
-dt_plot <- dplyr::select(lg$locus$locus_information, 
-                         -contains("decdeg"), 
-                         -contains("states"), 
-                         -contains("gnis")) %>%
+dt_plot <- dt %>%
   distinct(lagoslakeid, .keep_all = TRUE) %>%
-  left_join(dt, by = "lagoslakeid") %>%
   dplyr::filter(lake_waterarea_ha >= 4) %>%
-  group_by(lake_centroidstate) %>%
+  group_by(lake_state) %>%
   summarize(prop_maxdepth = mean(!is.na(lake_maxdepth_m))) %>%
   arrange(desc(prop_maxdepth)) %>%
   left_join(dplyr::filter(
     dplyr::select(states_all, postal, iso_a2), iso_a2 == "US"), 
-            by = c("lake_centroidstate" = "postal")) %>%
+            by = c("lake_state" = "postal")) %>%
   dplyr::filter(!is.na(prop_maxdepth))
 st_geometry(dt_plot) <- dt_plot$geom
   

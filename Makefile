@@ -71,12 +71,14 @@ data/gis.gpkg: scripts/00_get_gis.R data/lagosus_depth.csv
 	Rscript $<
 
 data/lagosus_depth.csv: scripts/01_merge.R \
+scripts/02_qa.R \
 data/00_manual/00_manual.csv \
 data/00_manual_extra/00_manual_extra.csv \
 data/00_nla/00_nla.csv \
 data/00_lagosne/00_lagosne.csv \
 data/00_bathy_depth/00_bathy_depth.csv
 	Rscript $<
+	Rscript $(word 2,$^)
 
 data/00_manual/00_manual.csv: scripts/00_get_manual.R \
 data/00_manual/depth_log_all.csv
