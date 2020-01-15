@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 5, fig.
 knitr::include_graphics("../figures/00_map-1.pdf")
 ```
 
-```{r maps_state, fig.cap = "Proportion of lakes greater than 4ha with maximum depth availability by state.", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r maps_state, fig.cap = "Proportion of ALL lakes greater than 4ha with maximum depth availability by state.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/00_map_state-1.pdf")
 ```
 
