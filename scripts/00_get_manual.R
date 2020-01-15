@@ -8,6 +8,22 @@ source("scripts/99_utils.R")
 dt_raw <- suppressWarnings(suppressMessages(
   read_csv("data/00_manual/depth_log_all.csv", col_types = cols())))
 
+# collected in later efforts but not merged in overall log
+# drive_download(file = "PA_USGS_sites_linked_R",
+#                path = "data/00_manual/pa.csv", overwrite = TRUE)
+dt_pa <- suppressMessages(read_csv("data/00_manual/pa.csv")) %>%
+  janitor::clean_names() %>%
+  mutate(file_name = "PA_USGS_sites_linked_R",
+         state = "PA") %>%
+  dplyr::select(Linked_lagoslakeid = linked_lagoslakeid,
+                lat = latitude, lon = longitude,
+                name = lakename_google, file_name,
+                state, max_depth_ft, mean_depth_ft,
+                lakename_google, max_depth_m, mean_depth_m,
+                url, comments)
+
+dt_raw <- dplyr::bind_rows(dt_raw, dt_pa)
+
 # collected in very early efforts and lack a lagoslakeid
 one_off_files <- c("data/00_manual/ar.csv" = "AR_ADEQ_SWQM_sites_lakedepth",
                    "data/00_manual/ca.csv" = "CA_USGS_WSC_sites_lakedepth",
