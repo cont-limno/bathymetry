@@ -60,3 +60,6 @@ README.html
 tables/01_predictors.tex
 test.rds
 *.tfw
+manuscript/lagos-depth_figures.pdf
+debug.R
+test.R
