@@ -74,3 +74,11 @@ ggplot() +
   ylim(-20, 20)
 
 saveRDS(res, "data/01_depth_model/depth_model.rds")
+
+# ---- Oliver et al. 2016 random effects model ----
+
+dt <- read.csv("data/lagosne_depth_predictors.csv", stringsAsFactors = FALSE)
+
+
+
+
