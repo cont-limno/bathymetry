@@ -1,3 +1,4 @@
+# setwd("../")
 source("scripts/99_utils.R")
 
 lg <- LAGOSUS::lagosus_load("locus")
@@ -64,3 +65,7 @@ st_write(study_bbox, gpkg_path, layer = "study_bbox", update = TRUE,
          layer_options = c("OVERWRITE=yes"))
 st_write(dt, gpkg_path, layer = "dt", update = TRUE,
          layer_options = c("OVERWRITE=yes"))
+# library(RSQLite)
+# db = SQLite()
+# con = dbConnect(db, "data/gis.gpkg")
+# dbRemoveTable(con, "dt")
