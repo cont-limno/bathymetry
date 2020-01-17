@@ -72,7 +72,8 @@ res <- res %>%
   arrange(llid) %>%
   group_by(llid) %>%
   dplyr::filter(max_depth_m == max(max_depth_m)) %>%
-  mutate(effort = "NLA")
+  mutate(effort = "NLA") %>%
+  mutate(has_limno = 1)
 
 # join lake area and connectivity from locus preview
 write.csv(res, "data/00_nla/00_nla.csv", row.names = FALSE)

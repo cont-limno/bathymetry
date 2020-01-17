@@ -39,7 +39,7 @@ res_raw <- res_raw %>%
 # column naming and arrangement
 res <- res_raw %>%
   dplyr::select(llid, name, legacy_name, state, max_depth_m,
-                mean_depth_m, source, source_type, effort, lat, long, lake_waterarea_ha) %>%
+                mean_depth_m, source, source_type, effort, lat, long, lake_waterarea_ha, has_limno) %>%
   left_join(lg$locus$locus_information, by = c("llid" = "lagoslakeid"))
 
 res <- res %>%
@@ -49,7 +49,8 @@ res <- res %>%
                 lake_maxdepth_m = max_depth_m,
                 lake_meandepth_m = mean_depth_m,
                 lake_waterarea_ha, programtype_depth = source_type,
-                programlink_depth = source, lagos_effort = effort) %>%
+                programlink_depth = source, lagos_effort = effort,
+                has_limno) %>%
   mutate(predicted_maxdepth_m = NA)
 
 # keep duplicates with unique max_depth_m values

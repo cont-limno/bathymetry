@@ -108,6 +108,7 @@ res <- raw[,!duplicated(names(raw))] %>%
 # dplyr::filter(!is.na(max_depth_m) | !is.na(mean_depth_m))
 
 res <- rm_dups(res)
+res <- mutate(res, has_limno = 1)
 
 write.csv(res, "data/00_manual/00_manual.csv", row.names = FALSE)
 # res <- read.csv("data/00_manual/00_manual.csv", stringsAsFactors = FALSE)

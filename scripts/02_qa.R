@@ -71,7 +71,8 @@ lg_missing <- lg$locus$locus_information %>%
   dplyr::filter(!(lagoslakeid %in% dt$lagoslakeid))
 
 res <- bind_rows(dt, lg_missing) %>%
-  dplyr::select(-n, -diff)
+  dplyr::select(-n, -diff) %>%
+  mutate(has_limno = tidyr::replace_na(has_limno, 0))
 
 write.csv(res, "data/lagosus_depth.csv", row.names = FALSE)
 # res <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE)

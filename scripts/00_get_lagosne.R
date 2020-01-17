@@ -41,9 +41,13 @@ dplyr::select(llid = lagoslakeid, name = gnis_name, state,
   dplyr::mutate(state = lagosus_centroidstate,
                 lat = lake_lat_decdeg,
                 long = lake_lon_decdeg) %>%
-  dplyr::select(-lake_lat_decdeg, -lake_lon_decdeg)
+  dplyr::select(-lake_lat_decdeg, -lake_lon_decdeg) %>%
+  mutate(has_limno = case_when(
+     lagosne_lagoslakeid %in% unique(lg_ne$epi_nutr$lagoslakeid) ~ 1,
+     TRUE ~ 0))
 
-res <- rm_dups(res) %>%
+res2 <- rm_dups(res) %>%
     dplyr::mutate(effort = "LAGOSNE")
 
-write.csv(res, "data/00_lagosne/00_lagosne.csv", row.names = FALSE)
+write.csv(res2, "data/00_lagosne/00_lagosne.csv", row.names = FALSE)
+# res <- read.csv("data/00_lagosne/00_lagosne.csv", stringsAsFactors = FALSE)
