@@ -6,8 +6,14 @@ lg        <- lagosus_load(module = "locus")
 # ---- remove obs that seem wrong in lakes with repeated measures ----
 threshold <- 0.4
 
-dt_raw <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
+dt_raw        <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE)
+has_limno_ids <- dt_raw %>%
+  dplyr::filter(has_limno == 1) %>%
+  distinct(lagoslakeid) %>%
+  pull(lagoslakeid)
+dt_raw        <- dt_raw %>%
   dplyr::filter(!is.na(lake_maxdepth_m))
+
 dt     <- dt_raw %>%
   group_by(lagoslakeid) %>%
   add_tally() %>%
@@ -72,7 +78,11 @@ lg_missing <- lg$locus$locus_information %>%
 
 res <- bind_rows(dt, lg_missing) %>%
   dplyr::select(-n, -diff) %>%
-  mutate(has_limno = tidyr::replace_na(has_limno, 0))
+  mutate(has_limno = case_when(
+    lagoslakeid %in% has_limno_ids ~ 1,
+    TRUE ~ 0))
+
+# any(!is.na(res$lake_maxdepth_m) & res$has_limno == 1) # TRUE
 
 write.csv(res, "data/lagosus_depth.csv", row.names = FALSE)
 # res <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE)
