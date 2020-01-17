@@ -170,7 +170,7 @@ res_final <- res_all %>%
                           lake_lat_decdeg, lake_lon_decdeg),
                    lagoslakeid = as.character(lagoslakeid)),
             by = c("llid" = "lagoslakeid")) %>%
-  mutate(lag = lake_lat_decdeg, long = lake_lon_decdeg) %>%
+  mutate(lat = lake_lat_decdeg, long = lake_lon_decdeg) %>%
   write.csv("data/00_bathy_depth/00_bathy_depth.csv", row.names = FALSE)
 
 # res_all <- read.csv("data/00_bathy_depth/bathy_geometry.csv",
