@@ -7,7 +7,8 @@ data/lagosus_depth_predictors.csv \
 data/lagosne_depth_predictors.csv \
 data/00_hypso/hypso_predictors.csv \
 data/gis.gpkg \
-data/00_bathy_depth/bathy_geometry.csv
+data/00_bathy_depth/bathy_geometry.csv \
+data/00_bathy_depth/00_bathy_pnts.rds
 
 data/00_hypso/hypso.csv: scripts/01_hypso_merge.R \
 data/ct_hypso.csv \
@@ -90,7 +91,14 @@ data/00_manual_extra/00_manual_extra.csv: scripts/00_get_manual_extra.R
 data/00_nla/00_nla.csv: scripts/00_get_nla.R
 	Rscript $<
 
-data/00_lagosne/00_lagosne.csv: scripts/00_get_lagosne.R
+data/00_lagosne/00_lagosne.csv: scripts/00_get_lagosne.R \
+data/00_lagosne/00_lagosne_xwalk.csv
+	Rscript $<
+
+data/00_lagosne/00_lagosne_xwalk.csv: scripts/00_get_lagosne_xwalk.R
+	Rscript $<
+
+data/00_bathy_depth/00_bathy_pnts.rds: scripts/00_get_geometry.R
 	Rscript $<
 
 data/00_bathy_depth/00_bathy_depth.csv: scripts/00_get_geometry.R \

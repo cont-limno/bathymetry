@@ -2,8 +2,10 @@ source("scripts/99_utils.R")
 
 lg_ne        <- lagosne_load("1.087.3")
 lg           <- lagosus_load(modules = "locus")
-lg_x_walk    <- lg$locus$locus_link %>%
-  dplyr::select(lagosne_lagoslakeid, lagoslakeid, lagosus_centroidstate) %>%
+lg_xwalk <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv",
+                     stringsAsFactors = FALSE) %>%
+  dplyr::select(lagosne_lagoslakeid, lagoslakeid,
+                lagosus_centroidstate = lake_centroidstate) %>%
   dplyr::rename(lagosus_lagoslakeid = lagoslakeid) %>%
   distinct(lagosne_lagoslakeid, .keep_all = TRUE)
 
@@ -32,7 +34,7 @@ dplyr::select(llid = lagoslakeid, name = gnis_name, state,
                   by = c("source" = "programname")) %>%
   rename(source_type = programtype,
          lagosne_lagoslakeid = llid) %>%
-  left_join(lg_x_walk, by = "lagosne_lagoslakeid") %>%
+  left_join(lg_xwalk, by = "lagosne_lagoslakeid") %>%
   rename(llid = lagosus_lagoslakeid) %>%
   dplyr::filter(!is.na(llid)) %>%
   # join replace state and coords with lagosus values
@@ -50,4 +52,4 @@ res2 <- rm_dups(res) %>%
     dplyr::mutate(effort = "LAGOSNE")
 
 write.csv(res2, "data/00_lagosne/00_lagosne.csv", row.names = FALSE)
-# res <- read.csv("data/00_lagosne/00_lagosne.csv", stringsAsFactors = FALSE)
+# res2 <- read.csv("data/00_lagosne/00_lagosne.csv", stringsAsFactors = FALSE)

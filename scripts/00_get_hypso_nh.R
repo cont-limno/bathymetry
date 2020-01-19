@@ -8,11 +8,17 @@ source("scripts/99_utils.R")
 
 nh_raw <- st_read("data/nh_bathy/Bathymetry_Lakes_lines.shp")
 
-lg_poly <- query_gis_(query = paste0("SELECT * FROM LAGOS_NE_All_Lakes_4ha WHERE ",
-                                     paste0("State_Name LIKE '", "New Hampshire'", collapse = " OR ")))
+lg_poly <- LAGOSUSgis::query_gis_(query =
+                                    "SELECT * FROM LAGOS_US_All_Lakes_1ha WHERE lake_centroidstate LIKE 'NH' AND lake_totalarea_ha > 4")
 nh      <- st_transform(nh_raw, st_crs(lg_poly))
 nh      <- st_join(nh, lg_poly) %>%
   dplyr::filter(!is.na(lagoslakeid))
+
+# remove lakes not in lagosne xwalk table as they likely have a
+# non-functional basin split issue
+lg_xwalk <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv",
+                     stringsAsFactors = FALSE)
+mi <- dplyr::filter(nh, lagoslakeid %in% unique(lg_xwalk$lagoslakeid))
 
 lg_nh <- dplyr::filter(lg_poly, lagoslakeid %in% nh$lagoslakeid)
 
@@ -47,15 +53,14 @@ rsubs <- lapply(seq_along(unique(nh$lagoslakeid)),
                   list(r = res$r, width = res$wh)
                 })
 
-fnames <- list.files("data/nh_bathy/", pattern = "tif",
-                     include.dirs = TRUE, full.names = TRUE)
-rsubs <- lapply(fnames,
-                function(x) raster(x))
-names(rsubs) <- gsub(".tif", "", basename(fnames))
+flist        <- list.files("data/nh_bathy/", patter = "\\d.tif",
+                           full.names = TRUE, include.dirs = TRUE)
+flist <- flist[
+  gsub(".tif", "", basename(flist)) %in% unique(lg_poly$lagoslakeid)]
+rsubs        <- lapply(flist, raster)
+names(rsubs) <- gsub(".tif", "", basename(flist))
 
-## only select files that match unique(nh$lagoslakeid)?
-# any(!(names(rsubs) %in% unique(mi$lagoslakeid)))
-# test <- rsubs[sapply(rsubs, maxValue) > 0.2]
+rsubs <- rsubs[sapply(rsubs, maxValue) > 0.2]
 
 # get hypsography csv
 get_hypso <- function(rsub){

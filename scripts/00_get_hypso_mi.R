@@ -16,6 +16,12 @@ mi      <- st_transform(mi, st_crs(lg_poly))
 mi      <- st_join(mi, lg_poly) %>%
   dplyr::filter(!is.na(lagoslakeid))
 
+# remove lakes not in lagosne xwalk table as they likely have a
+# non-functional basin split issue
+lg_xwalk <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv",
+                     stringsAsFactors = FALSE)
+mi <- dplyr::filter(mi, lagoslakeid %in% unique(lg_xwalk$lagoslakeid))
+
 lg_mi <- dplyr::filter(lg_poly, lagoslakeid %in% mi$lagoslakeid)
 
 pb <- progress_bar$new(
