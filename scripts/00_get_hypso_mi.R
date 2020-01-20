@@ -56,7 +56,7 @@ flist        <- list.files("data/mi_bathy/", patter = "\\d.tif",
                            full.names = TRUE, include.dirs = TRUE)
 ## rm flist not in list
 # flist_rm <- flist[!
-#   gsub(".tif", "", basename(flist)) %in% unique(lg_poly$lagoslakeid)]
+#   gsub(".tif", "", basename(flist)) %in% unique(lg_mi$lagoslakeid)]
 # sapply(flist_rm, unlink)
 flist <- flist[
   gsub(".tif", "", basename(flist)) %in% unique(lg_poly$lagoslakeid)]

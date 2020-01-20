@@ -18,7 +18,9 @@ nh      <- st_join(nh, lg_poly) %>%
 # non-functional basin split issue
 lg_xwalk <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv",
                      stringsAsFactors = FALSE)
-mi <- dplyr::filter(nh, lagoslakeid %in% unique(lg_xwalk$lagoslakeid))
+nh <- dplyr::filter(nh, lagoslakeid %in% unique(lg_xwalk$lagoslakeid))
+# remove other problematic lakes
+nh <- dplyr::filter(nh, !(lagoslakeid %in% c(5636))) # too complex for cnvx hull
 
 lg_nh <- dplyr::filter(lg_poly, lagoslakeid %in% nh$lagoslakeid)
 
@@ -32,15 +34,16 @@ rsubs <- lapply(seq_along(unique(nh$lagoslakeid)),
                   pb$tick(tokens = list(llid = unique(nh$lagoslakeid)[i]))
 
                   # i <- 1
-                  # i <- which(unique(nh$lagoslakeid) == 5855)
+                  # i <- which(unique(nh$lagoslakeid) == 5636)
                   fname <- paste0("data/nh_bathy/", unique(nh$lagoslakeid)[i], ".tif")
                   if(!file.exists(fname)){
-                    dt <- dplyr::filter(nh, lagoslakeid == unique(nh$lagoslakeid)[i])
-                    dt <- suppressWarnings(st_cast(dt, "POINT"))
+                    dt_lines <- dplyr::filter(nh, lagoslakeid == unique(nh$lagoslakeid)[i])
+                    dt <- suppressWarnings(st_cast(dt_lines, "POINT"))
                     # TODO: check if NA depths are present in the polygon product
                     dt <- dplyr::filter(dt, !is.na(DEPTH))
 
                     res <- poly_to_filled_raster(dt, "DEPTH", 27, proj = 32619)
+
                     if(cellStats(res$r, max) != 0){
                       writeRaster(res$r, fname)
                     }
@@ -56,7 +59,7 @@ rsubs <- lapply(seq_along(unique(nh$lagoslakeid)),
 flist        <- list.files("data/nh_bathy/", patter = "\\d.tif",
                            full.names = TRUE, include.dirs = TRUE)
 flist <- flist[
-  gsub(".tif", "", basename(flist)) %in% unique(lg_poly$lagoslakeid)]
+  gsub(".tif", "", basename(flist)) %in% unique(lg_nh$lagoslakeid)]
 rsubs        <- lapply(flist, raster)
 names(rsubs) <- gsub(".tif", "", basename(flist))
 
