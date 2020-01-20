@@ -1,3 +1,4 @@
+# setwd("../")
 source("scripts/99_utils.R")
 
 # CT data comes as separate polygons for each contour (has lake-level labels)
@@ -33,7 +34,7 @@ ps       <- st_read("data/ct_bathy/ct_bathy.gpkg", layer = "ps")
 ## pull the largest polygon associated with each lake
 ps_large <- ps %>%
   mutate(area = st_area(.)) %>%
-  group_by(WBNAME) %>%
+  group_by(LAKE_NO) %>%
   slice(which.max(area)) %>%
   ungroup()
 # fill-in hollow contours
@@ -51,8 +52,20 @@ lg_pnts <- sf::st_join(lg_pnts, st_transform(ps_large, st_crs(lg_pnts))) %>%
 ps_large <- ps_large[ps_large$WBNAME %in% lg_pnts$WBNAME,]
 ps       <- ps[ps$WBNAME %in% ps_large$WBNAME,]
 ps       <- left_join(ps,
-                  dplyr::select(st_drop_geometry(lg_pnts), lagoslakeid, WBNAME),
-                  by = "WBNAME")
+                  dplyr::select(st_drop_geometry(lg_pnts), lagoslakeid, WB_NO),
+                  by = "WB_NO")
+
+# remove lakes with all zero depth measurements :(
+nonzerodepth_lakes <- group_by(st_drop_geometry(ps), lagoslakeid) %>%
+  summarize(maxdepth = max(DEPTH_FT)) %>%
+  dplyr::filter(maxdepth > 0) %>% pull(lagoslakeid)
+ps <- dplyr::filter(ps, lagoslakeid %in% nonzerodepth_lakes)
+
+# remove lakes not in lagosne xwalk table as they likely have a
+# non-functional basin split issue
+lg_xwalk <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv",
+                     stringsAsFactors = FALSE)
+ps <- dplyr::filter(ps, lagoslakeid %in% unique(lg_xwalk$lagoslakeid))
 
 # length(unique(ps$lagoslakeid))
 # length(unique(ps$WBNAME)); nrow(ps_large)
@@ -62,6 +75,7 @@ ps       <- left_join(ps,
 
 # polygons to raster
 get_rsub <- function(dt){
+  # dt <- dplyr::filter(ps, lagoslakeid == 113973)
   dt <- st_transform(dt, 6433) # ct state plane
   dt <- dplyr::select(dt, DEPTH_FT)
 
@@ -115,14 +129,16 @@ pb <- progress_bar$new(
   total = length(unique(ps$lagoslakeid)),
   clear = FALSE, width = 80)
 
-rsubs <- lapply(seq_along(unique(ps$lagoslakeid)), function(x){
+rsubs <- lapply(seq_len(length(unique(ps$lagoslakeid))), function(x){
   # x <- 1
+  # x <- which(unique(ps$lagoslakeid) == 36244)
   llid_current <- unique(ps$lagoslakeid)[x]
   pb$tick(tokens = list(llid = llid_current))
   fname <- paste0("data/ct_bathy/",
                   snakecase::to_snake_case(llid_current), ".tif")
   if(!file.exists(fname)){
-    rsub <- get_rsub(dplyr::filter(ps, lagoslakeid == x))
+    ps_sub <- dplyr::filter(ps, lagoslakeid == llid_current)
+    rsub   <- get_rsub(ps_sub)
     writeRaster(rsub, fname, format = "GTiff")
   }else{
     rsub <- raster(fname)
@@ -130,6 +146,13 @@ rsubs <- lapply(seq_along(unique(ps$lagoslakeid)), function(x){
   rsub
 })
 names(rsubs) <- unique(ps$lagoslakeid)
+
+# flist        <- list.files("data/ct_bathy/", pattern = "\\d.tif",
+#                            full.names = TRUE, include.dirs = TRUE)
+## rm flist not in list
+# (flist_rm <- flist[!
+#   gsub(".tif", "", basename(flist)) %in% unique(ps$lagoslakeid)])
+# sapply(flist_rm, unlink)
 
 pb <- progress_bar$new(
   format = "llid :llid [:bar] :percent",
@@ -154,11 +177,11 @@ hypso <- left_join(hypso, name_key,
 if(interactive()){
   ggplot(data = left_join(hypso,
                           dplyr::mutate(
-                            dplyr::select(lg_pnts, lagoslakeid, Lake_Area_Ha),
+                            dplyr::select(lg_pnts, lagoslakeid, lake_waterarea_ha),
                             lagoslakeid = as.character(lagoslakeid)),
                           by = c("llid" = "lagoslakeid"))) +
     geom_line(aes(x = area_percent, y = depth_percent, group = llid,
-                  color = log(Lake_Area_Ha))) +
+                  color = log(lake_waterarea_ha))) +
     ylim(100, 0)
   # TODO: plot the line of an ideal cone shape
 }
