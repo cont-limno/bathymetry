@@ -26,6 +26,7 @@ res <- lg$locus$locus_link %>%
 
 write.csv(res, "data/00_lagosne/00_lagosne_xwalk.csv",
           row.names = FALSE)
+# res <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv", stringsAsFactors = FALSE)
 
 # plot(res$lake_waterarea_ha, res$lake_area_ha)
 
