@@ -1,3 +1,4 @@
+# setwd("../")
 source("scripts/99_utils.R")
 
 lg <- lagosus_load("locus")
@@ -10,11 +11,12 @@ lg <- lagosus_load("locus")
 #   the distance between these points
 #   the true in-lake "slope"
 get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
-  # r <- raster("data/mi_bathy/257862.tif")
-  # test_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha", "lagoslakeid", c(257862, 3958))
-  # TODO: see if theres a way to fix or auto remove problematic lakes like 257862
+  # r <- raster("data/nh_bathy/5636.tif")
+  # llid <- 5636
+  # deep_positive = TRUE
+  # ft = 3.281
+  # test_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha", "lagoslakeid", c(5636))
 
-  # r <- raster("data/ct_bathy/101661.tif")
   dt_poly      <- st_zm(concaveman::concaveman(
     st_sf(st_sfc(
       st_multipoint(rasterToPoints(r)), crs = st_crs(r)))
@@ -54,6 +56,10 @@ rm_bad_rasters <- function(rsubs){
 }
 
 loop_state <- function(fpath, outname, deep_positive, ft = 1){
+  # fpath <- "data/nh_bathy/"
+  # outname <- "data/00_bathy_depth/00_bathy_depth_nh.rds"
+  # deep_positive = TRUE
+  # ft = 3.281
   flist <- list.files(fpath, pattern = "\\d.tif",
                          full.names = TRUE, include.dirs = TRUE)
   if(!file.exists(outname)){
@@ -137,6 +143,7 @@ res_all <- rbind(res_all, mutate(bind_rows(
              deep_positive = TRUE,
              ft = 3.281)
 ), state = "NH", source = "http://www.granit.unh.edu/cgi-bin/nhsearch?dset=bathymetry_lakes_polygons/nh"))
+# unlink("data/00_bathy_depth/00_bathy_depth_nh.rds")
 
 # IA
 res_all <- rbind(res_all, mutate(bind_rows(
