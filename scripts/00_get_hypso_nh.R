@@ -56,7 +56,7 @@ rsubs <- lapply(seq_along(unique(nh$lagoslakeid)),
                   list(r = res$r, width = res$wh)
                 })
 
-flist        <- list.files("data/nh_bathy/", patter = "\\d.tif",
+flist        <- list.files("data/nh_bathy/", pattern = "\\d.tif",
                            full.names = TRUE, include.dirs = TRUE)
 flist <- flist[
   gsub(".tif", "", basename(flist)) %in% unique(lg_nh$lagoslakeid)]
