@@ -19,6 +19,13 @@ llid_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha",
   st_transform(st_crs(r))
 llid_poly <- llid_poly[as.numeric(st_area(llid_poly)) != 0,]
 
+# remove lakes not in lagosne xwalk table as they likely have a
+# non-functional basin split issue
+lg_xwalk <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv",
+                     stringsAsFactors = FALSE)
+llid_poly <- dplyr::filter(llid_poly,
+                           lagoslakeid %in% unique(lg_xwalk$lagoslakeid))
+
 pb <- progress_bar$new(
   format = "llid :llid [:bar] :percent",
   total = nrow(llid_poly),
@@ -41,7 +48,7 @@ rsubs     <- lapply(seq_len(nrow(llid_poly)), function(x){
     writeRaster(res, fname)
   }
 })
-flist        <- list.files("data/mn_bathy/", patter = "\\d.tif",
+flist        <- list.files("data/mn_bathy/", pattern = "\\d.tif",
                     full.names = TRUE, include.dirs = TRUE)
 ## rm flist not in list
 # flist_rm <- flist[!
@@ -51,9 +58,10 @@ flist <- flist[
   gsub(".tif", "", basename(flist)) %in% unique(llid_poly$lagoslakeid)]
 
 
-rsubs        <- lapply(flist, raster)
+rsubs <- lapply(flist, raster)
 rsubs <- rsubs[!is.na(sapply(rsubs, minValue))]
 rsubs <- rsubs[sapply(rsubs, minValue) < -0.2]
+
 names(rsubs) <- gsub("X", "", unlist(lapply(rsubs, names)))
 
 # ---- function_definitions ----
