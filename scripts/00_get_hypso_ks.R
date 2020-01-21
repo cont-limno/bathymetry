@@ -1,3 +1,4 @@
+# setwd("../")
 source("scripts/99_utils.R")
 
 # KS data comes as separate polylines for each contour (no lake-level labels)
@@ -26,7 +27,12 @@ ps      <- st_transform(ps, st_crs(lg_poly))
 ps      <- st_join(ps, lg_poly) %>%
   dplyr::filter(!is.na(lagoslakeid))
 
+# set the lake outline to a depth of zero
+ps    <- dplyr::rename(ps, geometry = geom)
 lg_ps <- dplyr::filter(lg_poly, lagoslakeid %in% ps$lagoslakeid)
+lg_ps <- dplyr::mutate(st_cast(lg_ps, "MULTILINESTRING"), CONTOUR = 0)
+lg_ps <- lg_ps[,names(ps)]
+ps    <- rbind(ps, lg_ps)
 
 pb <- progress_bar$new(
   format = "llid :llid [:bar] :percent",
@@ -38,11 +44,12 @@ rsubs <- lapply(seq_along(unique(ps$lagoslakeid)),
                   pb$tick(tokens = list(llid = unique(ps$lagoslakeid)[i]))
 
                   # i <- 1
+                  # i <- which(unique(ps$lagoslakeid) == 112909)
                   fname <- paste0("data/ks_bathy/", unique(ps$lagoslakeid)[i], ".tif")
                   if(!file.exists(fname)){
                     dt <- dplyr::filter(ps, lagoslakeid == unique(ps$lagoslakeid)[i])
-                    dt <- suppressWarnings(st_cast(dt, "POINT"))
-                    dt <- dplyr::filter(dt, !is.na(CONTOUR))
+                    dt <- suppressWarnings(st_cast(dt, "MULTIPOINT"))
+                    dt <- st_cast(dt, "POINT")
 
                     res <- poly_to_filled_raster(dt, "CONTOUR", 27, proj = 32614)
                     if(cellStats(res$r, max) != 0){
@@ -138,4 +145,3 @@ hypso <- hypso %>%
 
 write.csv(hypso, "data/ks_hypso.csv", row.names = FALSE)
 # hypso_ks <- read.csv("data/ks_hypso.csv", stringsAsFactors = FALSE)
-
