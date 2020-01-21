@@ -101,7 +101,7 @@ res_all <- rbind(res_all, mutate(bind_rows(
              deep_positive = TRUE,
              ft = 3.281)
 ), state = "CT", source = "https://cteco.uconn.edu/ctmaps/rest/services/Elevation/Lake_Bathymetry/MapServer/"))
-# unlink("data/00_bathy_depth/00_bathy_depth_ct.rds")
+# unlink("../data/00_bathy_depth/00_bathy_depth_ct.rds")
 
 # KS
 res_all <- rbind(res_all, mutate(bind_rows(
@@ -110,6 +110,7 @@ res_all <- rbind(res_all, mutate(bind_rows(
              deep_positive = TRUE,
              ft = 3.281)
 ), state = "KS", source = "http://kars.ku.edu/arcgis/rest/services/WaterResources/BathymetryContour/MapServer/"))
+# unlink("../data/00_bathy_depth/00_bathy_depth_ks.rds")
 
 # MA
 res_all <- rbind(res_all, mutate(bind_rows(
@@ -155,6 +156,7 @@ res_all <- rbind(res_all, mutate(bind_rows(
 
 # write geometry to an rds file containing an sf object with two geometries
 #         pnt_deepest and pnt_viscenter
+res_all <- dplyr::filter(res_all, dist_deepest > 0)
 saveRDS(st_as_sf(res_all),
         "data/00_bathy_depth/bathy_pnts.rds")
 
