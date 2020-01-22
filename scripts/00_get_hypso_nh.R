@@ -1,3 +1,4 @@
+# setwd("../")
 source("scripts/99_utils.R")
 
 # original data from:
@@ -20,7 +21,7 @@ lg_xwalk <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv",
                      stringsAsFactors = FALSE)
 nh <- dplyr::filter(nh, lagoslakeid %in% unique(lg_xwalk$lagoslakeid))
 # remove other problematic lakes
-nh <- dplyr::filter(nh, !(lagoslakeid %in% c(5636))) # too complex for cnvx hull
+# nh <- dplyr::filter(nh, !(lagoslakeid %in% c(5636))) # too complex for cnvx hull
 
 lg_nh <- dplyr::filter(lg_poly, lagoslakeid %in% nh$lagoslakeid)
 
@@ -34,15 +35,21 @@ rsubs <- lapply(seq_along(unique(nh$lagoslakeid)),
                   pb$tick(tokens = list(llid = unique(nh$lagoslakeid)[i]))
 
                   # i <- 1
-                  # i <- which(unique(nh$lagoslakeid) == 5636)
+                  # i <- which(unique(nh$lagoslakeid) == 21588)
                   fname <- paste0("data/nh_bathy/", unique(nh$lagoslakeid)[i], ".tif")
                   if(!file.exists(fname)){
                     dt_lines <- dplyr::filter(nh, lagoslakeid == unique(nh$lagoslakeid)[i])
-                    dt <- suppressWarnings(st_cast(dt_lines, "POINT"))
+                    dt <- suppressWarnings(st_cast(dt_lines, "MULTIPOINT"))
+                    dt <- suppressWarnings(st_cast(dt, "POINT"))
                     # TODO: check if NA depths are present in the polygon product
                     dt <- dplyr::filter(dt, !is.na(DEPTH))
 
-                    res <- poly_to_filled_raster(dt, "DEPTH", 27, proj = 32619)
+                    res   <- poly_to_filled_raster(dt, "DEPTH", 27, proj = 32619)
+                    poly_mask <- st_transform(
+                      dplyr::filter(lg_nh,
+                                    lagoslakeid == unique(nh$lagoslakeid)[i]),
+                      st_crs(res$r))
+                    res$r <- raster::mask(res$r, poly_mask)
 
                     if(cellStats(res$r, max) != 0){
                       writeRaster(res$r, fname)
@@ -55,7 +62,12 @@ rsubs <- lapply(seq_along(unique(nh$lagoslakeid)),
 
                   list(r = res$r, width = res$wh)
                 })
-
+# flist        <- list.files("data/nh_bathy/", pattern = "\\d.tif",
+#                            full.names = TRUE, include.dirs = TRUE)
+## rm flist not in list
+# (flist_rm <- flist[!
+#   gsub(".tif", "", basename(flist)) %in% unique(nh$lagoslakeid)])
+# sapply(flist_rm, unlink)
 flist        <- list.files("data/nh_bathy/", pattern = "\\d.tif",
                            full.names = TRUE, include.dirs = TRUE)
 flist <- flist[
@@ -64,11 +76,12 @@ rsubs        <- lapply(flist, raster)
 names(rsubs) <- gsub(".tif", "", basename(flist))
 
 rsubs <- rsubs[sapply(rsubs, maxValue) > 0.2]
+rsubs <- rsubs[!unlist(lapply(rsubs, is.null))]
 
 # get hypsography csv
 get_hypso <- function(rsub){
   # rsub <- rsubs[[1]]
-  # rsub <- rsubs[[which(names(rsubs) == 89659)]]
+  # rsub <- rsubs[[which(names(rsubs) == 28911) + 1]]
   maxdepth <-  abs(cellStats(rsub, "max"))
 
   # define depth intervals by raster resolution
@@ -81,7 +94,8 @@ get_hypso <- function(rsub){
   # reclassify raster based on depth intervals
   # calculate area of each class
   rc <- raster::cut(rsub, breaks = depth_int) %>%
-    as.data.frame()
+    as.data.frame() %>%
+    tidyr::drop_na(layer)
   # drop depth_int entries for missing layers
   depth_int <- depth_int[1:length(depth_int) %in% unique(rc$layer)]
   depth_mid <- # add interval midpoints
