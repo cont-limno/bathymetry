@@ -1,3 +1,4 @@
+# setwd("../")
 source("scripts/99_utils.R")
 
 # https://docs.digital.mass.gov/dataset/massgis-data-inland-water-bathymetry-110000
@@ -9,7 +10,7 @@ source("scripts/99_utils.R")
 
 dir.create("data/ma_bathy", showWarnings = FALSE)
 
-if(!file.exists("data/ma_bathy/ma_bathy.gpkg")){
+if(!file.exists("data/ma_bathy/DFWBATHY_ARC.shp")){
   base_url <- "http://download.massgis.digital.mass.gov/shapefiles/state/dfwbathy.zip"
   download.file(base_url, "data/ma_bathy/dfwbathy.zip")
   unzip("data/ma_bathy/dfwbathy.zip", exdir = "data/ma_bathy/")
@@ -23,6 +24,13 @@ lg_poly <- LAGOSUSgis::query_gis_(query =
 contours <- st_transform(contours, st_crs(lg_poly))
 contours <- st_join(contours, lg_poly) %>%
   dplyr::filter(!is.na(lagoslakeid))
+
+# remove lakes not in lagosne xwalk table as they likely have a
+# non-functional basin split issue
+lg_xwalk <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv",
+                     stringsAsFactors = FALSE)
+contours <- dplyr::filter(contours,
+                           lagoslakeid %in% unique(lg_xwalk$lagoslakeid))
 
 lg_ps <- dplyr::filter(lg_poly, lagoslakeid %in% contours$lagoslakeid)
 
@@ -55,6 +63,12 @@ rsubs <- lapply(seq_along(unique(contours$lagoslakeid)),
                   list(r = res$r, width = res$wh)
                 })
 # whs          <- unlist(lapply(rsubs, function(x) x$width))
+# flist        <- list.files("data/ma_bathy/", pattern = "\\d.tif",
+#                            full.names = TRUE, include.dirs = TRUE)
+## rm flist not in list
+# (flist_rm <- flist[!
+#   gsub(".tif", "", basename(flist)) %in% unique(contours$lagoslakeid)])
+# sapply(flist_rm, unlink)
 fnames <- list.files("data/ma_bathy/", pattern = "tif",
                      include.dirs = TRUE, full.names = TRUE)
 rsubs <- lapply(fnames,
