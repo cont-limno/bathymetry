@@ -122,8 +122,9 @@ poly_to_filled_raster <- function(dt_raw, depth_attr, wh, proj){
   r2[which.max(r2[])] <- NaN
 
   # moving window(focal) fill - https://stackoverflow.com/a/45658609/3362993
+  wh_init <- wh
   while(
-    any(is.nan(extract(r2, concaveman::concaveman(dt))[[1]]))
+    any(is.nan(extract(r2, concaveman::concaveman(dt))[[1]])) | wh == wh_init
   ){
     # print(wh)
     w_mat <- matrix(1, wh, wh)
