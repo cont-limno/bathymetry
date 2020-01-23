@@ -20,10 +20,13 @@ nh      <- st_join(nh, lg_poly) %>%
 lg_xwalk <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv",
                      stringsAsFactors = FALSE)
 nh <- dplyr::filter(nh, lagoslakeid %in% unique(lg_xwalk$lagoslakeid))
-# remove other problematic lakes
-# nh <- dplyr::filter(nh, !(lagoslakeid %in% c(5636))) # too complex for cnvx hull
 
+# set the lake outline to a depth of zero
 lg_nh <- dplyr::filter(lg_poly, lagoslakeid %in% nh$lagoslakeid)
+lg_nh <- dplyr::mutate(st_cast(lg_nh, "MULTILINESTRING"), DEPTH = 0)
+nh    <- dplyr::select(nh, names(lg_nh))
+lg_nh <- lg_nh[,names(nh)]
+nh    <- rbind(nh, lg_nh)
 
 pb <- progress_bar$new(
   format = "llid :llid [:bar] :percent",
@@ -35,7 +38,7 @@ rsubs <- lapply(seq_along(unique(nh$lagoslakeid)),
                   pb$tick(tokens = list(llid = unique(nh$lagoslakeid)[i]))
 
                   # i <- 1
-                  # i <- which(unique(nh$lagoslakeid) == 21588)
+                  # i <- which(unique(nh$lagoslakeid) == 6110)
                   fname <- paste0("data/nh_bathy/", unique(nh$lagoslakeid)[i], ".tif")
                   if(!file.exists(fname)){
                     dt_lines <- dplyr::filter(nh, lagoslakeid == unique(nh$lagoslakeid)[i])
@@ -43,13 +46,15 @@ rsubs <- lapply(seq_along(unique(nh$lagoslakeid)),
                     dt <- suppressWarnings(st_cast(dt, "POINT"))
                     # TODO: check if NA depths are present in the polygon product
                     dt <- dplyr::filter(dt, !is.na(DEPTH))
+                    # ggplot() + geom_sf(data = dt, aes(color = DEPTH))
 
-                    res   <- poly_to_filled_raster(dt, "DEPTH", 27, proj = 32619)
+                    res       <- poly_to_filled_raster(dt, "DEPTH", 27, proj = 32619)
                     poly_mask <- st_transform(
                       dplyr::filter(lg_nh,
                                     lagoslakeid == unique(nh$lagoslakeid)[i]),
                       st_crs(res$r))
-                    res$r <- raster::mask(res$r, poly_mask)
+                    poly_mask <- st_cast(poly_mask, "POLYGON")
+                    res$r     <- raster::mask(res$r, poly_mask)
 
                     if(cellStats(res$r, max) != 0){
                       writeRaster(res$r, fname)
