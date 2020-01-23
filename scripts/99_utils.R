@@ -119,18 +119,19 @@ poly_to_filled_raster <- function(dt_raw, depth_attr, wh, proj){
   projection(r) <- as.character(st_crs(dt))[2]
 
   r2 <- r
-  r2[which.max(r2[])] <- NaN
+  # r2[which.max(r2[])] <- NaN # dont remember why I did this...
 
   # moving window(focal) fill - https://stackoverflow.com/a/45658609/3362993
   wh_init <- wh
   while(
-    any(is.nan(extract(r2, concaveman::concaveman(dt))[[1]])) | wh == wh_init
+    any(is.na(extract(r2, concaveman::concaveman(dt))[[1]])) |
+    wh == wh_init
   ){
     # print(wh)
     w_mat <- matrix(1, wh, wh)
     r2 <- tryCatch(raster::focal(r, w = w_mat,
                         fun = function(x){fill.na(x, width = wh)},
-                        pad = TRUE, na.rm = FALSE),
+                        pad = TRUE, na.rm = FALSE, NAonly = TRUE),
                    error = function(e) r2)
     wh <- wh + 4
   }
