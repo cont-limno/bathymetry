@@ -60,10 +60,6 @@ write.csv(dt_raw_ne, "data/lagosne_depth_predictors.csv", row.names = FALSE)
 
 if(interactive()){
 
-# ---- oliver-random-huc-slopes ----
-  names(dt_raw_ne)
-
-
 # ---- jsta-random-shape-class-slopes ----
 
   # depth ~ max_slope | shape_class
