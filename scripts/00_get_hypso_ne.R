@@ -1,3 +1,4 @@
+# setwd("../")
 source("scripts/99_utils.R")
 
 # https://maps.outdoornebraska.gov/arcgis/rest/services/Programs/LakeMapping/MapServer
@@ -15,16 +16,23 @@ if(!file.exists("data/ne_bathy/ne_bathy.gpkg")){
   sf::st_write(contours, "data/ne_bathy/ne_bathy.gpkg", "contours")
 }
 
-contours <- st_read("data/ne_bathy/ne_bathy.gpkg", layer = "contours")
+contours_raw <- st_read("data/ne_bathy/ne_bathy.gpkg", layer = "contours") %>%
+  dplyr::select(-Elevation)
 
 # pull lagosus points
 lg_poly <- LAGOSUSgis::query_gis_(query =
                                     "SELECT * FROM LAGOS_US_All_Lakes_1ha WHERE lake_centroidstate LIKE 'NE' AND lake_totalarea_ha > 4")
-contours <- st_transform(contours, st_crs(lg_poly))
+contours <- st_transform(contours_raw, st_crs(lg_poly))
 contours <- st_join(contours, lg_poly) %>%
   dplyr::filter(!is.na(lagoslakeid))
 
-lg_ps <- dplyr::filter(lg_poly, lagoslakeid %in% contours$lagoslakeid)
+# set the lake outline to a depth of zero
+contours <- dplyr::rename(contours, geometry = geom)
+lg_ps    <- dplyr::filter(lg_poly, lagoslakeid %in% contours$lagoslakeid)
+lg_ps    <- dplyr::mutate(st_cast(lg_ps, "MULTILINESTRING"), Depth = 0)
+contours <- dplyr::select(contours, names(lg_ps))
+lg_ps    <- lg_ps[,names(contours)]
+contours <- rbind(contours, lg_ps)
 
 pb <- progress_bar$new(
   format = "llid :llid [:bar] :percent",
@@ -36,9 +44,11 @@ rsubs <- lapply(seq_along(unique(contours$lagoslakeid)),
                   pb$tick(tokens = list(llid = unique(contours$lagoslakeid)[i]))
 
                   # i <- 1
+                  # i <- which(unique(contours$lagoslakeid) == 360013)
                   fname <- paste0("data/ne_bathy/", unique(contours$lagoslakeid)[i], ".tif")
                   if(!file.exists(fname)){
                     dt <- dplyr::filter(contours, lagoslakeid == unique(contours$lagoslakeid)[i])
+                    dt <- suppressWarnings(st_cast(dt, "MULTIPOINT"))
                     dt <- suppressWarnings(st_cast(dt, "POINT"))
                     dt <- dplyr::filter(dt, !is.na(Depth))
 
