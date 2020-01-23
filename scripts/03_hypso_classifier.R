@@ -1,3 +1,4 @@
+# setwd("../")
 source("scripts/99_utils.R")
 
 # load merged hypso data
@@ -31,7 +32,7 @@ if(interactive()){
 }
 
 res <- hypso_classes %>%
-  dplyr::select(llid, shape_class)
+  dplyr::select(llid, shape_class, shape_offset)
 
 # save csv with llid, bowl_shaped_dummy_variable
 write.csv(res, "data/00_hypso/hypso_classes.csv", row.names = FALSE)
