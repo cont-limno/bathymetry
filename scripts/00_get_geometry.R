@@ -11,16 +11,20 @@ lg <- lagosus_load("locus")
 #   the distance between these points
 #   the true in-lake "slope"
 get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
-  # r <- raster("data/nh_bathy/5636.tif")
-  # llid <- 5636
+  # llid <- 5837
+  # r <- raster(paste0("data/nh_bathy/", llid, ".tif"))
   # deep_positive = TRUE
   # ft = 3.281
-  # test_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha", "lagoslakeid", c(5636))
 
-  dt_poly      <- st_zm(concaveman::concaveman(
-    st_sf(st_sfc(
-      st_multipoint(rasterToPoints(r)), crs = st_crs(r)))
-  ))
+  dt_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha",
+                                   "lagoslakeid", llid) %>%
+    st_transform(st_crs(r))
+  if(!st_is_simple(dt_poly) |
+     st_area(dt_poly) > units::as_units(130000, "m2")){
+    dt_poly <- dt_poly %>%
+      lwgeom::st_make_valid() %>%
+      rmapshaper::ms_simplify(0.1)
+  }
 
   if(!deep_positive){
     xy       <- xyFromCell(r, which.min(r[]))
@@ -30,14 +34,21 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
     maxdepth <- abs(r[which.max(r)][1]) / ft
   }
   pnt_deepest   <- st_sfc(st_multipoint(xy), crs = st_crs(r))
-  pnt_viscenter <- as.numeric(
-    polylabelr::poi(st_coordinates(dt_poly)[,1:2])[1:2])
+
+  dt_poly_coords <- st_coordinates(dt_poly)[,1:2]
+  pnt_viscenter <- polylabelr::poi(dt_poly_coords)
+  pnt_viscenter <- as.numeric(pnt_viscenter[1:2])
   pnt_viscenter <- st_sfc(st_point(pnt_viscenter), crs = st_crs(r))
+  # mapview(dt_poly) + mapview(pnt_viscenter) + mapview(pnt_deepest, color = "red")
+  # ggplot() + geom_sf(data = dt_poly) +
+  #   coord_sf(datum = st_crs(r)) +
+  #   theme(axis.text.x = element_text(angle = 90))
 
   dist_deepest   <- st_distance(pnt_deepest,
                               st_cast(dt_poly, "MULTILINESTRING"))
   dist_viscenter <- st_distance(pnt_viscenter,
                                 st_cast(dt_poly, "MULTILINESTRING"))
+  # dist_viscenter > dist_deepest
   dist_between   <- st_distance(pnt_deepest, pnt_viscenter)
 
   inlake_slope   <- maxdepth / as.numeric(dist_deepest)
