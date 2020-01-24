@@ -109,23 +109,27 @@ test  <- dplyr::anti_join(dt, train, by = 'lagoslakeid')
 
 ## fit model
 library(lme4)
-eq <- as.formula("lake_maxdepth_m ~ buffer100m_slope_max + lake_waterarea_ha + ws_lake_arearatio + lake_shorelinedevfactor_nounits + (lake_waterarea_ha | hu4_zoneid)")
+eq <- as.formula("lake_maxdepth_m ~ buffer100m_slope_max + lake_waterarea_ha + (lake_waterarea_ha | hu4_zoneid)")
 fit <- lme4::lmer(eq, data = train, REML = FALSE)
-
-## predict on holdouts
 test$lake_maxdepth_m_predicted <- predict(fit, test)
-plot(test$lake_maxdepth_m_predicted, test$lake_maxdepth_m, xlim = c(0, 5), ylim = c(0, 5))
-abline(0, 1)
 
-## calculate rmse
-yardstick::rmse(test, exp(lake_maxdepth_m), exp(lake_maxdepth_m_predicted))
-yardstick::rsq(test, exp(lake_maxdepth_m), exp(lake_maxdepth_m_predicted))
+saveRDS(list(fit = fit, test = test, train = train),
+        "data/01_depth_model/oliver_model.rds")
 
-test <- test %>%
-  left_join(dplyr::select(dplyr::mutate(oliver2015, lagoslakeid = as.character(lagoslakeid)), lagoslakeid,
-                          lake_maxdepth_m_oliver))
-plot(exp(test$lake_maxdepth_m_predicted), test$lake_maxdepth_m_oliver)
-abline(0, 1)
+if(interactive()){
+  plot(test$lake_maxdepth_m_predicted, test$lake_maxdepth_m, xlim = c(0, 5), ylim = c(0, 5))
+  abline(0, 1)
 
-plot(oliver2015$zmaxpredict, oliver2015$zmaxobs)
-abline(0, 1)
+  ## calculate rmse
+  yardstick::rmse(test, exp(lake_maxdepth_m), exp(lake_maxdepth_m_predicted))
+  yardstick::rsq(test, exp(lake_maxdepth_m), exp(lake_maxdepth_m_predicted))
+
+  test <- test %>%
+    left_join(dplyr::select(dplyr::mutate(oliver2015, lagoslakeid = as.character(lagoslakeid)), lagoslakeid,
+                            lake_maxdepth_m_oliver))
+  plot(exp(test$lake_maxdepth_m_predicted), test$lake_maxdepth_m_oliver)
+  abline(0, 1)
+
+  plot(oliver2015$zmaxpredict, oliver2015$zmaxobs)
+  abline(0, 1)
+}

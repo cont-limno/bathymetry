@@ -69,5 +69,56 @@ ggplot() +
   geom_boxplot(data = dt$no_shape, aes(y = resid, x = shape_class),
                outlier.shape = NA) +
   ylim(-20, 20)
+```
 
+```{r 02_depth_oliver, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.4}
+# setwd("figures")
+oliver2015 <- LAGOSNE::lagos_load_oliver_2015() %>%
+  mutate(lake_maxdepth_m_oliver = zmaxpredict)
+dt <- readRDS("../data/01_depth_model/oliver_model.rds")
+
+rmse_group <- group_by(dt$test, hu4_zoneid) %>%
+  summarize(r_rmse = yardstick::rmse_vec(
+    exp(lake_maxdepth_m), 
+    exp(lake_maxdepth_m_predicted)) / mean(lake_maxdepth_m))
+hu4_gis <- st_read("../data/gis.gpkg", layer = "hu4s_focal_simple") %>%
+# ggplot() + 
+#   geom_sf(data = hu4_gis) +
+#   geom_sf_text(data = hu4_gis, aes(label = hu4_zoneid))
+  left_join(rmse_group) %>%
+  dplyr::filter(!is.na(r_rmse) & r_rmse != Inf & r_rmse < 12)
+ggplot() +
+  geom_sf(data = hu4_gis, aes(fill = r_rmse))
+
+## predicted vs obs
+ggplot(data = dt$test) + 
+  geom_point(aes(x = lake_maxdepth_m_predicted, 
+                 y = lake_maxdepth_m)) +
+  geom_abline(aes(slope = 1, intercept = 0))
+
+## calculate metrics
+gridExtra::grid.arrange(gridExtra::tableGrob(
+bind_rows(yardstick::rmse(dt$test, 
+                          exp(lake_maxdepth_m), exp(lake_maxdepth_m_predicted)), 
+          yardstick::rsq(dt$test,
+                         exp(lake_maxdepth_m),
+                         exp(lake_maxdepth_m_predicted)))))
+
+## replication vs oliver
+# dt$test <- dt$test %>%
+#   left_join(dplyr::select(dplyr::mutate(oliver2015, lagoslakeid = as.character(lagoslakeid)), lagoslakeid,
+#                           lake_maxdepth_m_oliver))
+# ggplot(data = dt$test) + 
+#   geom_point(aes(x = exp(lake_maxdepth_m_predicted), 
+#                  y = lake_maxdepth_m_oliver)) +
+#   geom_abline(aes(slope = 1, intercept = 0))
+
+cowplot::plot_grid(
+  ggplot(data = oliver2015) +
+    geom_point(aes(x = zmaxpredict, y = zmaxobs)) +
+    geom_abline(aes(slope = 1, intercept = 0)), 
+  ggplot(data = oliver2015) +
+    geom_point(aes(x = log(zmaxpredict), y = log(zmaxobs))) +
+    geom_abline(aes(slope = 1, intercept = 0))
+)
 ```
