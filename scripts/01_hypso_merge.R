@@ -20,7 +20,10 @@ hypso_ia <- read.csv("data/ia_hypso.csv", stringsAsFactors = FALSE) %>%
 # merge csv's and save
 res <- dplyr::bind_rows(hypso_mn, hypso_ct, hypso_mi,
                         hypso_nh, hypso_ks, hypso_ne,
-                        hypso_ma, hypso_ia)
+                        hypso_ma, hypso_ia) %>%
+  group_by(llid) %>% add_tally() %>%
+  dplyr::filter(n > 1) %>% dplyr::select(-n)
+
 write.csv(res, "data/00_hypso/hypso.csv", row.names = FALSE)
 # res <- read.csv("data/00_hypso/hypso.csv", stringsAsFactors = FALSE)
 
