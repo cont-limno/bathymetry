@@ -7,7 +7,7 @@
 [![Code
 DOI](https://zenodo.org/badge/123951266.svg)](https://zenodo.org/badge/latestdoi/123951266)
 
-### Data (see [data/lagosus\_depth.csv]())
+### Data (see [data/lagosus\_depth.csv](data/lagosus_depth.csv))
 
 | Variable name          | Description                                                        |
 | :--------------------- | :----------------------------------------------------------------- |
