@@ -33,7 +33,7 @@ pb <- progress_bar$new(
 
 rsubs     <- lapply(seq_len(nrow(llid_poly)), function(x){
   # x <- 1
-  # x <- which(2654 == llid_poly$lagoslakeid)
+  # x <- which(25419 == llid_poly$lagoslakeid)
   pb$tick(tokens = list(llid = llid_poly[x,]$lagoslakeid))
 
   fname <- paste0("data/mn_bathy/", llid_poly[x,]$lagoslakeid, ".tif")
@@ -57,10 +57,12 @@ flist        <- list.files("data/mn_bathy/", pattern = "\\d.tif",
 flist <- flist[
   gsub(".tif", "", basename(flist)) %in% unique(llid_poly$lagoslakeid)]
 
-
-rsubs <- lapply(flist, raster)
-rsubs <- rsubs[!is.na(sapply(rsubs, minValue))]
-rsubs <- rsubs[sapply(rsubs, minValue) < -0.2]
+rsubs       <- lapply(flist, raster)
+bad_rasters <- sapply(rsubs, minValue)
+bad_rasters <- bad_rasters > -0.2 | is.na(bad_rasters)
+# delete bad_rasters files that were excluded above
+# sapply(flist[bad_rasters], unlink)
+rsubs <- rsubs[!bad_rasters]
 
 names(rsubs) <- gsub("X", "", unlist(lapply(rsubs, names)))
 
