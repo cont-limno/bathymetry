@@ -32,7 +32,7 @@ if(interactive()){
 }
 
 res <- hypso_classes %>%
-  dplyr::select(llid, shape_class, shape_offset)
+  dplyr::select(llid, shape_class, shape_offset = offset)
 
 # save csv with llid, bowl_shaped_dummy_variable
 write.csv(res, "data/00_hypso/hypso_classes.csv", row.names = FALSE)
