@@ -18,6 +18,7 @@ states_focal <- states_all %>%
 study_bbox   <- st_as_sfc(st_bbox(states_focal))
 states_all   <- states_all %>%
   st_crop(study_bbox)
+states_focal <- dplyr::filter(states_all, iso_a2 == "US")
 
 # add zoneids
 
@@ -26,10 +27,11 @@ states_all   <- states_all %>%
 # pad states with NA to 10 characters
 hu4_zones <- distinct(lg$locus$locus_information,
                       lake_centroidstate, hu4_zoneid, lagoslakeid) %>%
-  dplyr::filter(lake_centroidstate %in% unique(dt$lake_state)) %>%
-  distinct(hu4_zoneid, .keep_all = TRUE) %>% arrange(hu4_zoneid)
-hu4_focal <- left_join(st_drop_geometry(dt), hu4_zones) %>%
-  distinct(hu4_zoneid) %>% dplyr::filter(!is.na(hu4_zoneid))
+  distinct(hu4_zoneid) %>% arrange(hu4_zoneid)
+hu4_focal <- left_join(st_drop_geometry(dt),
+                       dplyr::select(lg$locus$locus_information,
+                                     lagoslakeid, hu4_zoneid)) %>%
+  distinct(hu4_zoneid)
 
 # hu4s       <- LAGOSUSgis::query_gis("hu4", "hu4_zoneid", hu4_zones$hu4_zoneid)
 hu4s_focal <- LAGOSUSgis::query_gis("hu4", "hu4_zoneid", hu4_focal$hu4_zoneid)
