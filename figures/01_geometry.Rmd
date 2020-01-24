@@ -10,24 +10,71 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fi
 source("../scripts/99_utils.R")
 ```
 
-```{r 01_geometry, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+```{r 01_geometry, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.5}
 # example map of true deepest point versus visual center
 
-dt <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
+# setwd("figures")
+dt         <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
+hypso_pred <- read.csv("../data/00_hypso/hypso_predictors.csv", 
+                       stringsAsFactors = FALSE) %>%
+  mutate(lagoslakeid = as.character(lagoslakeid))
+dt <- left_join(dt, dplyr::select(hypso_pred, lagoslakeid, reservoir_class), 
+                                  by = c("llid" = "lagoslakeid"))
 
 # plot of true deepest versus visual centers
 
-(gg_test <- ggplot(data = st_drop_geometry(dt)) + 
-  geom_point(aes(x = dist_deepest, y = dist_viscenter)) + # , color = llid)) +
+gg_scatter_state <- ggplot(data = st_drop_geometry(dt)) + 
+  geom_point(aes(x = dist_deepest, y = dist_viscenter, color = state)) +
   geom_abline(aes(intercept = 0, slope = 1)) +
   xlab("Distance to shore from deepest point") +
-  ylab("Distance to shore from visual center"))
+  ylab("Distance to shore from visual center")
 
 # plotly::ggplotly(gg_test)
 # plot(res$dist_deepest, res$dist_viscenter)
 
+gg_scatter_reservoir <- ggplot(data = st_drop_geometry(dt)) + 
+  geom_point(aes(x = dist_deepest, y = dist_viscenter, color = reservoir_class)) +
+  geom_abline(aes(intercept = 0, slope = 1)) +
+  xlab("Distance to shore from deepest point") +
+  ylab("Distance to shore from visual center")
+
+cowplot::plot_grid(gg_scatter_state + 
+                     theme(axis.title.x = element_text(color = "white")), 
+                   gg_scatter_reservoir + 
+                     labs(color = "") +
+                     theme(axis.title.y = element_blank(), 
+                           axis.text.y = element_blank()), 
+                   rel_widths = c(1, 0.8))
+
+gg_pntrng_deepest <- st_drop_geometry(dt) %>%
+    dplyr::filter(!is.na(reservoir_class)) %>%
+  group_by(reservoir_class) %>%
+  summarize(dist_deepest = list(tibble::enframe(
+    quantile(dist_deepest, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
+  unnest() %>%
+  tidyr::spread(name, value) %>%
+  ggplot() +
+geom_pointrange(aes(x = reservoir_class, y = `50%`, 
+                      ymin = `5%`, ymax = `95%`)) +
+  ylab("Distance to shore (m)") + xlab("")
+
+gg_pntrng_viscenter <- st_drop_geometry(dt) %>%
+    dplyr::filter(!is.na(reservoir_class)) %>%
+  group_by(reservoir_class) %>%
+  summarize(dist_viscenter = list(tibble::enframe(
+    quantile(dist_viscenter, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
+  unnest() %>%
+  tidyr::spread(name, value) %>%
+  ggplot() +
+geom_pointrange(aes(x = reservoir_class, y = `50%`, 
+                      ymin = `5%`, ymax = `95%`)) +
+  ylab("Distance to lake center (m)") + xlab("")
+
+cowplot::plot_grid(gg_pntrng_deepest, gg_pntrng_viscenter)
+
 get_pnt_map <- function(x){
   # x <- 3
+  # x <- which(dt$llid == 257862)
   lg_example <- LAGOSUSgis::query_gis(
     "LAGOS_US_All_Lakes_1ha", "lagoslakeid", dt$llid[x])
   crs_example <- st_crs(
@@ -44,9 +91,8 @@ get_pnt_map <- function(x){
     theme_void()
 }
 
-# which(dt$llid == 5636)
-# which(dt$llid == 257862)
-# get_pnt_map(2352)
+# get_pnt_map(which(dt$llid == 5636))
+# get_pnt_map(which(dt$llid == 257862))
 cowplot::plot_grid(get_pnt_map(which(dt$llid == 3791)) +
                      ggtitle(3791), 
                    get_pnt_map(which(dt$llid == 2772)) +
@@ -56,5 +102,20 @@ cowplot::plot_grid(get_pnt_map(which(dt$llid == 3791)) +
                    get_pnt_map(which(dt$llid == 1822)) +
                      ggtitle(1822)
                    )
+
+```
+
+```{r }
+# compare inlake slope against buffer slope
+ 
+dt         <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
+hypso_pred <- read.csv("../data/00_hypso/hypso_predictors.csv", 
+                       stringsAsFactors = FALSE) %>%
+  mutate(lagoslakeid = as.character(lagoslakeid))
+dt <- left_join(dt, dplyr::select(hypso_pred, lagoslakeid, reservoir_class, 
+                                  buffer100m_slope_max), 
+                                  by = c("llid" = "lagoslakeid"))
+
+plot(dt$inlake_slope, dt$buffer100m_slope_max/10)
 
 ```
