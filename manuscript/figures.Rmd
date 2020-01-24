@@ -47,6 +47,10 @@ knitr::include_graphics("../figures/01_hypsography-1.pdf")
 knitr::include_graphics("../figures/01_contrasts_depth-1.pdf")
 ```
 
+```{r constrasts_distance, fig.cap = "Contrasting distance from shore to the deepest point in the lake and distance to the lake visual center for natural lakes and reservoirs.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/01_geometry-2.pdf")
+```
+
 ```{r glaciated_vs_shapeclass, fig.cap = "Cross tabulation between lake glaciation and shape class. Circles are proportional to the number of lakes in each category. If a lake has been glaciated it is more likely to be convex. However, if a lake has not been glaciated there is no tendencey towards a particular shape class.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/glaciated_vs_shapeclass-1.pdf")
 ```
@@ -67,6 +71,18 @@ knitr::kable('\\includegraphics[width=6.5in]{"../tables/01_predictors"}', col.na
 knitr::include_graphics("../figures/02_depth_model_fitted-1.pdf")
 ```
 
+```{r 02_depth_oliver-2, fig.cap = "Reproduction of Oliver 2016 using LAGOSUS data in LAGOSNE footprint.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/02_depth_oliver-2.pdf")
+```
+
+```{r 02_depth_oliver-1, fig.cap = "Reproduction of Oliver 2016 using LAGOSUS data in LAGOSNE footprint.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/02_depth_oliver-1.pdf")
+```
+
+```{r 02_depth_oliver-4, fig.cap = "Oliver 2016 observed versus predicted.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/02_depth_oliver-4.pdf")
+```
+
 ![Lake shape caption](../figures/lake_shape.pdf){width=100%}
 
 ```{r 02_hypso_model_fitted, fig.cap = "Confusion matrix comparing two classification methods", warning=FALSE, echo = FALSE, eval=TRUE}
@@ -79,12 +95,14 @@ knitr::include_graphics("../figures/02_hypso_model_importance-1.pdf")
 
 ![Messager et al. 2016 equation table](../figures/messager_eq_table.png){width=100%}
 
-```{r 01_geometry_points, fig.cap = "Caption.", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r 01_geometry_points, fig.cap = "Distance to deepest point versus distance to lake visual center.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/01_geometry-1.pdf")
 ```
 
+\pagebreak
+
 ```{r 01_geometry_map, fig.cap = "Green points show the 'visual center' of the lake. Red points show the true deepest point of a lake.", warning=FALSE, echo = FALSE, eval=TRUE}
-knitr::include_graphics("../figures/01_geometry-2.pdf")
+knitr::include_graphics("../figures/01_geometry-3.pdf")
 ```
 
 ![Slope diagram caption](../figures/slope_diagram.pdf){width=100%}
