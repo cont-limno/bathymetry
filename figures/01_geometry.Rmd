@@ -113,9 +113,13 @@ hypso_pred <- read.csv("../data/00_hypso/hypso_predictors.csv",
                        stringsAsFactors = FALSE) %>%
   mutate(lagoslakeid = as.character(lagoslakeid))
 dt <- left_join(dt, dplyr::select(hypso_pred, lagoslakeid, reservoir_class, 
-                                  buffer100m_slope_max), 
+                                  buffer100m_slope_mean), 
                                   by = c("llid" = "lagoslakeid"))
 
-plot(dt$inlake_slope, dt$buffer100m_slope_max/10)
+plot(dt$inlake_slope, dt$buffer100m_slope_mean/10, 
+     xlim = c(0, 3), ylim = c(0, 3))
+abline(0, 1)
+
+# View(arrange(dt, buffer100m_slope_mean))
 
 ```
