@@ -36,7 +36,8 @@ dt_raw <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
             by = c("lagoslakeid")) %>%
   left_join(lg_x_walk,
             by = c("lagoslakeid" = "lagosus_lagoslakeid")) %>%
-  left_join(dplyr::select(lg_ne$buffer100m.lulc, lagoslakeid, buffer100m_slope_max),
+  left_join(dplyr::select(lg_ne$buffer100m.lulc, lagoslakeid,
+                          buffer100m_slope_max, buffer100m_slope_mean),
             by = c("lagosne_lagoslakeid" = "lagoslakeid")) %>%
   # remove duplicate columns in original depth product
   dplyr::select(-contains("_lat_"), -contains("_lon_"),
