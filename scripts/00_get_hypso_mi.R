@@ -33,11 +33,13 @@ rsubs <- lapply(seq_along(unique(mi$lagoslakeid)),
                 function(i){
   pb$tick(tokens = list(llid = unique(mi$lagoslakeid)[i]))
 
-                  # i <- 1
+  # i <- 1
+  # i <- which(unique(mi$lagoslakeid) == 820)
   fname <- paste0("data/mi_bathy/", unique(mi$lagoslakeid)[i], ".tif")
   if(!file.exists(fname)){
     dt <- dplyr::filter(mi, lagoslakeid == unique(mi$lagoslakeid)[i])
     dt <- suppressWarnings(st_cast(dt, "POINT"))
+    # ggplot() + geom_sf(data = dt, aes(color = DEPTH))
 
     res <- poly_to_filled_raster(dt, "DEPTH", 27, proj = 32616)
     if(cellStats(res$r, max) != 0){
