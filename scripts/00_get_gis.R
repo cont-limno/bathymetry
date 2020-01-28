@@ -43,6 +43,8 @@ hu4s_focal_simple <- rmapshaper::ms_simplify(
           st_transform(study_bbox, st_crs(hu4s_focal)))
 )
 
+states_all   <- rmapshaper::ms_simplify(states_all)
+
 # study_bbox   <- concaveman::concaveman(st_cast(hu4s_focal, "POINT"))
 
 # unlink("data/gis.gpkg")

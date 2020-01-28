@@ -23,25 +23,28 @@ dt <- dt %>%
   dplyr::filter(!is.na(maxdepth_class))
 states_all    <- st_read("../data/gis.gpkg", "states_all", quiet = TRUE)
 states_focal  <- st_read("../data/gis.gpkg", "states_focal", quiet = TRUE)
-hu4_focal     <- st_read("../data/gis.gpkg", "hu4s_focal_simple", quiet = TRUE)
-hu4_focal     <- st_crop(st_transform(
-  lwgeom::st_make_valid(hu4_focal), st_crs(study_bbox)), 
-  study_bbox)
+# hu4_focal     <- st_read("../data/gis.gpkg", "hu4s_focal_simple", quiet = TRUE)
+# hu4_focal     <- st_crop(st_transform(
+#   lwgeom::st_make_valid(hu4_focal), st_crs(study_bbox)), 
+#   study_bbox)
+
+dt_notsf <- cbind(st_drop_geometry(dt), st_coordinates(dt))
 
 gg_states <- 
   ggplot() + 
     geom_sf(data = study_bbox[2,], alpha = 1, size = 0.6, 
           color = "black", fill = "#1D9DCF") +
     geom_sf(data = states_all, fill = "gray", color = "black", size = 0.3) +
-    # geom_sf(data = outline, color = "black", alpha = 0, size = 0.8) +
-    # geom_sf(data = hu4, fill = "grey") +
+  # geom_sf(data = outline, color = "black", alpha = 0, size = 0.8) +
+  # geom_sf(data = hu4, fill = "grey") +
     geom_sf(data = states_focal, fill = "white", color = "black", size = 0.4) + 
-    geom_sf(data = dt, aes(color = maxdepth_class), size = 0.3, alpha = 0) +
+    geom_point_rast(data = dt_notsf, aes(x = X, y = Y, color = maxdepth_class), 
+                    size = 0.3, alpha = 0) +
     scale_color_manual(values = viridisLite::viridis(5)) +
-    geom_sf(data = dplyr::filter(dt, lake_maxdepth_m < 10),
-            aes(color = maxdepth_class), size = 0.3, alpha = 0.8) +
-    geom_sf(data = dplyr::filter(dt, lake_maxdepth_m > 10), 
-            aes(color = maxdepth_class), size = 0.3, alpha = 0.8) +
+    geom_point_rast(data = dplyr::filter(dt_notsf, lake_maxdepth_m < 10), 
+            aes(x = X, y = Y, color = maxdepth_class), size = 0.3, alpha = 0.8) +
+    geom_point_rast(data = dplyr::filter(dt_notsf, lake_maxdepth_m > 10), 
+            aes(x = X, y = Y, color = maxdepth_class), size = 0.3, alpha = 0.8) +
     labs(color = "Max depth (m)") +
     coord_sf(datum =  NA) +
     theme_void()

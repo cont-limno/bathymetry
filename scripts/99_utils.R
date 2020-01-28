@@ -25,6 +25,7 @@ library(polylabelr)
 library(esri2sf) # install_github("yonghah/esri2sf")
 library(rnaturalearth)
 library(mapview)
+library(ggrastr)
 
 # ---- misc fxn ----
 # jsta::get_if_not_exists
