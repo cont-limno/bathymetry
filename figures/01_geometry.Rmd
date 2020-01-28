@@ -56,7 +56,7 @@ gg_pntrng_deepest <- st_drop_geometry(dt) %>%
   ggplot() +
 geom_pointrange(aes(x = reservoir_class, y = `50%`, 
                       ymin = `5%`, ymax = `95%`)) +
-  ylab("Distance to shore (m)") + xlab("")
+  ylab("Distance from shore to deepest point (m)") + xlab("")
 
 gg_pntrng_viscenter <- st_drop_geometry(dt) %>%
     dplyr::filter(!is.na(reservoir_class)) %>%
