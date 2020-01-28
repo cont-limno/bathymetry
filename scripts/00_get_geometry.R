@@ -11,14 +11,15 @@ lg <- lagosus_load("locus")
 #   the distance between these points
 #   the true in-lake "slope"
 get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
-  # llid <- 5837
-  # r <- raster(paste0("data/nh_bathy/", llid, ".tif"))
-  # deep_positive = TRUE
+  # llid <- 75728
+  # r <- raster(paste0("data/ct_bathy/", llid, ".tif"))
+  # deep_positive = FALSE
   # ft = 3.281
 
   dt_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha",
                                    "lagoslakeid", llid) %>%
-    st_transform(st_crs(r))
+    st_transform(st_crs(r)$proj4string)
+
   if(!st_is_simple(dt_poly) |
      st_area(dt_poly) > units::as_units(130000, "m2")){
     dt_poly <- dt_poly %>%
@@ -27,18 +28,31 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
   }
 
   if(!deep_positive){
-    xy       <- xyFromCell(r, which.min(r[]))
     maxdepth <- abs(r[which.min(r[])][1]) / ft
+    # smooth out the minima in MN raster data
+    # r <- raster(paste0("data/mn_bathy/", llid, ".tif"))
+    r <- reclassify(r, matrix(c(floor(min(r[], na.rm = TRUE)),
+                            quantile(r[], 0.01, na.rm = TRUE),
+                            quantile(r[], 0.01, na.rm = TRUE)),
+                            ncol = 3, byrow = TRUE),
+                       include.lowest = FALSE)
+    xy <- xyFromCell(r, which(r[] == min(r[], na.rm = TRUE)))
   }else{
-    xy       <- xyFromCell(r, which.max(r[]))
+    xy       <- xyFromCell(r, which(r[] == max(r[], na.rm = TRUE)))
     maxdepth <- abs(r[which.max(r)][1]) / ft
   }
-  pnt_deepest   <- st_sfc(st_multipoint(xy), crs = st_crs(r))
+  pnt_deepest <- st_cast(
+    st_sfc(st_multipoint(xy), crs = st_crs(r)), "POINT")
+  st_crs(pnt_deepest) <- st_crs(r)$proj4string
+  pnt_deepest <- pnt_deepest[
+    which.max(st_distance(st_cast(dt_poly, "MULTILINESTRING"),
+                          pnt_deepest))]
 
   dt_poly_coords <- st_coordinates(dt_poly)[,1:2]
   pnt_viscenter <- polylabelr::poi(dt_poly_coords)
   pnt_viscenter <- as.numeric(pnt_viscenter[1:2])
   pnt_viscenter <- st_sfc(st_point(pnt_viscenter), crs = st_crs(r))
+  st_crs(pnt_viscenter) <- st_crs(r)$proj4string
   # mapview(dt_poly) + mapview(pnt_viscenter) + mapview(pnt_deepest, color = "red")
   # ggplot() + geom_sf(data = dt_poly) +
   #   coord_sf(datum = st_crs(r)) +
@@ -67,8 +81,8 @@ rm_bad_rasters <- function(rsubs){
 }
 
 loop_state <- function(fpath, outname, deep_positive, ft = 1){
-  # fpath <- "data/nh_bathy/"
-  # outname <- "data/00_bathy_depth/00_bathy_depth_nh.rds"
+  # fpath <- "data/mn_bathy/"
+  # outname <- "data/00_bathy_depth/00_bathy_depth_mi.rds"
   # deep_positive = TRUE
   # ft = 3.281
   flist <- list.files(fpath, pattern = "\\d.tif",
@@ -98,6 +112,7 @@ loop_state <- function(fpath, outname, deep_positive, ft = 1){
 res_all         <- list()
 
 # MN
+message("Calculating MN geometries...")
 res_all <- rbind(res_all, mutate(bind_rows(
   loop_state("data/mn_bathy/",
              "data/00_bathy_depth/00_bathy_depth_mn.rds",
