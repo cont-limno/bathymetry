@@ -56,5 +56,3 @@ if(interactive()){
   mapview::mapview(raster("data/mn_bathy/83617.tif"))
 
 }
-
-
