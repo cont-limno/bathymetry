@@ -6,9 +6,9 @@ data/00_hypso/hypso_classes.csv \
 data/lagosus_depth_predictors.csv \
 data/lagosne_depth_predictors.csv \
 data/00_hypso/hypso_predictors.csv \
-data/gis.gpkg \
 data/00_bathy_depth/bathy_geometry.csv \
 data/00_bathy_depth/bathy_pnts.rds
+# data/gis.gpkg \
 
 data/00_hypso/hypso.csv: scripts/01_hypso_merge.R \
 data/ct_hypso.csv \
@@ -128,7 +128,8 @@ figures/02_hypso_model_fitted-1.pdf
 	-mv manuscript/figures2.pdf manuscript/figures.pdf
 #	cd figures && make pnglatest
 
-figures/00_map-1.pdf: figures/00_maps.Rmd data/gis.gpkg
+# data/gis.gpkg
+figures/00_map-1.pdf: figures/00_maps.Rmd
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
