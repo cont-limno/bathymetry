@@ -63,3 +63,6 @@ test.rds
 manuscript/lagos-depth_figures.pdf
 debug.R
 test.R
+data/00_manual_extra/*.csv
+data/99_depth_collection_extra/*.csv
+data/99_depth_collection/*.csv
