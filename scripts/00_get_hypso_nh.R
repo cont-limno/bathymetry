@@ -11,6 +11,10 @@ nh_raw <- st_read("data/nh_bathy/Bathymetry_Lakes_lines.shp")
 
 lg_poly <- LAGOSUSgis::query_gis_(query =
                                     "SELECT * FROM LAGOS_US_All_Lakes_1ha WHERE lake_centroidstate LIKE 'NH' AND lake_totalarea_ha > 4")
+# remove problematic llids
+bad_llids <- c(6259)
+lg_poly   <- dplyr::filter(lg_poly, !(lagoslakeid %in% bad_llids))
+
 nh      <- st_transform(nh_raw, st_crs(lg_poly))
 nh      <- st_join(nh, lg_poly) %>%
   dplyr::filter(!is.na(lagoslakeid))

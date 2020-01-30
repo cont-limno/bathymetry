@@ -14,7 +14,7 @@ lg_poly <- LAGOSUSgis::query_gis_(query =
 lg_poly <- lwgeom::st_make_valid(lg_poly)
 
 # remove problematic llids
-bad_llids <- c(107971)
+bad_llids <- c(107971, 4101, 1141, 2723)
 lg_poly   <- dplyr::filter(lg_poly, !(lagoslakeid %in% bad_llids))
 
 mi      <- st_read("data/mi_bathy/contours.geojson")

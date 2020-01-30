@@ -46,8 +46,14 @@ st_geometry(ps_large) <- ps_large_filled$polygons
 
 lg_pnts <- LAGOSUSgis::query_gis_(query =
                   "SELECT * FROM LAGOS_US_All_Lakes_1ha_points WHERE lake_centroidstate LIKE 'CT' AND lake_totalarea_ha > 4")
+# remove problematic lakes
+bad_llids <- c(36244)
+lg_pnts <- dplyr::filter(lg_pnts, !(lagoslakeid %in% bad_llids))
 lg_pnts <- sf::st_join(lg_pnts, st_transform(ps_large, st_crs(lg_pnts))) %>%
   dplyr::filter(!is.na(WBNAME))
+
+# lg_poly <- LAGOSUSgis::query_gis_(query =
+#                    "SELECT * FROM LAGOS_US_All_Lakes_1ha WHERE lake_centroidstate LIKE 'CT' AND lake_totalarea_ha > 4")
 
 ps_large <- ps_large[ps_large$WBNAME %in% lg_pnts$WBNAME,]
 ps       <- ps[ps$WBNAME %in% ps_large$WBNAME,]
@@ -138,6 +144,9 @@ rsubs <- lapply(seq_len(length(unique(ps$lagoslakeid))), function(x){
                   snakecase::to_snake_case(llid_current), ".tif")
   if(!file.exists(fname)){
     ps_sub <- dplyr::filter(ps, lagoslakeid == llid_current)
+    # lg_sub <- dplyr::filter(lg_poly, lagoslakeid == llid_current)
+    # ps_sub <- st_intersection(ps_sub, st_transform(lg_sub, st_crs(ps_sub)))
+
     rsub   <- get_rsub(ps_sub)
     writeRaster(rsub, fname, format = "GTiff")
   }else{
