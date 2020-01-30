@@ -11,21 +11,38 @@ lg <- lagosus_load("locus")
 #   the distance between these points
 #   the true in-lake "slope"
 get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
-  # llid <- 75728
-  # r <- raster(paste0("data/ct_bathy/", llid, ".tif"))
-  # deep_positive = FALSE
+  # llid <- 2723
+  # r <- raster(paste0("data/mi_bathy/", llid, ".tif"))
+  # deep_positive = TRUE
   # ft = 3.281
 
   dt_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha",
-                                   "lagoslakeid", llid) %>%
-    st_transform(st_crs(r)$proj4string)
+                                   "lagoslakeid", llid)
+  proj_str <- st_crs(r)$proj4string
+  if(nrow(st_coordinates(st_transform(dt_poly, proj_str))) >= 1){
+    dt_poly <- st_transform(dt_poly, proj_str)
+  }else{
+    proj_str <- st_crs(dt_poly)
+    r <- projectRaster(r, crs = proj_str$proj4string)
+  }
 
+  if(is.na(sf::st_is_valid(dt_poly))){
+    dt_poly <- lwgeom::st_make_valid(dt_poly)
+  }
   if(!st_is_simple(dt_poly) |
      st_area(dt_poly) > units::as_units(130000, "m2")){
     dt_poly <- dt_poly %>%
       lwgeom::st_make_valid() %>%
       rmapshaper::ms_simplify(0.1)
   }
+
+  dt_poly_coords <- st_coordinates(dt_poly)[,1:2]
+  pnt_viscenter <- polylabelr::poi(dt_poly_coords)
+  pnt_viscenter <- as.numeric(pnt_viscenter[1:2])
+  pnt_viscenter <- st_sfc(st_point(pnt_viscenter), crs = proj_str)
+  st_crs(pnt_viscenter) <- proj_str
+  dist_viscenter <- st_distance(pnt_viscenter,
+                                st_cast(dt_poly, "MULTILINESTRING"))
 
   if(!deep_positive){
     maxdepth <- abs(r[which.min(r[])][1]) / ft
@@ -42,26 +59,32 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
     maxdepth <- abs(r[which.max(r)][1]) / ft
   }
   pnt_deepest <- st_cast(
-    st_sfc(st_multipoint(xy), crs = st_crs(r)), "POINT")
-  st_crs(pnt_deepest) <- st_crs(r)$proj4string
+    st_sfc(st_multipoint(xy), crs = proj_str), "POINT")
+  st_crs(pnt_deepest) <- proj_str
   pnt_deepest <- pnt_deepest[
-    which.max(st_distance(st_cast(dt_poly, "MULTILINESTRING"),
-                          pnt_deepest))]
+    st_distance(st_cast(dt_poly, "MULTILINESTRING"), pnt_deepest) <=
+      units::as_units(as.numeric(dist_viscenter), "m")]
+  pnt_deepest <- pnt_deepest[
+    which.max(st_distance(st_cast(dt_poly, "MULTILINESTRING"), pnt_deepest))]
+  if(nrow(st_coordinates(pnt_deepest)) == 0){
+    pnt_deepest <- st_cast(
+      st_sfc(st_multipoint(xy), crs = proj_str), "POINT")
+    st_crs(pnt_deepest) <- proj_str
+    pnt_deepest <- pnt_deepest[
+      which.min(st_distance(pnt_viscenter, pnt_deepest))]
+  }
 
-  dt_poly_coords <- st_coordinates(dt_poly)[,1:2]
-  pnt_viscenter <- polylabelr::poi(dt_poly_coords)
-  pnt_viscenter <- as.numeric(pnt_viscenter[1:2])
-  pnt_viscenter <- st_sfc(st_point(pnt_viscenter), crs = st_crs(r))
-  st_crs(pnt_viscenter) <- st_crs(r)$proj4string
-  # mapview(dt_poly) + mapview(pnt_viscenter) + mapview(pnt_deepest, color = "red")
+  # mapview(dt_poly) + mapview(r) + mapview(pnt_viscenter) + mapview(pnt_deepest, color = "red")
+
   # ggplot() + geom_sf(data = dt_poly) +
   #   coord_sf(datum = st_crs(r)) +
   #   theme(axis.text.x = element_text(angle = 90))
 
+  # mapview(st_nearest_points(pnt_deepest, st_cast(dt_poly, "MULTILINESTRING")))
+  # mapview(st_nearest_points(pnt_viscenter, st_cast(dt_poly, "MULTILINESTRING")))
+
   dist_deepest   <- st_distance(pnt_deepest,
                               st_cast(dt_poly, "MULTILINESTRING"))
-  dist_viscenter <- st_distance(pnt_viscenter,
-                                st_cast(dt_poly, "MULTILINESTRING"))
   # dist_viscenter > dist_deepest
   dist_between   <- st_distance(pnt_deepest, pnt_viscenter)
 
@@ -81,15 +104,17 @@ rm_bad_rasters <- function(rsubs){
 }
 
 loop_state <- function(fpath, outname, deep_positive, ft = 1){
-  # fpath <- "data/mn_bathy/"
+  # fpath <- "data/mi_bathy/"
   # outname <- "data/00_bathy_depth/00_bathy_depth_mi.rds"
   # deep_positive = TRUE
   # ft = 3.281
   flist <- list.files(fpath, pattern = "\\d.tif",
                          full.names = TRUE, include.dirs = TRUE)
+  # print(flist)
   if(!file.exists(outname)){
     rsubs <- lapply(flist, function(x) raster(x))
     rsubs <- rm_bad_rasters(rsubs)
+    # print(gsub("X", "", unlist(lapply(rsubs, names)))[300])
     pb <- progress_bar$new(
       format = "llid :llid [:bar] :percent",
       total = length(rsubs),
@@ -121,12 +146,14 @@ res_all <- rbind(res_all, mutate(bind_rows(
 # unlink("data/00_bathy_depth/00_bathy_depth_mn.rds")
 
 # CT
-res_all <- rbind(res_all, mutate(bind_rows(
+message("Calculating CT geometries...")
+res_all <- rbind(res_all, mutate(
+  bind_rows(
   loop_state("data/ct_bathy/",
              "data/00_bathy_depth/00_bathy_depth_ct.rds",
              deep_positive = TRUE,
-             ft = 3.281)
-), state = "CT", source = "https://cteco.uconn.edu/ctmaps/rest/services/Elevation/Lake_Bathymetry/MapServer/"))
+             ft = 3.281)),
+  state = "CT", source = "https://cteco.uconn.edu/ctmaps/rest/services/Elevation/Lake_Bathymetry/MapServer/"))
 # unlink("data/00_bathy_depth/00_bathy_depth_ct.rds")
 
 # KS
@@ -148,12 +175,14 @@ res_all <- rbind(res_all, mutate(bind_rows(
 # unlink("data/00_bathy_depth/00_bathy_depth_ma.rds")
 
 # MI
-res_all <- rbind(res_all, mutate(bind_rows(
+message("Calculating MI geometries...")
+res_all <- rbind(res_all, mutate(
+  bind_rows(
   loop_state("data/mi_bathy/",
              "data/00_bathy_depth/00_bathy_depth_mi.rds",
              deep_positive = TRUE,
-             ft = 3.281)
-), state = "MI", source = "https://opendata.arcgis.com/datasets/d49160d2e5af4123b15d48c2e9c70160_4"))
+             ft = 3.281)), # 300 throws an error
+  state = "MI", source = "https://opendata.arcgis.com/datasets/d49160d2e5af4123b15d48c2e9c70160_4"))
 # unlink("data/00_bathy_depth/00_bathy_depth_mi.rds")
 
 # NE
