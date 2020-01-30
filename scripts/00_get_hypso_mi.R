@@ -11,10 +11,30 @@ download.file("https://opendata.arcgis.com/datasets/d49160d2e5af4123b15d48c2e9c7
 
 lg_poly <- LAGOSUSgis::query_gis_(query =
                                     "SELECT * FROM LAGOS_US_All_Lakes_1ha WHERE lake_centroidstate LIKE 'MI' AND lake_totalarea_ha > 4")
+lg_poly <- lwgeom::st_make_valid(lg_poly)
+
+# remove problematic llids
+bad_llids <- c(107971)
+lg_poly   <- dplyr::filter(lg_poly, !(lagoslakeid %in% bad_llids))
+
 mi      <- st_read("data/mi_bathy/contours.geojson")
 mi      <- st_transform(mi, st_crs(lg_poly))
 mi      <- st_join(mi, lg_poly) %>%
   dplyr::filter(!is.na(lagoslakeid))
+
+# ## remove st_join errors
+# # find mi that st_cross lg_poly
+# # buffer these lines
+# # compute overlap
+# # remove those that have overlap less than some threshold
+# bad_contours <- unlist(lapply(
+#   sf::st_crosses(mi, lg_poly), function(x) length(x) > 0))
+# bad_contours <- mi[bad_contours,]
+# bad_contours <- st_buffer(bad_contours, 30)
+# bad_contours <- st_intersection(bad_contours, lg_poly)
+# test <- st_area(bad_contours) < units::as_units(1800, "m2")
+# test2 <- bad_contours[test,]
+# # mapview(bad_contours[which(test)[1],])
 
 # remove lakes not in lagosne xwalk table as they likely have a
 # non-functional basin split issue
@@ -34,12 +54,14 @@ rsubs <- lapply(seq_along(unique(mi$lagoslakeid)),
   pb$tick(tokens = list(llid = unique(mi$lagoslakeid)[i]))
 
   # i <- 1
-  # i <- which(unique(mi$lagoslakeid) == 820)
+  # i <- which(unique(mi$lagoslakeid) == 107971)
   fname <- paste0("data/mi_bathy/", unique(mi$lagoslakeid)[i], ".tif")
   if(!file.exists(fname)){
     dt <- dplyr::filter(mi, lagoslakeid == unique(mi$lagoslakeid)[i])
     dt <- suppressWarnings(st_cast(dt, "POINT"))
-    # ggplot() + geom_sf(data = dt, aes(color = DEPTH))
+    # ggplot() + geom_sf(data = dt, aes(color = DEPTH)) +
+    #   geom_sf(
+    #     data = dplyr::filter(lg_poly, lagoslakeid == unique(mi$lagoslakeid)[i]))
 
     res <- poly_to_filled_raster(dt, "DEPTH", 27, proj = 32616)
     if(cellStats(res$r, max) != 0){
