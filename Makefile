@@ -8,7 +8,8 @@ data/lagosne_depth_predictors.csv \
 data/00_hypso/hypso_predictors.csv \
 data/00_bathy_depth/bathy_geometry.csv \
 data/00_bathy_depth/bathy_pnts.rds
-# data/gis.gpkg \
+
+# data/gis.gpkg
 
 data/00_hypso/hypso.csv: scripts/01_hypso_merge.R \
 data/ct_hypso.csv \
@@ -18,7 +19,8 @@ data/nh_hypso.csv \
 data/ks_hypso.csv \
 data/ne_hypso.csv \
 data/ma_hypso.csv \
-data/ia_hypso.csv
+data/ia_hypso.csv \
+data/me_hypso.csv
 	Rscript $<
 
 data/00_hypso/hypso_classes.csv: scripts/03_hypso_classifier.R \
@@ -47,6 +49,9 @@ data/ma_hypso.csv: scripts/00_get_hypso_ma.R
 	Rscript $<
 
 data/ia_hypso.csv: scripts/00_get_hypso_ia.R
+	Rscript $<
+
+data/me_hypso.csv: scripts/00_get_hypso_me.R
 	Rscript $<
 
 data/00_reservoir_classification/reservoir_classes_clean.csv: scripts/00_get_reservoir_class.R

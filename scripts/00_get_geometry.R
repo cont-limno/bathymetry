@@ -11,10 +11,10 @@ lg <- lagosus_load("locus")
 #   the distance between these points
 #   the true in-lake "slope"
 get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
-  # llid <- 2723
-  # r <- raster(paste0("data/mi_bathy/", llid, ".tif"))
+  # llid <- 100561
+  # r <- raster(paste0("data/me_bathy/", llid, ".tif"))
   # deep_positive = TRUE
-  # ft = 3.281
+  # ft = 1
 
   dt_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha",
                                    "lagoslakeid", llid)
@@ -55,7 +55,8 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
                        include.lowest = FALSE)
     xy <- xyFromCell(r, which(r[] == min(r[], na.rm = TRUE)))
   }else{
-    xy       <- xyFromCell(r, which(r[] == max(r[], na.rm = TRUE)))
+    xy <- xyFromCell(r, which(r[] == max(r[], na.rm = TRUE)))
+    r <- reclassify(r, cbind(NULL, NA))
     maxdepth <- abs(r[which.max(r)][1]) / ft
   }
   pnt_deepest <- st_cast(
@@ -104,10 +105,10 @@ rm_bad_rasters <- function(rsubs){
 }
 
 loop_state <- function(fpath, outname, deep_positive, ft = 1){
-  # fpath <- "data/mi_bathy/"
-  # outname <- "data/00_bathy_depth/00_bathy_depth_mi.rds"
+  # fpath <- "data/me_bathy/"
+  # outname <- "data/00_bathy_depth/00_bathy_depth_me.rds"
   # deep_positive = TRUE
-  # ft = 3.281
+  # ft = 1
   flist <- list.files(fpath, pattern = "\\d.tif",
                          full.names = TRUE, include.dirs = TRUE)
   # print(flist)
@@ -211,6 +212,17 @@ res_all <- rbind(res_all, mutate(bind_rows(
              ft = 3.281)
 ), state = "IA", source = "http://iowageodata.s3.amazonaws.com/inlandWaters/lakes_bathymetry.zip"))
 # unlink("data/00_bathy_depth/00_bathy_depth_ia.rds")
+
+# ME
+message("Calculating ME geometries...")
+res_all <- rbind(res_all, mutate(bind_rows(
+  loop_state("data/me_bathy/",
+             "data/00_bathy_depth/00_bathy_depth_me.rds",
+             deep_positive = TRUE,
+             ft = 1)
+), state = "ME",
+source = "https://www.maine.gov/megis/catalog/shps/state/lakedpths.zip"))
+# unlink("data/00_bathy_depth/00_bathy_depth_me.rds")
 
 # write geometry to an rds file containing an sf object with two geometries
 #         pnt_deepest and pnt_viscenter

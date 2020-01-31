@@ -16,11 +16,13 @@ hypso_ma <- read.csv("data/ma_hypso.csv", stringsAsFactors = FALSE) %>%
   mutate(state = "MA")
 hypso_ia <- read.csv("data/ia_hypso.csv", stringsAsFactors = FALSE) %>%
   mutate(state = "IA")
+hypso_me <- read.csv("data/me_hypso.csv", stringsAsFactors = FALSE) %>%
+  mutate(state = "ME")
 
 # merge csv's and save
 res <- dplyr::bind_rows(hypso_mn, hypso_ct, hypso_mi,
                         hypso_nh, hypso_ks, hypso_ne,
-                        hypso_ma, hypso_ia) %>%
+                        hypso_ma, hypso_ia, hypso_me) %>%
   group_by(llid) %>% add_tally() %>%
   dplyr::filter(n > 1) %>% dplyr::select(-n)
 
