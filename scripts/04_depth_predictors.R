@@ -53,6 +53,13 @@ dt_raw <- dt_raw %>%
   "data/00_reservoir_classification/reservoir_classes_clean.csv",
   stringsAsFactors = FALSE), lagoslakeid, reservoir_class), by = "lagoslakeid")
 
+# add geometry data
+bathy_pnts <- read.csv("data/00_bathy_depth/bathy_geometry.csv",
+                       stringsAsFactors = FALSE)
+dt_raw <- dt_raw %>%
+  left_join(dplyr::select(bathy_pnts, dist_deepest:inlake_slope, llid),
+            by = c("lagoslakeid" = "llid"))
+
 write.csv(dt_raw, "data/lagosus_depth_predictors.csv", row.names = FALSE)
 # dt_raw <- read.csv("data/lagosus_depth_predictors.csv", stringsAsFactors = FALSE)
 

@@ -3,9 +3,58 @@ source("scripts/99_utils.R")
 
 dt <- read.csv("data/lagosne_depth_predictors.csv",
                stringsAsFactors = FALSE) %>%
-  dplyr::filter(!is.na(shape_class))
+  dplyr::filter(!is.na(shape_class)) %>%
+  dplyr::filter(!(shape_class %in% c("neither")))
+
+inlake_slope_s <- log(dt$inlake_slope)
+dist_deepest_s <- dt$dist_deepest
+
+dt <- dt %>%
+  dplyr::mutate_if(is.numeric, scale) %>%
+  mutate(inlake_slope = inlake_slope_s,
+         dist_deepest = dist_deepest_s)
 
 res <- list()
+
+# ---- non-linear geometry-based model ----
+if(interactive()){
+  library(brms)
+
+  ## bare-bones non-linear attempt
+  # prior1 <- prior(beta(2, 18), nlpar = "p") + prior(beta(2, 18), nlpar = "k")
+  # fit <- brm(
+  #   bf(lake_maxdepth_m ~ p * tan(buffer100m_slope_mean) *
+  #        k * dist_viscenter, p ~ 1, k ~ 1,
+  #      nl = TRUE), data = dt, prior = prior1)
+
+  ## modeling maxdepth as a calculated quantitiy
+  # model inlake_slope ~ buffer_slope + covariates
+  # model deepest_dist ~ viscenter_dist + covariates
+  # compute depth using mcmc chains
+  # https://discourse.mc-stan.org/t/using-brms-to-create-generated-quantities-stan-code-block/11766/4
+  fit1 <- brm(
+    bf(inlake_slope ~ buffer100m_slope_mean +
+         shape_class + ws_lake_arearatio + reservoir_class), data = dt)
+  fit2 <- brm(
+    bf(dist_deepest ~ dist_viscenter + lake_waterarea_ha + lake_shorelinedevfactor_nounits), data = dt)
+  # compute maxdepth using mcmc chains
+  test <- predict(fit1,
+                              resp = "inlake_slope",
+                              transform = exp,
+                              summary = TRUE,
+                              probs = 0.5,
+                              newdata = dt)
+  test <- data.frame(test, stringsAsFactors = FALSE)
+  plot(test$Estimate, exp(dt$inlake_slope))
+  abline(0, 1)
+
+  pp_check(fit1)
+
+  dim(inlake_slope_pred)
+
+  dist_deepest_pred <-
+
+}
 
 #---- Model without shape_class ----
 fit <- lm(lake_maxdepth_m ~
