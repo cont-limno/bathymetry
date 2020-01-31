@@ -22,15 +22,11 @@ dt <- left_join(dt, dplyr::select(hypso_pred, lagoslakeid, reservoir_class),
                                   by = c("llid" = "lagoslakeid"))
 
 # plot of true deepest versus visual centers
-
 gg_scatter_state <- ggplot(data = st_drop_geometry(dt)) + 
   geom_point(aes(x = dist_deepest, y = dist_viscenter, color = state)) +
   geom_abline(aes(intercept = 0, slope = 1)) +
   xlab("Distance to shore from deepest point") +
   ylab("Distance to shore from visual center")
-
-# plotly::ggplotly(gg_test)
-# plot(res$dist_deepest, res$dist_viscenter)
 
 gg_scatter_reservoir <- ggplot(data = st_drop_geometry(dt)) + 
   geom_point(aes(x = dist_deepest, y = dist_viscenter, color = reservoir_class)) +
