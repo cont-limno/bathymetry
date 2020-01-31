@@ -100,3 +100,41 @@ ggplot() +
   labs(fill = "") +
   coord_sf(datum = NA) + theme_void()
 ```
+
+```{r 00_map_bathy, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+bathy_pnts <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
+dt            <- st_read("../data/gis.gpkg", "dt", quiet = TRUE)
+max_depth <- dt$lake_maxdepth_m
+dt <- dt %>%
+  mutate(lake_maxdepth_m = round(lake_maxdepth_m, 2)) %>%
+  mutate(maxdepth_class = 
+           smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, max(max_depth)), 
+                     brackets = NULL, sep = " - ")
+         ) %>% # unique(dt$maxdepth_class)
+  dplyr::filter(!is.na(maxdepth_class))
+
+dt_bathy <- st_drop_geometry(bathy_pnts) %>% 
+  left_join(
+    dplyr::distinct(dplyr::mutate(dplyr::select(dt, lagoslakeid, maxdepth_class, 
+                                                has_limno, lake_waterarea_ha),
+                  lagoslakeid = as.character(lagoslakeid)), lagoslakeid, .keep_all = TRUE),
+            by = c("llid" = "lagoslakeid"))
+
+dt_bathy <- st_sf(dt_bathy, geometry = dt_bathy$geom)
+
+gg_bathy <- 
+  ggplot() + 
+    geom_sf(data = study_bbox[2,], alpha = 1, size = 0.6, 
+          color = "black", fill = "#1D9DCF") +
+    geom_sf(data = states_all, fill = "gray", color = "black", size = 0.3) +
+    geom_sf(data = states_focal, fill = "white", color = "black", size = 0.4) + 
+    geom_sf(data = dt_bathy, aes(color = maxdepth_class), 
+                    size = 0.3, alpha = 1) +
+    scale_color_manual(values = viridisLite::viridis(5)) +
+    labs(color = "Max depth (m)") +
+    coord_sf(datum =  NA) +
+    theme_void()
+
+gg_bathy
+```
+
