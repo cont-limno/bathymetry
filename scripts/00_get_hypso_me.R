@@ -17,11 +17,10 @@ if(!file.exists("data/me_bathy/lakedpths.zip")){
   unzip("data/me_bathy/lakedpths.zip", exdir = "data/me_bathy/")
 }
 
-pnts <- sf::st_read("data/me_bathy/lakedpth.shp")
-
 # pull lagosus points
 lg_poly <- LAGOSUSgis::query_gis_(query =
                                     "SELECT * FROM LAGOS_US_All_Lakes_1ha WHERE lake_centroidstate LIKE 'ME' AND lake_totalarea_ha > 4")
+pnts <- sf::st_read("data/me_bathy/lakedpth.shp")
 pnts <- st_transform(pnts, st_crs(lg_poly))
 pnts <- st_join(pnts, lg_poly) %>%
   dplyr::filter(!is.na(lagoslakeid))
@@ -32,6 +31,12 @@ lg_xwalk <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv",
                      stringsAsFactors = FALSE)
 pnts <- dplyr::filter(pnts,
                            lagoslakeid %in% unique(lg_xwalk$lagoslakeid))
+few_soundings <- pnts %>%
+  group_by(lagoslakeid) %>%
+  add_tally() %>%
+  dplyr::filter(n < 3) %>%
+  pull(lagoslakeid)
+pnts <- dplyr::filter(pnts, !(lagoslakeid %in% few_soundings))
 
 lg_ps <- dplyr::filter(lg_poly, lagoslakeid %in% pnts$lagoslakeid)
 
@@ -44,7 +49,7 @@ rsubs <- lapply(seq_along(unique(pnts$lagoslakeid)),
                 function(i){
                   pb$tick(tokens = list(llid = unique(pnts$lagoslakeid)[i]))
 
-                  # i <- 3
+                  # i <- which(unique(pnts$lagoslakeid) == 56028)
                   fname <- paste0("data/me_bathy/", unique(pnts$lagoslakeid)[i], ".tif")
                   if(!file.exists(fname)){
                     dt <- dplyr::filter(pnts, lagoslakeid == unique(pnts$lagoslakeid)[i])
@@ -75,7 +80,7 @@ rsubs <- lapply(seq_along(unique(pnts$lagoslakeid)),
                   list(r = res$r, width = res$wh)
                 })
 # whs          <- unlist(lapply(rsubs, function(x) x$width))
-# flist        <- list.files("data/ma_bathy/", pattern = "\\d.tif",
+# flist        <- list.files("data/me_bathy/", pattern = "\\d.tif",
 #                            full.names = TRUE, include.dirs = TRUE)
 ## rm flist not in list
 # (flist_rm <- flist[!
