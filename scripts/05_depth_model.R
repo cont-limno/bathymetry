@@ -4,55 +4,157 @@ source("scripts/99_utils.R")
 dt <- read.csv("data/lagosne_depth_predictors.csv",
                stringsAsFactors = FALSE) %>%
   dplyr::filter(!is.na(shape_class)) %>%
-  dplyr::filter(!(shape_class %in% c("neither")))
+  dplyr::filter(!(shape_class %in% c("neither"))) %>%
+  dplyr::filter(inlake_slope < 1) %>%
+  dplyr::filter(!is.na(reservoir_class))
 
+# plot(calc_depth(dt$inlake_slope, dt$dist_deepest), dt$lake_maxdepth_m)
+# hist(dt$inlake_slope)
+# hist(dt$dist_deepest)
+
+max_depth_s    <- dt$lake_maxdepth_m
 inlake_slope_s <- log(dt$inlake_slope)
-dist_deepest_s <- dt$dist_deepest
+dist_deepest_s <- log(dt$dist_deepest)
 
 dt <- dt %>%
   dplyr::mutate_if(is.numeric, scale) %>%
   mutate(inlake_slope = inlake_slope_s,
-         dist_deepest = dist_deepest_s)
+         dist_deepest = dist_deepest_s,
+         lake_maxdepth_m = max_depth_s)
 
-res <- list()
-
-# ---- non-linear geometry-based model ----
 if(interactive()){
   library(brms)
 
-  ## bare-bones non-linear attempt
-  # prior1 <- prior(beta(2, 18), nlpar = "p") + prior(beta(2, 18), nlpar = "k")
-  # fit <- brm(
-  #   bf(lake_maxdepth_m ~ p * tan(buffer100m_slope_mean) *
-  #        k * dist_viscenter, p ~ 1, k ~ 1,
-  #      nl = TRUE), data = dt, prior = prior1)
+# ---- modeling maxdepth as a multivariate response variable model
 
-  ## modeling maxdepth as a calculated quantitiy
+# ---- more complicated nonlinear ----
+
+  prior1 <- prior(normal(0, 100), nlpar = "p") +
+    prior(beta(2, 30), nlpar = "inlakeslope") +
+    prior(lognormal(1, 1.9), nlpar = "distdeepest")
+
+  # prior1 <- prior(normal(0, 100), nlpar = "p") +
+  #   prior(normal(0, 100), nlpar = "inlakeslope") +
+  #   prior(normal(0, 100), nlpar = "distdeepest")
+
+  inits <- list(p = 0,
+                inlakeslope = exp(median(dt$inlake_slope)),
+                distdeepest = exp(median(dt$dist_deepest)))
+  inits_list <- list(inits, inits, inits, inits)
+  fit <- brm(
+    bf(lake_maxdepth_m ~ p * tan(inlakeslope) * distdeepest,
+    inlakeslope ~ buffer100m_slope_mean +
+      shape_class + ws_lake_arearatio + reservoir_class,
+    distdeepest ~ dist_viscenter + lake_waterarea_ha + lake_shorelinedevfactor_nounits, p ~ 1, nl = TRUE),
+    data = dt, prior = prior1, inits = inits_list)
+
+# ---- hu4 random effect ----
+  fit1 <- brm(
+    bf(inlake_slope ~ buffer100m_slope_mean +
+         shape_class + ws_lake_arearatio + reservoir_class + (1 + buffer100m_slope_mean | hu4_zoneid)), data = dt)
+
+# ---- modeling maxdepth as a calculated quantity ----
   # model inlake_slope ~ buffer_slope + covariates
   # model deepest_dist ~ viscenter_dist + covariates
   # compute depth using mcmc chains
   # https://discourse.mc-stan.org/t/using-brms-to-create-generated-quantities-stan-code-block/11766/4
-  fit1 <- brm(
-    bf(inlake_slope ~ buffer100m_slope_mean +
-         shape_class + ws_lake_arearatio + reservoir_class), data = dt)
-  fit2 <- brm(
-    bf(dist_deepest ~ dist_viscenter + lake_waterarea_ha + lake_shorelinedevfactor_nounits), data = dt)
+  if(!file.exists("fit1.rds")){
+    # unlink("fit1.rds")
+    fit1 <- brm(
+      bf(inlake_slope ~ buffer100m_slope_mean +
+           shape_class + ws_lake_arearatio + reservoir_class + (1 + buffer100m_slope_mean | hu4_zoneid)), data = dt)
+    saveRDS(fit1, "fit1.rds")
+  }else{
+    fit1 <- readRDS("fit1.rds")
+  }
+
+  if(!file.exists("fit2.rds")){
+    # unlink("fit2.rds")
+    fit2 <- brm(
+      bf(dist_deepest ~ dist_viscenter + lake_waterarea_ha + lake_shorelinedevfactor_nounits), data = dt)
+    saveRDS(fit2, "fit2.rds")
+  }else{
+    fit2 <- readRDS("fit2.rds")
+  }
+
+  inlake_slope_pred <- fitted(fit1)
+  plot(exp(dt$inlake_slope), exp(inlake_slope_pred[,1]))
+  abline(0, 1)
+
+  test2 <- fitted(fit2)
+  hist(test[,1])
+  plot(exp(dt$dist_deepest), exp(test[,1]))
+  abline(0, 1)
+
+  res <- calc_depth(exp(test1[,1]), exp(test2[,1]))
+  hist(res, xlim = c(0, 150), n = 100)
+  hist(dt$lake_maxdepth_m)
+  plot(dt$lake_maxdepth_m, res, ylim = c(0, 150))
+  abline(0, 1)
+
+  plot(log(dt$lake_maxdepth_m), log(res))
+  abline(0, 1)
+
+  test1 <- data.frame(measured = dt$lake_maxdepth_m,
+                      predicted = res)
+  yardstick::rmse(test1, measured, predicted)
+
+  test2 <- data.frame(measured = dt$lake_maxdepth_m,
+                      predicted = calc_depth(exp(dt$inlake_slope),
+                                             exp(dt$dist_deepest)))
+  yardstick::rmse(test2, measured, predicted)
+
+
   # compute maxdepth using mcmc chains
-  test <- predict(fit1,
+  inlake_slope_pred <- predict(fit1,
                               resp = "inlake_slope",
-                              transform = exp,
-                              summary = TRUE,
+                              # transform = exp,
+                              # summary = TRUE,
                               probs = 0.5,
                               newdata = dt)
-  test <- data.frame(test, stringsAsFactors = FALSE)
-  plot(test$Estimate, exp(dt$inlake_slope))
+
+  par(mfrow = c(1, 2))
+  hist(dt$inlake_slope)
+  hist(inlake_slope_pred[,1])
+  test <- predictive_interval(fit1, 0.01)[,1]
+  test <- posterior_predict(fit1)
+  head(predictive_interval(fit1, 0.1))
+  hist(predictive_interval(fit1, 0.01)[,1])
+  hist(brms::predictive_interval(fit1)[,2])
+  hist(brms::predictive_interval(fit1)[,1])
+
+  %>%
+    data.frame() %>% pull(Estimate)
+  dist_deepest_pred <- predict(fit2,
+                               resp = "dist_deepest",
+                               transform = exp,
+                               summary = TRUE,
+                               probs = 0.5,
+                               newdata = dt) %>%
+    data.frame() %>% pull(Estimate)
+
+  plot(inlake_slope_pred, exp(dt$inlake_slope), xlim = c(0, 1), ylim = c(0, 1))
   abline(0, 1)
+
+  plot(dist_deepest_pred, exp(dt$dist_deepest),
+       xlim = c(min(exp(dt$dist_deepest), na.rm = TRUE),
+                max(exp(dt$dist_deepest), na.rm = TRUE)))
+  abline(0, 1)
+
+  dt <- mutate(dt,
+               lake_maxdepth_m_pred = tan(inlake_slope_pred) *
+                 dist_deepest_pred)
+
+  plot(dt$lake_maxdepth_m, dt$lake_maxdepth_m_pred, ylim = c(0, 25))
 
   pp_check(fit1)
 
-  dim(inlake_slope_pred)
-
-  dist_deepest_pred <-
+# ---- bare-bones non-linear attempt ----
+# prior1 <- prior(beta(2, 18), nlpar = "p") + prior(beta(2, 18), nlpar = "k")
+# fit <- brm(
+#   bf(lake_maxdepth_m ~ p * tan(buffer100m_slope_mean) *
+#        k * dist_viscenter, p ~ 1, k ~ 1,
+#      nl = TRUE), data = dt, prior = prior1)
 
 }
 
