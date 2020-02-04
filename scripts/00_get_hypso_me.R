@@ -49,7 +49,7 @@ rsubs <- lapply(seq_along(unique(pnts$lagoslakeid)),
                 function(i){
                   pb$tick(tokens = list(llid = unique(pnts$lagoslakeid)[i]))
 
-                  # i <- which(unique(pnts$lagoslakeid) == 56028)
+                  # i <- which(unique(pnts$lagoslakeid) == 8026)
                   fname <- paste0("data/me_bathy/", unique(pnts$lagoslakeid)[i], ".tif")
                   if(!file.exists(fname)){
                     dt <- dplyr::filter(pnts, lagoslakeid == unique(pnts$lagoslakeid)[i])
@@ -68,6 +68,14 @@ rsubs <- lapply(seq_along(unique(pnts$lagoslakeid)),
                     dt         <- rbind(dt, dt_outline)
 
                     res <- poly_to_filled_raster(dt, "DEPTHM", 15, proj = 32619)
+
+                    poly_mask <- st_transform(
+                      dplyr::filter(lg_ps,
+                                    lagoslakeid == unique(pnts$lagoslakeid)[i]),
+                      st_crs(res$r))
+                    poly_mask <- st_cast(poly_mask, "POLYGON")
+                    res$r     <- raster::mask(res$r, poly_mask)
+
                     if(cellStats(res$r, max) != 0){
                       writeRaster(res$r, fname)
                     }
