@@ -11,7 +11,7 @@ lg <- lagosus_load("locus")
 #   the distance between these points
 #   the true in-lake "slope"
 get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
-  # llid <- 100561
+  # llid <- 7664
   # r <- raster(paste0("data/me_bathy/", llid, ".tif"))
   # deep_positive = TRUE
   # ft = 1
@@ -31,9 +31,15 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
   }
   if(!st_is_simple(dt_poly) |
      st_area(dt_poly) > units::as_units(130000, "m2")){
-    dt_poly <- dt_poly %>%
+    dt_poly_raw <- dt_poly
+    dt_poly     <- dt_poly_raw %>%
       lwgeom::st_make_valid() %>%
       rmapshaper::ms_simplify(0.1)
+    if(st_area(dt_poly_raw) > units::as_units(2700000, "m2")){
+      dt_poly     <- dt_poly_raw %>%
+        lwgeom::st_make_valid() %>%
+        rmapshaper::ms_simplify(0.02)
+    }
   }
 
   dt_poly_coords <- st_coordinates(dt_poly)[,1:2]
@@ -43,6 +49,7 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
   st_crs(pnt_viscenter) <- proj_str
   dist_viscenter <- st_distance(pnt_viscenter,
                                 st_cast(dt_poly, "MULTILINESTRING"))
+  # mapview(dt_poly) + mapview(r) + mapview(pnt_viscenter)
 
   if(!deep_positive){
     maxdepth <- abs(r[which.min(r[])][1]) / ft
