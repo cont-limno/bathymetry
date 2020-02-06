@@ -122,18 +122,20 @@ dt_bathy <- st_drop_geometry(bathy_pnts) %>%
             by = c("llid" = "lagoslakeid"))
 
 dt_bathy <- st_sf(dt_bathy, geometry = dt_bathy$geom)
+dt_bathy <- mutate(dt_bathy, maxdepth_class = droplevels(dt_bathy$maxdepth_class)) 
+dt_bathy <- dplyr::filter(dt_bathy, !is.na(maxdepth_class))
 
 gg_bathy <- 
   ggplot() + 
-    geom_sf(data = study_bbox[2,], alpha = 1, size = 0.6, 
+    geom_sf(data = st_as_sfc(st_bbox(dt_bathy)), alpha = 1, size = 0.6, 
           color = "black", fill = "#1D9DCF") +
-    geom_sf(data = states_all, fill = "gray", color = "black", size = 0.3) +
-    geom_sf(data = states_focal, fill = "white", color = "black", size = 0.4) + 
+    geom_sf(data = st_crop(states_all, st_as_sfc(st_bbox(dt_bathy))), fill = "gray", color = "black", size = 0.3) +
+    geom_sf(data = st_crop(states_focal, st_as_sfc(st_bbox(dt_bathy))), fill = "white", color = "black", size = 0.4) + 
     geom_sf(data = dt_bathy, aes(color = maxdepth_class), 
-                    size = 0.3, alpha = 1) +
-    scale_color_manual(values = viridisLite::viridis(5)) +
+                    size = 0.2, alpha = 0.8) +
+    scale_color_manual(values = viridisLite::viridis(4)) +
     labs(color = "Max depth (m)") +
-    coord_sf(datum =  NA) +
+    coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
     theme_void()
 
 gg_bathy
