@@ -41,3 +41,7 @@ knitr::include_graphics("../figures/01_contrasts_tally-1.pdf")
 ```{r 01_programs_tally, fig.cap = "Number of programs by categories.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/01_programs_tally-1.pdf")
 ```
+
+```{r 00_qa, fig.cap = "Range of depth measurements for lakes with data from multiple sources.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/00_qa-1.pdf")
+```
