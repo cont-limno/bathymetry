@@ -69,3 +69,6 @@ data/99_depth_collection/*.csv
 data/me_bathy/lakedpths.zip
 data/me_bathy/lakedpth.txt
 manuscript/data.tex
+fit1.rds
+fit2.rds
+ny_gg.R
