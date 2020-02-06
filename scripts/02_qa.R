@@ -4,7 +4,8 @@ source("scripts/99_utils.R")
 lg        <- lagosus_load(module = "locus")
 
 # ---- remove obs that seem wrong in lakes with repeated measures ----
-threshold <- 0.4
+diff_threshold    <- 8
+percent_threshold <- 0.3
 
 dt_raw        <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE)
 has_limno_ids <- dt_raw %>%
@@ -14,40 +15,37 @@ has_limno_ids <- dt_raw %>%
 dt_raw        <- dt_raw %>%
   dplyr::filter(!is.na(lake_maxdepth_m))
 
-dt     <- dt_raw %>%
+calc_diff_metrics <- function(dt){
+  dt %>%
   group_by(lagoslakeid) %>%
-  add_tally() %>%
-  mutate(diff = (max(lake_maxdepth_m) - min(lake_maxdepth_m)) /
-           max(lake_maxdepth_m)) %>%
-  mutate(diff = case_when(n < 2 ~ 0,
-                          TRUE ~ diff)) %>%
-  arrange(desc(diff))
+    add_tally() %>%
+    mutate(diff = (max(lake_maxdepth_m) - min(lake_maxdepth_m)),
+           percent = diff / max(lake_maxdepth_m)) %>%
+    mutate(diff = case_when(n < 2 ~ 0,
+                            TRUE ~ diff),
+           percent = case_when(n < 2 ~ 0,
+                               TRUE ~ percent)) %>%
+    arrange(desc(diff))
+}
+
+dt     <- dt_raw %>%
+  calc_diff_metrics()
 
 # remove NLA first because we're calling it the most unreliable
 dt     <- dt %>%
   ungroup(dt) %>%
-  dplyr::filter(!(lagos_effort == "NLA" & diff > threshold)) %>%
-  dplyr::select(-n, -diff) %>%
-  group_by(lagoslakeid) %>%
-  add_tally() %>%
-  mutate(diff = (max(lake_maxdepth_m) - min(lake_maxdepth_m)) /
-           max(lake_maxdepth_m)) %>%
-  mutate(diff = case_when(n < 2 ~ 0,
-                          TRUE ~ diff)) %>%
-  arrange(desc(diff))
+  dplyr::filter(!(lagos_effort == "NLA" & percent > percent_threshold)) %>%
+  dplyr::filter(!(lagos_effort == "NLA" & diff > diff_threshold)) %>%
+  dplyr::select(-n, -diff, -percent) %>%
+  calc_diff_metrics()
 
 # remove LAGOSNE second because we're calling it the second most unreliable
 dt     <- dt %>%
   ungroup(dt) %>%
-  dplyr::filter(!(lagos_effort == "LAGOSNE" & diff > threshold)) %>%
-  dplyr::select(-n, -diff) %>%
-  group_by(lagoslakeid) %>%
-  add_tally() %>%
-  mutate(diff = (max(lake_maxdepth_m) - min(lake_maxdepth_m)) /
-           max(lake_maxdepth_m)) %>%
-  mutate(diff = case_when(n < 2 ~ 0,
-                          TRUE ~ diff)) %>%
-  arrange(desc(diff))
+  dplyr::filter(!(lagos_effort == "LAGOSNE" & percent > percent_threshold)) %>%
+  dplyr::filter(!(lagos_effort == "LAGOSNE" & diff > diff_threshold)) %>%
+  dplyr::select(-n, -diff, -percent) %>%
+  calc_diff_metrics()
 
 # remove bathymetry third because this is likely due to NHD hi-res polygons
 # being mismatched to gnis names?
