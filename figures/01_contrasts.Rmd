@@ -142,7 +142,7 @@ gg_tally_programtype <- read.csv(
    ggplot(aes(x = programtype_depth, y = n)) + 
    geom_col() + 
    geom_text(aes(label = n), vjust = -0.5) + 
-   ylim(0, 11000) +
+   ylim(0, 13000) +
   xlab("Program type")
 ```
 
@@ -183,7 +183,7 @@ gg_tally_waterareaclass <- read.csv("../data/lagosus_depth_predictors.csv",
   ggplot(aes(x = area_class, y = n)) +
   geom_col() + 
   geom_text(aes(label = n), vjust = -0.5) +
-  ylim(0, 10000) + 
+  ylim(0, 11000) + 
   xlab("Lake area class (ha)")
 ```
 
@@ -198,7 +198,7 @@ gg_tally_hypsoclass <- read.csv(
   ggplot(aes(x = shape_class, y = n)) +
   geom_col() + 
   geom_text(aes(label = n), vjust = -0.5) +
-  ylim(0, 3000) + 
+  ylim(0, 4500) + 
   xlab("Shape class")
 ```
 
