@@ -1,4 +1,6 @@
-all: datasets manuscript/figures.pdf
+all: datasets \
+manuscript/figures.pdf \
+manuscript/data.pdf
 
 datasets: data/lagosus_depth.csv \
 data/00_hypso/hypso.csv \
@@ -114,6 +116,24 @@ data/00_hypso/hypso.csv
 data/00_bathy_depth/bathy_geometry.csv: scripts/00_get_geometry.R \
 data/00_hypso/hypso.csv
 	Rscript $<
+
+manuscript/data.pdf: manuscript/data.Rmd \
+manuscript/tables.pdf \
+figures/00_map-1.pdf \
+figures/00_cutoffs-1.pdf \
+figures/01_heatmap-1.pdf \
+figures/01_hypsography-1.pdf \
+figures/01_contrasts_depth-1.pdf \
+figures/01_contrasts_tally-1.pdf \
+figures/slope_diagram.pdf \
+figures/lake_shape.pdf \
+figures/01_geometry-1.pdf \
+figures/02_depth_model_fitted-1.pdf \
+figures/02_hypso_model_fitted-1.pdf
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	-pdftk manuscript/data.pdf cat 2-end output manuscript/data2.pdf
+	-mv manuscript/data2.pdf manuscript/data.pdf
+#	cd figures && make pnglatest
 
 manuscript/figures.pdf: manuscript/figures.Rmd \
 manuscript/tables.pdf \
