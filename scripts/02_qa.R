@@ -47,21 +47,13 @@ dt     <- dt %>%
   dplyr::select(-n, -diff, -percent) %>%
   calc_diff_metrics()
 
-# remove bathymetry third because this is likely due to NHD hi-res polygons
-# being mismatched to gnis names?
-# dt <- dt %>%
-#   ungroup(dt) %>%
-#   dplyr::filter(!(lagos_effort == "bathymetry" & diff > threshold)) %>%
-#   dplyr::select(-n, -diff) %>%
-#   group_by(lagoslakeid) %>%
-#   add_tally() %>%
-#   mutate(diff = (max(lake_maxdepth_m) - min(lake_maxdepth_m)) /
-#            max(lake_maxdepth_m)) %>%
-#   mutate(diff = case_when(n < 2 ~ 0,
-#                           TRUE ~ diff)) %>%
-#   arrange(desc(diff))
-
-# hist(dt$diff[dt$diff != 0])
+# remove manual third because we assume that NHD hi-res polygons are correct
+dt     <- dt %>%
+  ungroup(dt) %>%
+  dplyr::filter(!(lagos_effort == "manual" & percent > percent_threshold)) %>%
+  dplyr::filter(!(lagos_effort == "manual" & diff > diff_threshold)) %>%
+  dplyr::select(-n, -diff, -percent) %>%
+  calc_diff_metrics()
 
 # TODO: make sure max depth is at least equal to the maximum sample depth from limno
 
