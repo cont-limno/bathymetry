@@ -118,18 +118,11 @@ data/00_hypso/hypso.csv
 	Rscript $<
 
 manuscript/data.pdf: manuscript/data.Rmd \
-manuscript/tables.pdf \
 figures/00_map-1.pdf \
 figures/00_cutoffs-1.pdf \
-figures/01_heatmap-1.pdf \
-figures/01_hypsography-1.pdf \
 figures/01_contrasts_depth-1.pdf \
 figures/01_contrasts_tally-1.pdf \
-figures/slope_diagram.pdf \
-figures/lake_shape.pdf \
-figures/01_geometry-1.pdf \
-figures/02_depth_model_fitted-1.pdf \
-figures/02_hypso_model_fitted-1.pdf
+figures/00_qa-1.pdf
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	-pdftk manuscript/data.pdf cat 2-end output manuscript/data2.pdf
 	-mv manuscript/data2.pdf manuscript/data.pdf
@@ -137,8 +130,7 @@ figures/02_hypso_model_fitted-1.pdf
 
 manuscript/figures.pdf: manuscript/figures.Rmd \
 manuscript/tables.pdf \
-figures/00_map-1.pdf \
-figures/00_cutoffs-1.pdf \
+figures/00_map_bathy-1.pdf \
 figures/01_heatmap-1.pdf \
 figures/01_hypsography-1.pdf \
 figures/01_contrasts_depth-1.pdf \
@@ -192,6 +184,11 @@ data/lagosus_depth.csv
 	pdfcrop $@ $@
 
 figures/02_hypso_model_fitted-1.pdf: figures/02_hypso_model.Rmd \
+data/lagosus_depth.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
+figures/00_qa-1.pdf: figures/00_qa.Rmd \
 data/lagosus_depth.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
