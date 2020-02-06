@@ -50,7 +50,6 @@ gg_states <-
     theme_void()
 
 gg_states
-
 ```
 
 ```{r 00_map_state, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
@@ -67,7 +66,8 @@ dt_plot <- dt %>%
   left_join(dplyr::filter(
     dplyr::select(states_all, postal, iso_a2), iso_a2 == "US"), 
             by = c("lake_state" = "postal")) %>%
-  dplyr::filter(!is.na(prop_maxdepth))
+  dplyr::filter(!is.na(prop_maxdepth)) %>%
+  distinct(lake_state, .keep_all = TRUE)
 st_geometry(dt_plot) <- dt_plot$geom
   
 ggplot() + 
@@ -84,18 +84,19 @@ dt_plot <- dt %>%
   dplyr::filter(lake_waterarea_ha >= 4) %>%
   dplyr::filter(has_limno == 1) %>%
   group_by(lake_state) %>%
-  summarize(prop_maxdepth = mean(!is.na(lake_maxdepth_m))) %>%
+  summarize(prop_maxdepth = round(mean(!is.na(lake_maxdepth_m)), 2)) %>%
   arrange(desc(prop_maxdepth)) %>%
   left_join(dplyr::filter(
     dplyr::select(states_all, postal, iso_a2), iso_a2 == "US"), 
             by = c("lake_state" = "postal")) %>%
-  dplyr::filter(!is.na(prop_maxdepth))
+  dplyr::filter(!is.na(prop_maxdepth)) %>%
+  distinct(lake_state, .keep_all = TRUE)
 st_geometry(dt_plot) <- dt_plot$geom
 
 ggplot() + 
   geom_sf(data = dt_plot, aes(fill = prop_maxdepth)) + 
-  geom_sf_text(data = dt_plot, 
-               aes(label = round(prop_maxdepth, 2)), 
+  geom_sf_text(data = dt_plot,
+               aes(label = prop_maxdepth),
                size = 2.5) +
   labs(fill = "") +
   coord_sf(datum = NA) + theme_void()
