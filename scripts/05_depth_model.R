@@ -1,5 +1,5 @@
-source("scripts/99_utils.R")
 # setwd("../")
+source("scripts/99_utils.R")
 
 dt <- read.csv("data/lagosne_depth_predictors.csv",
                stringsAsFactors = FALSE) %>%
@@ -25,12 +25,19 @@ dt <- dt %>%
 if(interactive()){
   library(brms)
 
-# ---- modeling maxdepth as a multivariate response variable model
+# ---- focus on modelling inlake_slope ----
+
+# breakpoint model before and after shoreline
+
+# gaussian processes
+
+# kriging
+
 
 # ---- more complicated nonlinear ----
 
   prior1 <- prior(normal(0, 100), nlpar = "p") +
-    prior(beta(2, 30), nlpar = "inlakeslope") +
+    prior(normal(1, 0.5), nlpar = "inlakeslope") +
     prior(lognormal(1, 1.9), nlpar = "distdeepest")
 
   # prior1 <- prior(normal(0, 100), nlpar = "p") +
@@ -38,8 +45,8 @@ if(interactive()){
   #   prior(normal(0, 100), nlpar = "distdeepest")
 
   inits <- list(p = 0,
-                inlakeslope = exp(median(dt$inlake_slope)),
-                distdeepest = exp(median(dt$dist_deepest)))
+                inlakeslope = 0.1,
+                distdeepest = median(exp(dt$dist_deepest)))
   inits_list <- list(inits, inits, inits, inits)
   fit <- brm(
     bf(lake_maxdepth_m ~ p * tan(inlakeslope) * distdeepest,
@@ -78,6 +85,17 @@ if(interactive()){
   }
 
   inlake_slope_pred <- fitted(fit1)
+  dist_deepest_pred <- fitted(fit2)
+
+  fit <- lm(dt$lake_maxdepth_m ~ tan(exp(inlake_slope_pred[,1])) + exp(dist_deepest_pred[,1]))
+
+  plot(fitted(fit), dt$lake_maxdepth_m)
+  abline(0, 1)
+
+  yardstick::rmse(data.frame(measured = dt$lake_maxdepth_m,
+                             predicted = fitted(fit)),
+                  measured, predicted)
+
   plot(exp(dt$inlake_slope), exp(inlake_slope_pred[,1]))
   abline(0, 1)
 
