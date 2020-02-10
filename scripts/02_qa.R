@@ -15,12 +15,12 @@ has_limno_ids <- dt_raw %>%
 dt_raw        <- dt_raw %>%
   dplyr::filter(!is.na(lake_maxdepth_m))
 
-calc_diff_metrics <- function(dt){
+calc_diff_metrics <- function(dt, field = "lake_maxdepth_m"){
   dt %>%
   group_by(lagoslakeid) %>%
     add_tally() %>%
-    mutate(diff = (max(lake_maxdepth_m) - min(lake_maxdepth_m)),
-           percent = diff / max(lake_maxdepth_m)) %>%
+    mutate(diff = (max(UQ(rlang::sym(field))) - min(UQ(rlang::sym(field)))),
+           percent = diff / max(UQ(rlang::sym(field)))) %>%
     mutate(diff = case_when(n < 2 ~ 0,
                             TRUE ~ diff),
            percent = case_when(n < 2 ~ 0,
@@ -67,7 +67,7 @@ lg_missing <- lg$locus$locus_information %>%
   dplyr::filter(!(lagoslakeid %in% dt$lagoslakeid))
 
 res <- bind_rows(dt, lg_missing) %>%
-  dplyr::select(-n, -diff) %>%
+  dplyr::select(-n, -diff, -percent) %>%
   mutate(has_limno = case_when(
     lagoslakeid %in% has_limno_ids ~ 1,
     TRUE ~ 0))
