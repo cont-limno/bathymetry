@@ -11,11 +11,11 @@ lg <- lagosus_load("locus")
 #   the distance between these points
 #   the true in-lake "slope"
 get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
-  # llid <- 2676
-  # r <- raster(paste0("data/mi_bathy/", llid, ".tif"))
+  # llid <- 130008
+  # r <- raster(paste0("data/ct_bathy/", llid, ".tif"))
   # deep_positive = TRUE
-  # ft = 1
   # ft <- 3.281
+  # ft = 1
 
   dt_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha",
                                    "lagoslakeid", llid)
@@ -255,7 +255,8 @@ write.csv(select(res_all, -contains("pnt")),
 # write max depth formatted like other max depth sources
 res_final <- res_all %>%
   mutate(effort = "bathymetry") %>%
-  dplyr::select(llid, state, max_depth_m = maxdepth, source,
+  dplyr::select(llid, state, max_depth_m = maxdepth,
+                mean_depth_m = meandepth, source,
                 effort, -contains("pnt"), -contains("dist")) %>%
   left_join(mutate(dplyr::select(lg$locus$locus_characteristics,
                           lagoslakeid, lake_waterarea_ha,
