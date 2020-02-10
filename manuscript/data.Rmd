@@ -13,6 +13,10 @@ header-includes:
 knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 5, fig.height = 6, dev = c("pdf"))
 ```
 
+\pagebreak
+
+![Summary of lake depth measurements](../tables/00_data.pdf){width=65%}
+
 ```{r maps_dot, fig.cap = "Map of lake maximum depth in the continental United States.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/00_map-1.pdf")
 ```
