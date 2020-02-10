@@ -11,10 +11,11 @@ lg <- lagosus_load("locus")
 #   the distance between these points
 #   the true in-lake "slope"
 get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
-  # llid <- 7664
-  # r <- raster(paste0("data/me_bathy/", llid, ".tif"))
+  # llid <- 2676
+  # r <- raster(paste0("data/mi_bathy/", llid, ".tif"))
   # deep_positive = TRUE
   # ft = 1
+  # ft <- 3.281
 
   dt_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha",
                                    "lagoslakeid", llid)
@@ -29,13 +30,15 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
   if(is.na(sf::st_is_valid(dt_poly))){
     dt_poly <- lwgeom::st_make_valid(dt_poly)
   }
-  if(!st_is_simple(dt_poly) |
-     st_area(dt_poly) > units::as_units(130000, "m2")){
+  if(!st_is_simple(dt_poly) | (
+     st_area(dt_poly) > units::as_units(130000, "m2") &
+     nrow(st_coordinates(dt_poly)) > 32)){
     dt_poly_raw <- dt_poly
     dt_poly     <- dt_poly_raw %>%
       lwgeom::st_make_valid() %>%
       rmapshaper::ms_simplify(0.1)
-    if(st_area(dt_poly_raw) > units::as_units(2700000, "m2")){
+    if(st_area(dt_poly_raw) > units::as_units(2700000, "m2") &
+       nrow(st_coordinates(dt_poly_raw)) > 32){
       dt_poly     <- dt_poly_raw %>%
         lwgeom::st_make_valid() %>%
         rmapshaper::ms_simplify(0.02)
@@ -52,7 +55,8 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
   # mapview(dt_poly) + mapview(r) + mapview(pnt_viscenter)
 
   if(!deep_positive){
-    maxdepth <- abs(r[which.min(r[])][1]) / ft
+    maxdepth  <- abs(r[which.min(r[])][1]) / ft
+    meandepth <- abs(cellStats(r, mean)) / ft
     # smooth out the minima in MN raster data
     # r <- raster(paste0("data/mn_bathy/", llid, ".tif"))
     r <- reclassify(r, matrix(c(floor(min(r[], na.rm = TRUE)),
@@ -62,9 +66,10 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
                        include.lowest = FALSE)
     xy <- xyFromCell(r, which(r[] == min(r[], na.rm = TRUE)))
   }else{
-    xy <- xyFromCell(r, which(r[] == max(r[], na.rm = TRUE)))
-    r <- reclassify(r, cbind(NULL, NA))
-    maxdepth <- abs(r[which.max(r)][1]) / ft
+    xy        <- xyFromCell(r, which(r[] == max(r[], na.rm = TRUE)))
+    r         <- reclassify(r, cbind(NULL, NA))
+    maxdepth  <- abs(r[which.max(r)][1]) / ft
+    meandepth <- cellStats(r, mean) / ft
   }
   pnt_deepest <- st_cast(
     st_sfc(st_multipoint(xy), crs = proj_str), "POINT")
@@ -101,7 +106,7 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
   list(pnt_deepest = pnt_deepest, pnt_viscenter = pnt_viscenter,
        dist_deepest = dist_deepest, dist_viscenter = dist_viscenter,
        dist_between = dist_between, inlake_slope = inlake_slope,
-       maxdepth = maxdepth, llid = llid)
+       maxdepth = maxdepth, meandepth = meandepth, llid = llid)
 }
 
 rm_bad_rasters <- function(rsubs){
@@ -165,6 +170,7 @@ res_all <- rbind(res_all, mutate(
 # unlink("data/00_bathy_depth/00_bathy_depth_ct.rds")
 
 # KS
+message("Calculating KS geometries...")
 res_all <- rbind(res_all, mutate(bind_rows(
   loop_state("data/ks_bathy/",
              "data/00_bathy_depth/00_bathy_depth_ks.rds",
@@ -174,6 +180,7 @@ res_all <- rbind(res_all, mutate(bind_rows(
 # unlink("data/00_bathy_depth/00_bathy_depth_ks.rds")
 
 # MA
+message("Calculating MA geometries...")
 res_all <- rbind(res_all, mutate(bind_rows(
   loop_state("data/ma_bathy/",
              "data/00_bathy_depth/00_bathy_depth_ma.rds",
@@ -194,6 +201,7 @@ res_all <- rbind(res_all, mutate(
 # unlink("data/00_bathy_depth/00_bathy_depth_mi.rds")
 
 # NE
+message("Calculating NE geometries...")
 res_all <- rbind(res_all, mutate(bind_rows(
   loop_state("data/ne_bathy/",
              "data/00_bathy_depth/00_bathy_depth_ne.rds",
@@ -203,6 +211,7 @@ res_all <- rbind(res_all, mutate(bind_rows(
 # unlink("data/00_bathy_depth/00_bathy_depth_ne.rds")
 
 # NH
+message("Calculating NH geometries...")
 res_all <- rbind(res_all, mutate(bind_rows(
   loop_state("data/nh_bathy/",
              "data/00_bathy_depth/00_bathy_depth_nh.rds",
@@ -212,6 +221,7 @@ res_all <- rbind(res_all, mutate(bind_rows(
 # unlink("data/00_bathy_depth/00_bathy_depth_nh.rds")
 
 # IA
+message("Calculating IA geometries...")
 res_all <- rbind(res_all, mutate(bind_rows(
   loop_state("data/ia_bathy/",
              "data/00_bathy_depth/00_bathy_depth_ia.rds",
