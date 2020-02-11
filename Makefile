@@ -193,10 +193,15 @@ data/lagosus_depth.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
-manuscript/tables.pdf: tables/01_predictors.pdf
+manuscript/tables.pdf: tables/00_data.pdf \
+tables/01_predictors.pdf
 	pdftk $^ cat output manuscript/tables.pdf
 
 tables/01_predictors.pdf: tables/01_predictors.Rmd data/lagosus_depth.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
+tables/00_data.pdf: tables/00_data.Rmd data/lagosus_depth.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 

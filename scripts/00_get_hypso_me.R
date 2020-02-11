@@ -49,7 +49,7 @@ rsubs <- lapply(seq_along(unique(pnts$lagoslakeid)),
                 function(i){
                   pb$tick(tokens = list(llid = unique(pnts$lagoslakeid)[i]))
 
-                  # i <- which(unique(pnts$lagoslakeid) == 8026)
+                  # i <- which(unique(pnts$lagoslakeid) == 8511)
                   fname <- paste0("data/me_bathy/", unique(pnts$lagoslakeid)[i], ".tif")
                   if(!file.exists(fname)){
                     dt <- dplyr::filter(pnts, lagoslakeid == unique(pnts$lagoslakeid)[i])

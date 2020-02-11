@@ -33,12 +33,32 @@ ggplot(data = tidyr::pivot_longer(dt, -lagoslakeid)) +
   xlab("meters")
 ```
 
+```{r lgnemanual-bathy-meandepth}
+dt <- read.csv("../data/lagosus_depth.csv", stringsAsFactors = FALSE)
+dt_sub <- dt %>%
+  dplyr::filter(
+    lagos_effort %in% c("LAGOSNE", "bathymetry", "manual") &
+    !is.na(lake_meandepth_m)) %>%
+  dplyr::select(lagoslakeid, lake_state, lagos_effort, lake_meandepth_m) %>%
+  tidyr::pivot_wider(names_from = lagos_effort, 
+                     values_from = c(lake_meandepth_m)) %>%
+  dplyr::filter(!is.na(bathymetry)) %>%
+  mutate(combined = coalesce(manual, LAGOSNE)) %>%
+  dplyr::filter(!is.na(combined))
+
+(gg <- ggplot(data = dplyr::filter(dt_sub, !(lake_state %in% c("ME", "NH")))) +
+  geom_text(aes(x = bathymetry, y = combined, color = lake_state, 
+                 label = lagoslakeid)) +
+  geom_abline(aes(intercept = 0, slope = 1)))
+
+# plotly::ggplotly(gg)
+```
+
 ```{r lgne-area_vs_lgus-area, eval=FALSE}
 lg    <- lagosus_load("locus")
 lg_ne <- lagosne_load()
 dt    <- read.csv("../data/lagosus_depth.csv", stringsAsFactors = FALSE)
 
-names(lg$locus$locus_link$l)
 res <- dt %>% 
   left_join(
     dplyr::select(lg$locus$locus_link, lagoslakeid, lagosne_lagoslakeid)) %>%
