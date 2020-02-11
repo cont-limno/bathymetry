@@ -11,7 +11,6 @@ dt         <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
 
 states_all <- ne_states(country = c("united states of america", "canada", "mexico"),
                         returnclass = "sf")
-
 state_codes <- unique(dt$lake_state)
 states_focal <- states_all %>%
   dplyr::filter(., postal %in% state_codes & iso_a2 == "US")
@@ -49,15 +48,17 @@ states_all   <- rmapshaper::ms_simplify(states_all)
 
 # unlink("data/gis.gpkg")
 # st_layers("data/gis.gpkg")
-st_write(states_focal, gpkg_path, layer = "states_focal",
+st_write(states_focal, gpkg_path, layer = "states_focal", delete_layer = TRUE,
          layer_options = c("OVERWRITE=yes"))
-st_write(states_all, gpkg_path, layer = "states_all",
+st_write(states_all, gpkg_path, layer = "states_all", delete_layer = TRUE,
          layer_options = c("OVERWRITE=yes"))
 # st_write(hu4s, gpkg_path, layer = "hu4s", update = TRUE,
 #          layer_options = c("OVERWRITE=yes"))
 st_write(hu4s_focal, gpkg_path, layer = "hu4s_focal", update = TRUE,
+         delete_layer = TRUE,
          layer_options = c("OVERWRITE=yes"))
 st_write(hu4s_focal_simple, gpkg_path, layer = "hu4s_focal_simple", update = TRUE,
+         delete_layer = TRUE,
          layer_options = c("OVERWRITE=yes"))
 # st_write(hu8s, gpkg_path, layer = "hu8s", update = TRUE,
 #          layer_options = c("OVERWRITE=yes"))
@@ -66,9 +67,12 @@ st_write(hu4s_focal_simple, gpkg_path, layer = "hu4s_focal_simple", update = TRU
 # st_write(iws, gpkg_path, layer = "iws", update = TRUE,
 #          layer_options = c("OVERWRITE=yes"))
 st_write(study_bbox, gpkg_path, layer = "study_bbox", update = TRUE,
+         delete_layer = TRUE,
          layer_options = c("OVERWRITE=yes"))
-st_write(dt, gpkg_path, layer = "dt", update = TRUE,
+st_write(dt, gpkg_path, layer = "dt", update = TRUE, delete_layer = TRUE,
          layer_options = c("OVERWRITE=yes"))
+# test <- st_read("data/gis.gpkg", "dt", quiet = TRUE)
+
 # library(RSQLite)
 # db = SQLite()
 # con = dbConnect(db, "data/gis.gpkg")
