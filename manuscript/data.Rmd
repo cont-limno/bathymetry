@@ -11,14 +11,16 @@ header-includes:
 \arrayrulecolor{white}
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 5, fig.height = 6, dev = c("pdf"))
+knitr::opts_knit$set(eval.after = "fig.cap")
 ```
 
 \pagebreak
 
 ![Summary of lake depth measurements](../tables/00_data.pdf){width=65%}
 
-```{r maps_dot, fig.cap = "Map of lake maximum depth in the continental United States.", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r maps_dot, fig.cap = paste0("Map of lake maximum depth in the continental United States (", paste0(system("fsizemb ../figures/00_map-1.pdf", intern = TRUE), " MB)")), warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/00_map-1.pdf")
+# 
 ```
 
 ```{r maps_state_all, fig.cap = "Proportion of ALL lakes greater than 4ha with maximum depth availability by state.", warning=FALSE, echo = FALSE, eval=TRUE}
