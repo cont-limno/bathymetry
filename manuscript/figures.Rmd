@@ -13,17 +13,23 @@ header-includes:
 knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 5, fig.height = 6, dev = c("pdf"))
 ```
 
-![Summary of lake depth predictor variables.](../tables/01_predictors.pdf){width=65%}
+\pagebreak
+
+![Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right)](../figures/lake_shape.pdf){width=100%}
 
 ```{r maps_dot_bathy, fig.cap = "Map of lake maximum depth measurements derived from lake bathymetry surfaces.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 ```
 
+```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported max depth and max depth calculated from bathymetry surfaces.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
+```
+
+![Summary of lake depth predictor variables.](../tables/01_predictors.pdf){width=65%}
+
 ```{r heatmap, fig.cap = "Correlation matrix heatmap.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/01_heatmap-1.pdf")
 ```
-
-![Lake shape caption](../figures/lake_shape.pdf){width=100%}
 
 ```{r hypsography, fig.cap = "Hypsography classification by state.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/01_hypsography-1.pdf")
@@ -60,8 +66,6 @@ knitr::include_graphics("../figures/02_depth_oliver-1.pdf")
 ```{r 02_depth_oliver-4, fig.cap = "Oliver 2016 observed versus predicted.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/02_depth_oliver-4.pdf")
 ```
-
-![Lake shape caption](../figures/lake_shape.pdf){width=100%}
 
 ```{r 02_hypso_model_fitted, fig.cap = "Confusion matrix comparing two classification methods", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/02_hypso_model_fitted-1.pdf")

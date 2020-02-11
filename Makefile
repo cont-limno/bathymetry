@@ -131,6 +131,7 @@ figures/00_qa-1.pdf
 manuscript/figures.pdf: manuscript/figures.Rmd \
 manuscript/tables.pdf \
 figures/00_map_bathy-1.pdf \
+figures/lgnemanual-vs-bathy-depth-1.pdf \
 figures/01_heatmap-1.pdf \
 figures/01_hypsography-1.pdf \
 figures/01_contrasts_depth-1.pdf \
@@ -189,6 +190,11 @@ data/lagosus_depth.csv
 	pdfcrop $@ $@
 
 figures/00_qa-1.pdf: figures/00_qa.Rmd \
+data/lagosus_depth.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
+figures/lgnemanual-vs-bathy-depth-1.pdf: figures/00_qa.Rmd \
 data/lagosus_depth.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@

@@ -33,8 +33,9 @@ ggplot(data = tidyr::pivot_longer(dt, -lagoslakeid)) +
   xlab("meters")
 ```
 
-```{r lgnemanual-bathy-meandepth}
+```{r lgnemanual-vs-bathy-depth, fig.height=3}
 dt <- read.csv("../data/lagosus_depth.csv", stringsAsFactors = FALSE)
+
 dt_sub <- dt %>%
   dplyr::filter(
     lagos_effort %in% c("LAGOSNE", "bathymetry", "manual") &
@@ -46,12 +47,41 @@ dt_sub <- dt %>%
   mutate(combined = coalesce(manual, LAGOSNE)) %>%
   dplyr::filter(!is.na(combined))
 
-(gg <- ggplot(data = dplyr::filter(dt_sub, !(lake_state %in% c("ME", "NH")))) +
-  geom_text(aes(x = bathymetry, y = combined, color = lake_state, 
-                 label = lagoslakeid)) +
-  geom_abline(aes(intercept = 0, slope = 1)))
+gg_mean <- ggplot() +
+  geom_point(data = dt_sub, 
+             aes(x = bathymetry, y = combined, color = lake_state), 
+             alpha = 0.6) +
+  geom_point(data = dplyr::filter(dt_sub, !(lake_state %in% c("ME"))), 
+             aes(x = bathymetry, y = combined, color = lake_state)) +
+  geom_abline(aes(intercept = 0, slope = 1)) +
+  xlab("Calculated (m)") + ylab("Reported (m)") +
+  ggtitle("Mean Depth")
 
 # plotly::ggplotly(gg)
+
+dt_sub <- dt %>%
+  dplyr::filter(
+    lagos_effort %in% c("LAGOSNE", "bathymetry", "manual") &
+    !is.na(lake_maxdepth_m) &
+    !(lagoslakeid %in% c(456169))) %>% # remove llids with duplicate manual depth
+  dplyr::select(lagoslakeid, lake_state, lagos_effort, lake_maxdepth_m) %>%
+  tidyr::pivot_wider(names_from = lagos_effort, 
+                     values_from = c(lake_maxdepth_m)) %>%
+  dplyr::filter(!is.na(bathymetry)) %>%
+  mutate(combined = coalesce(manual, LAGOSNE)) %>%
+  dplyr::filter(!is.na(combined))
+
+gg_max <- ggplot(data = dt_sub) +
+  # geom_text(aes(x = bathymetry, y = combined, color = lake_state, 
+  #                label = lagoslakeid)) +
+  geom_point(aes(x = bathymetry, y = combined, color = lake_state)) +
+  geom_abline(aes(intercept = 0, slope = 1)) +
+  xlab("Calculated (m)") + ylab("Reported (m)") +
+  ggtitle("Max Depth")
+
+cowplot::plot_grid(gg_max + theme(legend.position = "none"), 
+                   gg_mean + theme(axis.title.y = element_blank()), 
+                   rel_widths = c(0.7, 1))
 ```
 
 ```{r lgne-area_vs_lgus-area, eval=FALSE}
