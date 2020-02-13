@@ -197,7 +197,7 @@ gg_shapeclass <- ggplot() +
                     size = 0.03, alpha = 0.3) +
     geom_sf(data = dplyr::filter(dt, shape_class != "convex"), aes(color = shape_class),
                     size = 0.07, alpha = 0.8) +
-    labs(color = "Shape class") +
+    labs(color = "Shape class   ") +
     coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
     theme_void()
 
@@ -211,7 +211,8 @@ gg_shapeclass
 ```
 
 
-```{r 00_map_bathy, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+```{r 00_map_bathy, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=6}
 cowplot::plot_grid(gg_bathy, 
-                   gg_shapeclass, ncol = 1)
+                   gg_shapeclass, 
+                   ncol = 1)
 ```
