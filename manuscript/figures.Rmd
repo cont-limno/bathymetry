@@ -15,14 +15,21 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 5, fig.
 
 \pagebreak
 
+![Diagram showing the assumption of most lake depth models that the nearshore slope is extends into the lake and that all lakes have a common relationship between nearshore and in-lake slope. ](../figures/slope_diagram.pdf){width=90%}
+
 ![Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right)](../figures/lake_shape.pdf){width=85%}
+
+```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported max depth and max depth calculated from bathymetry surfaces.", warning=FALSE, echo = FALSE, eval=TRUE}
+# see 00_qa.Rmd
+knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
+```
 
 ```{r maps_dot_bathy, fig.cap = "Map of lake maximum depth measurements calculated from lake bathymetry surfaces.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 ```
 
-```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported max depth and max depth calculated from bathymetry surfaces.", warning=FALSE, echo = FALSE, eval=TRUE}
-knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
+```{r 01_geometry_points, fig.cap = "Distance to deepest point versus distance to lake visual center.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/01_geometry-1.pdf")
 ```
 
 ![Summary of lake depth predictor variables.](../tables/01_predictors.pdf){width=65%}
@@ -77,15 +84,9 @@ knitr::include_graphics("../figures/02_hypso_model_importance-1.pdf")
 
 ![Messager et al. 2016 equation table](../figures/messager_eq_table.png){width=100%}
 
-```{r 01_geometry_points, fig.cap = "Distance to deepest point versus distance to lake visual center.", warning=FALSE, echo = FALSE, eval=TRUE}
-knitr::include_graphics("../figures/01_geometry-1.pdf")
-```
-
 \pagebreak
 
 ```{r 01_geometry_map, fig.cap = "Green points show the 'visual center' of the lake. Red points show the true deepest point of a lake.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/01_geometry-3.pdf")
 ```
-
-![Slope diagram caption](../figures/slope_diagram.pdf){width=100%}
 
