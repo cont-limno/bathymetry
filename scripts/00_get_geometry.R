@@ -11,8 +11,8 @@ lg <- lagosus_load("locus")
 #   the distance between these points
 #   the true in-lake "slope"
 get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
-  # llid <- 130008
-  # r <- raster(paste0("data/ct_bathy/", llid, ".tif"))
+  # llid <- 5636
+  # r <- raster(paste0("data/nh_bathy/", llid, ".tif"))
   # deep_positive = TRUE
   # ft <- 3.281
   # ft = 1
@@ -26,10 +26,10 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
     proj_str <- st_crs(dt_poly)
     r <- projectRaster(r, crs = proj_str$proj4string)
   }
-
   if(is.na(sf::st_is_valid(dt_poly))){
     dt_poly <- lwgeom::st_make_valid(dt_poly)
   }
+
   if(!st_is_simple(dt_poly) | (
      st_area(dt_poly) > units::as_units(130000, "m2") &
      nrow(st_coordinates(dt_poly)) > 32)){
@@ -46,6 +46,7 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
   }
 
   dt_poly_coords <- st_coordinates(dt_poly)[,1:2]
+  # dt_poly_coords <- dt_poly_coords[!(duplicated(paste(dt_poly_coords[,1], dt_poly_coords[,2])))]
   pnt_viscenter <- polylabelr::poi(dt_poly_coords)
   pnt_viscenter <- as.numeric(pnt_viscenter[1:2])
   pnt_viscenter <- st_sfc(st_point(pnt_viscenter), crs = proj_str)
@@ -103,9 +104,19 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
 
   inlake_slope   <- maxdepth / as.numeric(dist_deepest)
 
+  pnt_shore  <- sf::st_nearest_points(pnt_deepest, st_transform(
+    st_cast(dt_poly, "MULTILINESTRING"), proj_str))
+
+  r_slope    <- terrain(r, "slope")
+  r_slope    <- mask(r_slope, as_Spatial(pnt_shore))
+  inlake_slope_mean   <- mean(r_slope@data@values, na.rm = TRUE) * res(r)[1]
+  inlake_slope_median <- median(r_slope@data@values, na.rm = TRUE) * res(r)[1]
+
   list(pnt_deepest = pnt_deepest, pnt_viscenter = pnt_viscenter,
        dist_deepest = dist_deepest, dist_viscenter = dist_viscenter,
        dist_between = dist_between, inlake_slope = inlake_slope,
+       inlake_slope_mean = inlake_slope_mean, inlake_slope_median =
+         inlake_slope_median,
        maxdepth = maxdepth, meandepth = meandepth, llid = llid)
 }
 
