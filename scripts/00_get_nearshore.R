@@ -11,12 +11,11 @@ dt         <- read.csv("data/lagosus_depth.csv",
 bathy_pnts <- readRDS("data/00_bathy_depth/bathy_pnts.rds")
 dt_pred    <- read.csv("data/lagosne_depth_predictors.csv",
                     stringsAsFactors = FALSE) %>%
-  dplyr::filter(lagoslakeid %in% bathy_pnts$llid &
-                  !is.na(shape_class))
+  dplyr::filter(lagoslakeid %in% bathy_pnts$llid)
 
 # attempt at manual calculation of max buffer slope
 
-ll_ids            <- sample(dt_pred$lagoslakeid, 60)
+ll_ids            <- sample(dt_pred$lagoslakeid, 80)
 flist             <- list.files("data/elevatr", pattern = "\\d*.tif",
                     full.names = TRUE, include.dirs = TRUE)
 existing_surfaces <- gsub(".tif", "",
@@ -73,8 +72,9 @@ get_slope <- function(ll_id){
                                      st_transform(ll_poly_hull, st_crs(r_crs)))
   buffer_line  <- sf::st_nearest_points(shore_pnt,
                                         st_transform(ll_buff_hull, st_crs(r_crs)))
+  buffer_line <- st_buffer(buffer_line, 20)
 
-  # mapview(elev) + mapview(ll_poly_hull) + mapview(ll_buff_hull) + mapview(buffer_line)
+  # mapview(elev) + mapview(ll_poly_hull) + mapview(ll_buff_hull) + mapview(buffer_line) + mapview(st_buffer(buffer_line, 20))
 
   slope_online        <- raster::extract(slope, as_Spatial(buffer_line))[[1]]
   slope_online_mean   <- mean(slope_online, na.rm = TRUE) * res(elev)[1]
