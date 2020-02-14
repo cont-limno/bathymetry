@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 5, fig.
 
 \pagebreak
 
-![Diagram showing the assumption of most lake depth models that the nearshore slope is extends into the lake and that all lakes have a common relationship between nearshore and in-lake slope. ](../figures/slope_diagram.pdf){width=90%}
+![Diagram showing the assumption of most lake depth models that the nearshore slope is extends into the lake and that all lakes have a common relationship between nearshore and in-lake slope. ](../figures/slope_diagram.pdf){width=85%}
 
 ![Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right)](../figures/lake_shape.pdf){width=85%}
 
