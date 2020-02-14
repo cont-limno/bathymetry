@@ -117,6 +117,10 @@ data/00_bathy_depth/bathy_geometry.csv: scripts/00_get_geometry.R \
 data/00_hypso/hypso.csv
 	Rscript $<
 
+data/00_geometry/nearshore.csv: scripts/00_get_nearshore.R \
+data/lagosus_depth.csv
+	Rscript $<
+
 manuscript/data.pdf: manuscript/data.Rmd \
 figures/00_map-1.pdf \
 figures/00_cutoffs-1.pdf \
