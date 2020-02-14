@@ -101,9 +101,43 @@ cowplot::plot_grid(get_pnt_map(which(dt$llid == 3791)) +
 
 ```
 
-```{r }
-# compare inlake slope against buffer slope
- 
+```{r slope-compare, echo=FALSE, message=FALSE, eval=FALSE, warning=FALSE, results='hide'}
+# compare inlake slope, buffer slope, and online slope
+# setwd("figures") 
+bp <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
+dt <- read.csv("../data/00_geometry/nearshore.csv", stringsAsFactors = FALSE) %>%
+  mutate(llid = as.character(llid))
+dt <- left_join(dt, st_drop_geometry(bp), 
+                by = "llid") %>%
+  dplyr::filter(!is.na(inlake_slope_mean))
+
+jsta::jheatmap(dt)
+jsta::jheatmap(
+  dplyr::select(dt, 
+                slope_online_mean,
+                inlake_slope_mean,
+                slope_mean, 
+                slope_mean_ne,
+                dist_deepest, 
+                dist_viscenter, 
+                maxdepth,
+                meandepth))
+
+plot(dt$inlake_slope_mean, dt$slope_online_mean)
+plot(dt$inlake_slope_mean, dt$slope_mean)
+plot(dt$inlake_slope_mean, dt$slope_mean_ne)
+plot(dt$slope_mean, dt$slope_mean_ne)
+dt$res_elev_1
+plot(dt$inlake_slope_median, dt$slope_online_median)
+
+plot(dt$inlake_slope, dt$slope_mean_ne)
+plot(dt$inlake_slope, dt$slope_online)
+plot(dt$slope_mean, dt$slope_mean_ne)
+
+plot(dt$inlake_slope, dt$buffer100m_slope_mean/10, 
+     xlim = c(0, 3), ylim = c(0, 3))
+abline(0, 1)
+
 dt         <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
 hypso_pred <- read.csv("../data/00_hypso/hypso_predictors.csv", 
                        stringsAsFactors = FALSE) %>%
