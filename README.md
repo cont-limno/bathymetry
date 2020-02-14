@@ -27,6 +27,8 @@ DOI](https://zenodo.org/badge/123951266.svg)](https://zenodo.org/badge/latestdoi
 
 ### Products
 
+Data Summary: [manuscript/data.pdf](manuscript/data.pdf)
+
 Figures: [manuscript/figures.pdf](manuscript/figures.pdf)
 
 Tables: [manuscript/tables.pdf](manuscript/tables.pdf)
