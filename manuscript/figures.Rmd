@@ -32,6 +32,10 @@ knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 knitr::include_graphics("../figures/01_geometry-1.pdf")
 ```
 
+```{r buffer-vs-inlake_slope, fig.cap = "Comparison between buffer and inlake slope.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/buffer-vs-inlake_slope-1.pdf")
+```
+
 ![Summary of lake depth predictor variables.](../tables/01_predictors.pdf){width=65%}
 
 ```{r heatmap, fig.cap = "Correlation matrix heatmap.", warning=FALSE, echo = FALSE, eval=TRUE}

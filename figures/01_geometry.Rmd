@@ -101,7 +101,7 @@ cowplot::plot_grid(get_pnt_map(which(dt$llid == 3791)) +
 
 ```
 
-```{r slope-compare, echo=FALSE, message=FALSE, eval=FALSE, warning=FALSE, results='hide'}
+```{r slope-compare, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 # compare inlake slope, buffer slope, and online slope
 # setwd("figures") 
 bp <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
@@ -111,7 +111,7 @@ dt <- left_join(dt, st_drop_geometry(bp),
                 by = "llid") %>%
   dplyr::filter(!is.na(inlake_slope_mean))
 
-jsta::jheatmap(dt)
+# jsta::jheatmap(dt)
 jsta::jheatmap(
   dplyr::select(dt, 
                 slope_online_mean,
@@ -123,33 +123,53 @@ jsta::jheatmap(
                 maxdepth,
                 meandepth))
 
-plot(dt$inlake_slope_mean, dt$slope_online_mean)
-plot(dt$inlake_slope_mean, dt$slope_mean)
-plot(dt$inlake_slope_mean, dt$slope_mean_ne)
-plot(dt$slope_mean, dt$slope_mean_ne)
-dt$res_elev_1
-plot(dt$inlake_slope_median, dt$slope_online_median)
+GGally::ggpairs(dplyr::select(dt, 
+                inlake_slope_mean, inlake_slope.y,
+                slope_online_mean,
+                slope_mean, 
+                # dist_deepest, 
+                # dist_viscenter, 
+                maxdepth), 
+                progress = FALSE, 
+                ) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), 
+          strip.text.y = element_text(angle = 0))
 
-plot(dt$inlake_slope, dt$slope_mean_ne)
-plot(dt$inlake_slope, dt$slope_online)
-plot(dt$slope_mean, dt$slope_mean_ne)
+gg_scatter_slope <- function(x, y, dt){
+  ggplot(data = dt) + 
+    geom_point(aes(UQ(rlang::sym(x)), UQ(rlang::sym(y))))
+}
 
-plot(dt$inlake_slope, dt$buffer100m_slope_mean/10, 
-     xlim = c(0, 3), ylim = c(0, 3))
-abline(0, 1)
+# dt[22,]
+# which(dt$inlake_slope.y > 0.4)
+# which(dt$inlake_slope.x > 0.4)
+dt <- dplyr::filter(dt, inlake_slope.y < 0.4)
 
-dt         <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
-hypso_pred <- read.csv("../data/00_hypso/hypso_predictors.csv", 
-                       stringsAsFactors = FALSE) %>%
+cowplot::plot_grid(
+  gg_scatter_slope("slope_mean", "maxdepth", dt),
+  gg_scatter_slope("inlake_slope.y", "maxdepth", dt), 
+  gg_scatter_slope("slope_mean", "inlake_slope.y", dt)
+  )
+```
+
+```{r buffer-vs-inlake_slope, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=4}
+lgus_pred <- read.csv("../data/lagosus_depth_predictors.csv", stringsAsFactors = FALSE) %>%
   mutate(lagoslakeid = as.character(lagoslakeid))
-dt <- left_join(dt, dplyr::select(hypso_pred, lagoslakeid, reservoir_class, 
-                                  buffer100m_slope_mean), 
-                                  by = c("llid" = "lagoslakeid"))
+test <- left_join(dt, lgus_pred, by = c("llid" = "lagoslakeid")) %>%
+  dplyr::filter(shape_class != "neither")
 
-plot(dt$inlake_slope, dt$buffer100m_slope_mean/10, 
-     xlim = c(0, 3), ylim = c(0, 3))
-abline(0, 1)
-
-# View(arrange(dt, buffer100m_slope_mean))
-
+cowplot::plot_grid(
+ggplot(data = test) + 
+    geom_point(aes(slope_mean, inlake_slope.y, color = reservoir_class)) +
+  xlab("Buffer slope (mean)") +
+  ylab("In-lake slope") +
+  labs(color = "") + 
+  theme(axis.title.x = element_blank()),
+ggplot(data = test) + 
+    geom_point(aes(slope_mean, inlake_slope.y, color = shape_class)) +
+  xlab("Buffer slope (mean)") +
+  ylab("In-lake slope") +
+  labs(color = ""), 
+nrow = 2 
+)
 ```
