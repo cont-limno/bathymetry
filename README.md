@@ -3,7 +3,18 @@
 
 ## LAGOS-US-Depth: Lake depth at continental scales
 
-### Data (see [data/lagosus\_depth.csv](data/lagosus_depth.csv))
+### Products
+
+Data Summary: [manuscript/data.pdf](manuscript/data.pdf)
+
+Figures: [manuscript/figures.pdf](manuscript/figures.pdf)
+
+Tables: [manuscript/tables.pdf](manuscript/tables.pdf)
+
+Data:
+[data/lagosus\_depth.csv](data/lagosus_depth.csv)
+
+### Data dictionary
 
 | Variable name               | Description                                                                                            |
 | :-------------------------- | :----------------------------------------------------------------------------------------------------- |
@@ -21,11 +32,3 @@
 | sourcetype\_depth           | type of the source of depth data; one of Citizen Monitoring, Government, University, Commercial        |
 | lagos\_effort               | name of depth searching effort used for internal tracking; one of LAGOSNE, LAGOSUS, bathymetry, NLA    |
 | lagos\_effort\_reliablility | reliability of depth searching effort used for quality assurance and de-duplication                    |
-
-### Products
-
-Data Summary: [manuscript/data.pdf](manuscript/data.pdf)
-
-Figures: [manuscript/figures.pdf](manuscript/figures.pdf)
-
-Tables: [manuscript/tables.pdf](manuscript/tables.pdf)

@@ -14,7 +14,17 @@ knitr::opts_chunk$set(
 
 ## LAGOS-US-Depth: Lake depth at continental scales
 
-### Data (see [data/lagosus_depth.csv](data/lagosus_depth.csv))
+### Products
+
+Data Summary: [manuscript/data.pdf](manuscript/data.pdf)
+
+Figures: [manuscript/figures.pdf](manuscript/figures.pdf)
+
+Tables: [manuscript/tables.pdf](manuscript/tables.pdf)
+
+Data: [data/lagosus_depth.csv](data/lagosus_depth.csv)
+
+### Data dictionary
 
 ```{r echo=FALSE}
 # see scripts/99_make_taxonomy.R
@@ -23,11 +33,3 @@ dt <- read.csv("data/lagosus_depth_taxonomy.csv", stringsAsFactors = FALSE)
 
 knitr::kable(setNames(dt, c("Variable name", "Description")))
 ```
-
-### Products
-
-Data Summary: [manuscript/data.pdf](manuscript/data.pdf)
-
-Figures: [manuscript/figures.pdf](manuscript/figures.pdf)
-
-Tables: [manuscript/tables.pdf](manuscript/tables.pdf)
