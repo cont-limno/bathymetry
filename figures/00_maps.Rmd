@@ -212,7 +212,13 @@ gg_shapeclass
 
 
 ```{r 00_map_bathy, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=6}
-cowplot::plot_grid(gg_bathy, 
-                   gg_shapeclass, 
+cowplot::plot_grid(gg_bathy + 
+                     guides(
+                       color = guide_legend(
+                         override.aes = list(size = 2))), 
+                   gg_shapeclass + 
+                     guides(
+                       color = guide_legend(
+                         override.aes = list(size = 2))), 
                    ncol = 1)
 ```
