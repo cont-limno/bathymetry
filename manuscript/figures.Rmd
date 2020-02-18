@@ -28,12 +28,8 @@ knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
 knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 ```
 
-```{r 01_geometry_points, fig.cap = "Distance to deepest point versus distance to lake visual center.", warning=FALSE, echo = FALSE, eval=TRUE}
-knitr::include_graphics("../figures/01_geometry-1.pdf")
-```
-
-```{r buffer-vs-inlake_slope, fig.cap = "Comparison between buffer and inlake slope.", warning=FALSE, echo = FALSE, eval=TRUE}
-knitr::include_graphics("../figures/buffer-vs-inlake_slope-1.pdf")
+```{r 01_geometry_grid, fig.cap = "Comparison among lake shape and reservoir classes for A-B) distance to deepest point versus distance to lake visual center and C-D) buffer slope versus inlake slope.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/01_geometry_grid-1.pdf")
 ```
 
 ![Summary of lake depth predictor variables.](../tables/01_predictors.pdf){width=65%}
@@ -51,7 +47,7 @@ knitr::include_graphics("../figures/01_contrasts_depth-1.pdf")
 ```
 
 ```{r constrasts_distance, fig.cap = "Contrasting distance from shore to the deepest point in the lake and distance to the lake visual center for natural lakes and reservoirs.", warning=FALSE, echo = FALSE, eval=TRUE}
-knitr::include_graphics("../figures/01_geometry-2.pdf")
+knitr::include_graphics("../figures/gg_distance-2.pdf")
 ```
 
 ```{r glaciated_vs_shapeclass, fig.cap = "Cross tabulation between lake glaciation and shape class. Circles are proportional to the number of lakes in each category. If a lake has been glaciated it is more likely to be convex. However, if a lake has not been glaciated there is no tendencey towards a particular shape class.", warning=FALSE, echo = FALSE, eval=TRUE}
@@ -91,6 +87,6 @@ knitr::include_graphics("../figures/02_hypso_model_importance-1.pdf")
 \pagebreak
 
 ```{r 01_geometry_map, fig.cap = "Green points show the 'visual center' of the lake. Red points show the true deepest point of a lake.", warning=FALSE, echo = FALSE, eval=TRUE}
-knitr::include_graphics("../figures/01_geometry-3.pdf")
+knitr::include_graphics("../figures/gg_distance-3.pdf")
 ```
 

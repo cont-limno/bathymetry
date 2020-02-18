@@ -18,29 +18,43 @@ dt         <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
 hypso_pred <- read.csv("../data/00_hypso/hypso_predictors.csv", 
                        stringsAsFactors = FALSE) %>%
   mutate(lagoslakeid = as.character(lagoslakeid))
-dt <- left_join(dt, dplyr::select(hypso_pred, lagoslakeid, reservoir_class), 
+dt <- left_join(dt, dplyr::select(hypso_pred, lagoslakeid, reservoir_class, shape_class), 
                                   by = c("llid" = "lagoslakeid"))
 
 # plot of true deepest versus visual centers
 gg_scatter_state <- ggplot(data = st_drop_geometry(dt)) + 
   geom_point(aes(x = dist_deepest, y = dist_viscenter, color = state)) +
   geom_abline(aes(intercept = 0, slope = 1)) +
-  xlab("Distance to shore from deepest point") +
-  ylab("Distance to shore from visual center")
+  xlab("Deepest point distance (m)") +
+  ylab("Visual center distance (m)")
+
+gg_scatter_shape <- st_drop_geometry(dt) %>%
+  dplyr::filter(!is.na(shape_class)) %>%
+  dplyr::arrange(desc(factor(shape_class, 
+                        levels = c("neither", "concave", "convex")))) %>%
+  ggplot() + 
+  geom_point(aes(x = dist_deepest, y = dist_viscenter, color = shape_class)) +
+  geom_abline(aes(intercept = 0, slope = 1)) +
+  labs(color = "") +
+  xlab("Deepest point distance (m)") +
+  ylab("Visual center distance (m)")
 
 gg_scatter_reservoir <- ggplot(data = st_drop_geometry(dt)) + 
   geom_point(aes(x = dist_deepest, y = dist_viscenter, color = reservoir_class)) +
   geom_abline(aes(intercept = 0, slope = 1)) +
-  xlab("Distance to shore from deepest point") +
-  ylab("Distance to shore from visual center")
+  xlab("Deepest point distance (m)") +
+  ylab("Visual center distance (m)")
+```
 
-cowplot::plot_grid(gg_scatter_state + 
+```{r gg_distance, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3}
+gg_distance <- cowplot::plot_grid(gg_scatter_shape + 
                      theme(axis.title.x = element_text(color = "white")), 
                    gg_scatter_reservoir + 
                      labs(color = "") +
                      theme(axis.title.y = element_blank(), 
                            axis.text.y = element_blank()), 
                    rel_widths = c(1, 0.8))
+gg_distance
 
 gg_pntrng_deepest <- st_drop_geometry(dt) %>%
     dplyr::filter(!is.na(reservoir_class)) %>%
@@ -52,7 +66,7 @@ gg_pntrng_deepest <- st_drop_geometry(dt) %>%
   ggplot() +
 geom_pointrange(aes(x = reservoir_class, y = `50%`, 
                       ymin = `5%`, ymax = `95%`)) +
-  ylab("Distance from shore to deepest point (m)") + xlab("")
+  ylab("Deepest point distance (m)") + xlab("")
 
 gg_pntrng_viscenter <- st_drop_geometry(dt) %>%
     dplyr::filter(!is.na(reservoir_class)) %>%
@@ -101,7 +115,7 @@ cowplot::plot_grid(get_pnt_map(which(dt$llid == 3791)) +
 
 ```
 
-```{r slope-compare, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+```{r slope-compare, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.5}
 # compare inlake slope, buffer slope, and online slope
 # setwd("figures") 
 bp <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
@@ -112,6 +126,7 @@ dt <- left_join(dt, st_drop_geometry(bp),
   dplyr::filter(!is.na(inlake_slope_mean))
 
 # jsta::jheatmap(dt)
+# jsta::jheatmap(dt, "inlake_slope.y")
 jsta::jheatmap(
   dplyr::select(dt, 
                 slope_online_mean,
@@ -155,21 +170,47 @@ cowplot::plot_grid(
 ```{r buffer-vs-inlake_slope, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=4}
 lgus_pred <- read.csv("../data/lagosus_depth_predictors.csv", stringsAsFactors = FALSE) %>%
   mutate(lagoslakeid = as.character(lagoslakeid))
-test <- left_join(dt, lgus_pred, by = c("llid" = "lagoslakeid")) %>%
-  dplyr::filter(shape_class != "neither")
+test <- left_join(dt, lgus_pred, by = c("llid" = "lagoslakeid")) %>% 
+  dplyr::filter(!is.na(shape_class)) %>%
+  dplyr::arrange(desc(factor(shape_class, 
+                        levels = c("neither", "concave", "convex"))))
 
-cowplot::plot_grid(
-ggplot(data = test) + 
-    geom_point(aes(slope_mean, inlake_slope.y, color = reservoir_class)) +
+# GGally::ggpairs(dplyr::select(test, matches("class"))) 
+                              
+gg_slope_shape <- ggplot(data = test, 
+                         aes(slope_mean, inlake_slope.y, 
+                             color = shape_class)) + 
+    geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
   xlab("Buffer slope (mean)") +
   ylab("In-lake slope") +
-  labs(color = "") + 
-  theme(axis.title.x = element_blank()),
-ggplot(data = test) + 
-    geom_point(aes(slope_mean, inlake_slope.y, color = shape_class)) +
+  labs(color = "")
+
+gg_slope_reservoir <- ggplot(data = test, 
+                             aes(slope_mean, inlake_slope.y, 
+                                 color = reservoir_class)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
   xlab("Buffer slope (mean)") +
   ylab("In-lake slope") +
-  labs(color = ""), 
-nrow = 2 
-)
+  labs(color = "")
+```
+
+```{r 01_geometry_grid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=5}
+theme_opts <- theme(legend.position = "none")
+cowplot::plot_grid(gg_scatter_shape + 
+                     labs(color = "") +
+                     # theme(axis.title.x = element_blank()) +
+                     theme_opts,
+                   gg_scatter_reservoir + 
+                     labs(color = "") +
+                     theme(#axis.title.x = element_blank(), 
+                           axis.title.y = element_blank()) +
+                     theme_opts,
+                   gg_slope_shape +
+                     theme_opts,
+                   gg_slope_reservoir + 
+                     theme(axis.title.y = element_blank()) +
+                     theme_opts, 
+                   rel_widths = c(1, 0.93, 1, 1))
 ```
