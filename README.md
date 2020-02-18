@@ -3,10 +3,6 @@
 
 ## LAGOS-US-Depth: Lake depth at continental scales
 
-[![Paper DOI](https://img.shields.io/badge/Paper-DOI-blue.svg)]()
-[![Code
-DOI](https://zenodo.org/badge/123951266.svg)](https://zenodo.org/badge/latestdoi/123951266)
-
 ### Data (see [data/lagosus\_depth.csv](data/lagosus_depth.csv))
 
 | Variable name               | Description                                                                                            |
