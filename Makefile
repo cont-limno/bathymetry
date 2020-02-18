@@ -1,6 +1,7 @@
 all: datasets \
 manuscript/figures.pdf \
-manuscript/data.pdf
+manuscript/data.pdf \
+README.md
 
 datasets: data/lagosus_depth.csv \
 data/00_hypso/hypso.csv \
