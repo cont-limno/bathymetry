@@ -55,6 +55,13 @@ dt     <- dt %>%
   dplyr::select(-n, -diff, -percent) %>%
   calc_diff_metrics()
 
+# add lagos_effort_reliability field
+lg_reliability_key <- data.frame(
+  lagos_effort = c("bathymetry", "manual", "LAGOSNE", "NLA"),
+  lagos_effort_reliability = c(1, 2, 3, 4),
+  stringsAsFactors = FALSE)
+dt <- left_join(dt, lg_reliability_key)
+
 # TODO: make sure max depth is at least equal to the maximum sample depth from limno
 
 # ---- add back in lakes with missing depth from locus
