@@ -263,6 +263,12 @@ calc_depth <- function(slope, distance, grain = 1){
   depth
 }
 
+is_url <- function(x){
+  # https://stackoverflow.com/a/3809435/3362993
+  length(grep("[-a-zA-Z0-9@:%._\\+~#=]\\.[a-zA-Z0-9()]{2,10}\\b([-a-zA-Z0-9()@:%_\\+.~#?&\\/\\/=]*)",
+              x)) > 0
+}
+
 # library(maptools)
 # library(spatstat)
 # test4 <- as(as_Spatial(dt), "ppp")

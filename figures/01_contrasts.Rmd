@@ -137,13 +137,13 @@ gg_tally_profileshapeclass <- read.csv(
 gg_tally_programtype <- read.csv(
   "../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>% 
    dplyr::filter(!is.na(lake_maxdepth_m)) %>%
-   group_by(programtype_depth) %>% 
+   group_by(sourcetype_depth) %>% 
    tally() %>% 
-   ggplot(aes(x = programtype_depth, y = n)) + 
+   ggplot(aes(x = sourcetype_depth, y = n)) + 
    geom_col() + 
    geom_text(aes(label = n), vjust = -0.5) + 
    ylim(0, 13000) +
-  xlab("Program type")
+  xlab("Source type")
 ```
 
 
@@ -213,11 +213,11 @@ cowplot::plot_grid(gg_tally_programtype, gg_tally_maxdepthclass,
 read.csv(
   "../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>% 
    dplyr::filter(!is.na(lake_maxdepth_m)) %>%
-   group_by(programtype_depth, programlink_depth) %>% 
+   group_by(sourcetype_depth, sourceurl_depth) %>% 
    tally() %>% 
-   ungroup() %>% group_by(programtype_depth) %>%
+   ungroup() %>% group_by(sourcetype_depth) %>%
    tally() %>%
-   ggplot(aes(x = programtype_depth, y = n)) + 
+   ggplot(aes(x = sourcetype_depth, y = n)) + 
    geom_col() + 
    geom_text(aes(label = n), vjust = -0.5) + 
    ylim(0, 250) +
