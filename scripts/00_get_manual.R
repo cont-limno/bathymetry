@@ -3,8 +3,10 @@ source("scripts/99_utils.R")
 
 # ---- download_from_drive ----
 # unlink("data/00_manual/depth_log_all.csv")
-# drive_download(file = "depth_log_all",
-#                path = "data/00_manual/depth_log_all.csv", overwrite = TRUE)
+if(!file.exists("data/00_manual/depth_log_all.csv")){
+  drive_download(file = "depth_log_all",
+                 path = "data/00_manual/depth_log_all.csv", overwrite = TRUE)
+}
 dt_raw <- suppressWarnings(suppressMessages(
   read_csv("data/00_manual/depth_log_all.csv", col_types = cols())))
 
