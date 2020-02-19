@@ -12,4 +12,4 @@
 "sourceurl_depth","url link of the source of depth data"
 "sourcetype_depth","type of the source of depth data; one of Citizen Monitoring, Government, University, Commercial"
 "lagos_effort","name of depth searching effort used for internal tracking; one of LAGOSNE, LAGOSUS, bathymetry, NLA"
-"lagos_effort_reliablility","reliability of depth searching effort used for quality assurance and de-duplication"
+"lagos_effort_reliablility","reliability of depth searching effort used for quality assurance and de-duplication; values in ascending order with 1 being the most reliable"

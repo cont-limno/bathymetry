@@ -22,7 +22,7 @@ taxonomy_key <- data.frame(
                   "url link of the source of depth data",
                   "type of the source of depth data; one of Citizen Monitoring, Government, University, Commercial",
                   "name of depth searching effort used for internal tracking; one of LAGOSNE, LAGOSUS, bathymetry, NLA",
-                  "reliability of depth searching effort used for quality assurance and de-duplication"),
+                  "reliability of depth searching effort used for quality assurance and de-duplication; values in ascending order with 1 being the most reliable"),
   stringsAsFactors = FALSE)
 
 write.csv(taxonomy_key, "data/lagosus_depth_taxonomy.csv", row.names = FALSE)
