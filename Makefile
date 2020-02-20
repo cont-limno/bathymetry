@@ -79,7 +79,7 @@ data/gis.gpkg: scripts/00_get_gis.R data/lagosus_depth.csv
 	Rscript $<
 
 data/lagosus_depth.csv: scripts/00_get_lagosus.R \
-data/00_bathy_depth/00_bathy_depth.csv
+../lagos_depth/data/lagosus_depth.csv
 	Rscript $<
 
 data/00_lagosne/00_lagosne.csv: scripts/00_get_lagosne.R \
