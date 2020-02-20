@@ -32,7 +32,6 @@ Data: [bathymetry derived lake depth](data/00_bathy_depth/00_bathy_depth.csv)
 dt <- read.csv("data/00_bathy_depth/00_bathy_depth.csv", stringsAsFactors = FALSE)
 knitr::kable(setNames(data.frame(names(dt)), "field"))
 ```
-
 Data: [bathymetry derived lake geometry](data/00_bathy_depth/bathy_geometry.csv)
 
 ```{details, echo=FALSE, details.summary = "Data dictionary"}

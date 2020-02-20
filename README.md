@@ -41,9 +41,7 @@ depth](data/00_bathy_depth/00_bathy_depth.csv)
 
 </details>
 
-<br>
-
-Data: [bathymetry derived lake
+<br> Data: [bathymetry derived lake
 geometry](data/00_bathy_depth/bathy_geometry.csv)
 
 <details closed>
