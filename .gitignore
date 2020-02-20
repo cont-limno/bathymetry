@@ -74,3 +74,4 @@ fit2.rds
 ny_gg.R
 tables/00_data.pdf
 tables/00_data.tex
+data/00_bathy_depth/00_bathy_depth*.rds

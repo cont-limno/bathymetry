@@ -1,6 +1,5 @@
 all: datasets \
 manuscript/figures.pdf \
-manuscript/data.pdf \
 README.md
 
 datasets: data/lagosus_depth.csv \
@@ -79,23 +78,8 @@ data/lagosus_depth_predictors.csv
 data/gis.gpkg: scripts/00_get_gis.R data/lagosus_depth.csv
 	Rscript $<
 
-data/lagosus_depth.csv: scripts/01_merge.R \
-scripts/02_qa.R \
-data/00_manual/00_manual.csv \
-data/00_manual_extra/00_manual_extra.csv \
-data/00_nla/00_nla.csv \
-data/00_lagosne/00_lagosne.csv \
+data/lagosus_depth.csv: scripts/00_get_lagosus.R \
 data/00_bathy_depth/00_bathy_depth.csv
-	Rscript $<
-	Rscript $(word 2,$^)
-
-data/00_manual/00_manual.csv: scripts/00_get_manual.R
-	Rscript $<
-
-data/00_manual_extra/00_manual_extra.csv: scripts/00_get_manual_extra.R
-	Rscript $<
-
-data/00_nla/00_nla.csv: scripts/00_get_nla.R
 	Rscript $<
 
 data/00_lagosne/00_lagosne.csv: scripts/00_get_lagosne.R \
@@ -120,17 +104,6 @@ data/00_hypso/hypso.csv
 data/00_geometry/nearshore.csv: scripts/00_get_nearshore.R \
 data/lagosus_depth.csv
 	Rscript $<
-
-manuscript/data.pdf: manuscript/data.Rmd \
-figures/00_map-1.pdf \
-figures/00_cutoffs-1.pdf \
-figures/01_contrasts_depth-1.pdf \
-figures/01_contrasts_tally-1.pdf \
-figures/00_qa-1.pdf
-	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
-	-pdftk manuscript/data.pdf cat 2-end output manuscript/data2.pdf
-	-mv manuscript/data2.pdf manuscript/data.pdf
-#	cd figures && make pnglatest
 
 manuscript/figures.pdf: manuscript/figures.Rmd \
 manuscript/tables.pdf \
@@ -219,11 +192,7 @@ tables/00_data.pdf: tables/00_data.Rmd data/lagosus_depth.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
-data/lagosus_depth_taxonomy.csv: scripts/99_make_taxonomy.R
-	Rscript $<
-
-README.md: README.Rmd \
-data/lagosus_depth_taxonomy.csv
+README.md: README.Rmd
 	Rscript -e "rmarkdown::render('$<')"
 
 lagos_depth.pdf: lagos_depth.Rmd

@@ -5,6 +5,8 @@ output: github_document
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, echo = FALSE}
+library(details)
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -12,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-## LAGOS-US-Depth: Lake depth at continental scales
+## Bathymetry manuscript
 
 ### Products
 
@@ -22,14 +24,20 @@ Figures: [manuscript/figures.pdf](manuscript/figures.pdf)
 
 Tables: [manuscript/tables.pdf](manuscript/tables.pdf)
 
-Data: [data/lagosus_depth.csv](data/lagosus_depth.csv)
+Data: [bathymetry derived lake depth](data/00_bathy_depth/00_bathy_depth.csv)
 
-### Data dictionary
-
-```{r echo=FALSE}
+```{details, echo=FALSE, details.summary = "Data dictionary"}
 # see scripts/99_make_taxonomy.R
 
-dt <- read.csv("data/lagosus_depth_taxonomy.csv", stringsAsFactors = FALSE)
+dt <- read.csv("data/00_bathy_depth/00_bathy_depth.csv", stringsAsFactors = FALSE)
+knitr::kable(setNames(data.frame(names(dt)), "field"))
+```
 
-knitr::kable(setNames(dt, c("Variable name", "Description")))
+Data: [bathymetry derived lake geometry](data/00_bathy_depth/bathy_geometry.csv)
+
+```{details, echo=FALSE, details.summary = "Data dictionary"}
+# see scripts/99_make_taxonomy.R
+
+dt <- read.csv("data/00_bathy_depth/bathy_geometry.csv", stringsAsFactors = FALSE)
+knitr::kable(setNames(data.frame(names(dt)), "field"))
 ```
