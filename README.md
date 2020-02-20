@@ -14,60 +14,48 @@ Tables: [manuscript/tables.pdf](manuscript/tables.pdf)
 Data: [bathymetry derived lake
 depth](data/00_bathy_depth/00_bathy_depth.csv)
 
-<details closed>
+<details>
 
-<summary> <span title="Click to Open"> Data dictionary </span>
-</summary>
+<summary>Data dictionary</summary>
 
-``` r
-
-
-
-|field                       |
-|:---------------------------|
-|llid                        |
-|state                       |
-|max_depth_m                 |
-|mean_depth_m                |
-|source                      |
-|effort                      |
-|lake_waterarea_ha           |
-|lake_connectivity_permanent |
-|lake_lat_decdeg             |
-|lake_lon_decdeg             |
-|lat                         |
-|long                        |
-```
+| field                         |
+| :---------------------------- |
+| llid                          |
+| state                         |
+| max\_depth\_m                 |
+| mean\_depth\_m                |
+| source                        |
+| effort                        |
+| lake\_waterarea\_ha           |
+| lake\_connectivity\_permanent |
+| lake\_lat\_decdeg             |
+| lake\_lon\_decdeg             |
+| lat                           |
+| long                          |
 
 </details>
 
-<br> Data: [bathymetry derived lake
+ 
+
+Data: [bathymetry derived lake
 geometry](data/00_bathy_depth/bathy_geometry.csv)
 
-<details closed>
+<details>
 
-<summary> <span title="Click to Open"> Data dictionary </span>
-</summary>
+<summary>Data dictionary</summary>
 
-``` r
-
-
-
-|field               |
-|:-------------------|
-|dist_deepest        |
-|dist_viscenter      |
-|dist_between        |
-|inlake_slope        |
-|inlake_slope_mean   |
-|inlake_slope_median |
-|maxdepth            |
-|meandepth           |
-|llid                |
-|state               |
-|source              |
-```
+| field                 |
+| :-------------------- |
+| dist\_deepest         |
+| dist\_viscenter       |
+| dist\_between         |
+| inlake\_slope         |
+| inlake\_slope\_mean   |
+| inlake\_slope\_median |
+| maxdepth              |
+| meandepth             |
+| llid                  |
+| state                 |
+| source                |
 
 </details>
-
-<br>

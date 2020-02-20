@@ -5,8 +5,6 @@ output: github_document
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, echo = FALSE}
-library(details)
-
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -26,17 +24,24 @@ Tables: [manuscript/tables.pdf](manuscript/tables.pdf)
 
 Data: [bathymetry derived lake depth](data/00_bathy_depth/00_bathy_depth.csv)
 
-```{details, echo=FALSE, details.summary = "Data dictionary"}
+<details>
+<summary>Data dictionary</summary>
+```{r, echo=FALSE}
 # see scripts/99_make_taxonomy.R
 
 dt <- read.csv("data/00_bathy_depth/00_bathy_depth.csv", stringsAsFactors = FALSE)
-knitr::kable(setNames(data.frame(names(dt)), "field"))
+knitr::kable(setNames(data.frame(names(dt)), "field")) 
 ```
+</details> &nbsp;
+
 Data: [bathymetry derived lake geometry](data/00_bathy_depth/bathy_geometry.csv)
 
-```{details, echo=FALSE, details.summary = "Data dictionary"}
+<details>
+<summary>Data dictionary</summary>
+```{r, echo=FALSE}
 # see scripts/99_make_taxonomy.R
 
 dt <- read.csv("data/00_bathy_depth/bathy_geometry.csv", stringsAsFactors = FALSE)
 knitr::kable(setNames(data.frame(names(dt)), "field"))
 ```
+</details>
