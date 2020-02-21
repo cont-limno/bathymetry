@@ -17,7 +17,12 @@ states_focal <- states_all %>%
 study_bbox   <- st_as_sfc(st_bbox(states_focal))
 states_all   <- states_all %>%
   st_crop(study_bbox)
-states_focal <- dplyr::filter(states_all, iso_a2 == "US")
+states_focal <- dplyr::filter(states_all, iso_a2 == "US") %>%
+  dplyr::filter(postal %in%
+                  pull(distinct(
+                    dplyr::filter(st_drop_geometry(dt),
+                                  lagos_effort == "bathymetry"),
+                    lake_state), lake_state))
 
 # add zoneids
 
