@@ -136,7 +136,7 @@ gg_bathy <-
     geom_sf(data = dt_bathy, aes(color = maxdepth_class), 
                     size = 0.2, alpha = 0.8) +
     scale_color_manual(values = viridisLite::viridis(4)) +
-    labs(color = "Max depth (m)") +
+    labs(color = "Max depth (m)  ") +
     coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
     theme_void()
 
@@ -197,7 +197,7 @@ gg_shapeclass <- ggplot() +
                     size = 0.03, alpha = 0.3) +
     geom_sf(data = dplyr::filter(dt, shape_class != "convex"), aes(color = shape_class),
                     size = 0.07, alpha = 0.8) +
-    labs(color = "Shape class   ") +
+    labs(color = "Shape class     ") +
     coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
     theme_void()
 
@@ -210,15 +210,37 @@ gg_shapeclass
 #   tidyr::pivot_wider(names_from = shape_class, values_from = n)
 ```
 
+```{r gg_reservoir, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+dt           <- st_read("../data/gis.gpkg", "dt", quiet = TRUE) %>%
+  mutate(lagoslakeid = as.character(lagoslakeid)) %>%
+  distinct(lagoslakeid, .keep_all = TRUE)
+dt_withres <- read.csv("../data/lagosus_depth_predictors.csv", 
+               stringsAsFactors = FALSE) %>%
+  dplyr::distinct(lagoslakeid, reservoir_class) %>%
+  mutate(lagoslakeid = as.character(lagoslakeid))
+dt           <- inner_join(dt, dt_withres) %>%
+  arrange(desc(reservoir_class))
+
+gg_reservoir <- 
+  ggplot() + 
+    geom_sf(data = st_as_sfc(st_bbox(dt_bathy)), alpha = 1, size = 0.6, 
+          color = "black", fill = "#1D9DCF") +
+    geom_sf(data = st_crop(states_all, st_as_sfc(st_bbox(dt_bathy))), fill = "gray", color = "black", size = 0.3) +
+    geom_sf(data = st_crop(states_focal, st_as_sfc(st_bbox(dt_bathy))), fill = "white", color = "black", size = 0.4) + 
+    geom_sf(data = dplyr::filter(dt, !is.na(reservoir_class)), 
+            aes(color = reservoir_class), size = 0.03, alpha = 0.3) +
+    labs(color = "Reservoir class") +
+    coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
+    theme_void()
+
+gg_reservoir
+```
 
 ```{r 00_map_bathy, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=6}
-cowplot::plot_grid(gg_bathy + 
-                     guides(
-                       color = guide_legend(
-                         override.aes = list(size = 2))), 
-                   gg_shapeclass + 
-                     guides(
-                       color = guide_legend(
-                         override.aes = list(size = 2))), 
+theme_opts <- guides(color = guide_legend(
+  override.aes = list(size = 2)))
+cowplot::plot_grid(gg_bathy + theme_opts, 
+                   gg_shapeclass + theme_opts,
+                   gg_reservoir + theme_opts,
                    ncol = 1)
 ```

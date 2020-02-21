@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 5, fig.
 knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
 ```
 
-```{r maps_dot_bathy, fig.cap = "Map of lake maximum depth measurements calculated from lake bathymetry surfaces.", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r maps_dot_bathy, fig.cap = "Map of study lakes showing A) lake maximum depth measurements, B) cross-section shape class, and C) reservoir classification.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 ```
 
