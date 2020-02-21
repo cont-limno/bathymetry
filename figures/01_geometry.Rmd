@@ -32,8 +32,8 @@ gg_scatter_shape <- st_drop_geometry(dt) %>%
   dplyr::filter(!is.na(shape_class)) %>%
   dplyr::arrange(desc(factor(shape_class, 
                         levels = c("neither", "concave", "convex")))) %>%
-  ggplot() + 
-  geom_point(aes(x = dist_deepest, y = dist_viscenter, color = shape_class)) +
+  ggplot(aes(x = dist_deepest, y = dist_viscenter, color = shape_class)) + 
+  geom_point() +
   # geom_abline(aes(intercept = 0, slope = 1)) +
   labs(color = "") +
   xlab("Deepest point distance (m)") +
@@ -198,7 +198,7 @@ gg_slope_reservoir <- ggplot(data = dplyr::filter(test, !is.na(reservoir_class))
   labs(color = "")
 ```
 
-```{r 01_geometry_grid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=5}
+```{r 01_geometry_grid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=5, fig.height=4.2}
 theme_opts <- theme(legend.position = "none")
 
 legend_shape     <- cowplot::get_legend(gg_scatter_shape)

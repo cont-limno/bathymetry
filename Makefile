@@ -108,6 +108,7 @@ data/lagosus_depth.csv
 manuscript/figures.pdf: manuscript/figures.Rmd \
 manuscript/tables.pdf \
 figures/00_map_bathy-1.pdf \
+figures/01_geometry_grid-1.pdf \
 figures/lgnemanual-vs-bathy-depth-1.pdf \
 figures/01_heatmap-1.pdf \
 figures/01_hypsography-1.pdf \
@@ -128,7 +129,7 @@ figures/00_map-1.pdf: figures/00_maps.Rmd
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
-figures/00_map_bathy-1.pdf: figures/00_maps.Rmd
+figures/00_map_bathy-1.pdf: figures/00_maps.Rmd data/gis.gpkg
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
@@ -177,6 +178,11 @@ data/lagosus_depth.csv
 
 figures/lgnemanual-vs-bathy-depth-1.pdf: figures/00_qa.Rmd \
 data/lagosus_depth.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
+figures/01_geometry_grid-1.pdf: figures/01_geometry.Rmd \
+data/00_geometry/nearshore.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 

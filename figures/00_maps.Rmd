@@ -39,12 +39,12 @@ gg_states <-
   # geom_sf(data = hu4, fill = "grey") +
     geom_sf(data = states_focal, fill = "white", color = "black", size = 0.4) + 
     geom_point_rast(data = dt_notsf, aes(x = X, y = Y, color = maxdepth_class), 
-                    size = 0.3, alpha = 0) +
+                    alpha = 0) +
     scale_color_manual(values = viridisLite::viridis(5)) +
     geom_point_rast(data = dplyr::filter(dt_notsf, lake_maxdepth_m < 10), 
-            aes(x = X, y = Y, color = maxdepth_class), size = 0.3, alpha = 0.8) +
+            aes(x = X, y = Y, color = maxdepth_class), size = 0.2, alpha = 0.8) +
     geom_point_rast(data = dplyr::filter(dt_notsf, lake_maxdepth_m > 10), 
-            aes(x = X, y = Y, color = maxdepth_class), size = 0.3, alpha = 0.8) +
+            aes(x = X, y = Y, color = maxdepth_class), size = 0.2, alpha = 0.8) +
     labs(color = "Max depth (m)") +
     coord_sf(datum =  NA) +
     theme_void()
@@ -216,6 +216,7 @@ dt           <- st_read("../data/gis.gpkg", "dt", quiet = TRUE) %>%
   distinct(lagoslakeid, .keep_all = TRUE)
 dt_withres <- read.csv("../data/lagosus_depth_predictors.csv", 
                stringsAsFactors = FALSE) %>%
+  dplyr::filter(!is.na(shape_class)) %>%
   dplyr::distinct(lagoslakeid, reservoir_class) %>%
   mutate(lagoslakeid = as.character(lagoslakeid))
 dt           <- inner_join(dt, dt_withres) %>%
