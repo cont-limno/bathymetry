@@ -5,6 +5,7 @@ source("scripts/99_utils.R")
 
 set.seed(55)
 max_buffer_dist <- 100 # to match Hollister (2011)
+n_lakes         <- 170
 
 dt         <- read.csv("data/lagosus_depth.csv",
                     stringsAsFactors = FALSE)
@@ -15,7 +16,7 @@ dt_pred    <- read.csv("data/lagosne_depth_predictors.csv",
 
 # attempt at manual calculation of max buffer slope
 
-ll_ids            <- sample(dt_pred$lagoslakeid, 80)
+ll_ids            <- sample(dt_pred$lagoslakeid, n_lakes)
 flist             <- list.files("data/elevatr", pattern = "\\d*.tif",
                     full.names = TRUE, include.dirs = TRUE)
 existing_surfaces <- gsub(".tif", "",
