@@ -1,12 +1,103 @@
 # setwd("../")
 source("scripts/99_utils.R")
 
-dt <- read.csv("data/lagosne_depth_predictors.csv",
+dt_raw <- read.csv("data/lagosne_depth_predictors.csv",
                stringsAsFactors = FALSE) %>%
   dplyr::filter(!is.na(shape_class)) %>%
   dplyr::filter(!(shape_class %in% c("neither"))) %>%
   dplyr::filter(inlake_slope < 1) %>%
   dplyr::filter(!is.na(reservoir_class))
+nearshore <- read.csv("data/00_geometry/nearshore.csv",
+                      stringsAsFactors = FALSE) %>%
+  dplyr::select(lagoslakeid = llid, slope_mean)
+dt_raw <- left_join(dt_raw, nearshore) %>%
+  dplyr::filter(!is.na(slope_mean))
+
+# data prep
+library(recipes)
+library(rsample)
+library(parsnip)
+library(yardstick)
+set.seed(1234)
+
+dt <- dt_raw %>%
+  dplyr::select(lake_maxdepth_m, inlake_slope, slope_mean,
+                dist_deepest, dist_viscenter,
+                reservoir_class, shape_class,
+                lake_waterarea_ha, # oliver covariates
+                lake_shorelinedevfactor_nounits,
+                ws_lake_arearatio,
+                hu4_zoneid) %>%
+  mutate_if(is.character, factor)
+
+dt_split <- initial_split(dt)
+dt_train <- training(dt_split)
+dt_test  <- testing(dt_split)
+
+dt_rec <- recipe(lake_maxdepth_m ~ ., data = dt_train) %>%
+  step_normalize(all_numeric(), -all_outcomes()) %>%
+  step_log(all_outcomes()) %>%
+  prep()
+# dt_rec
+test_proc <- bake(dt_rec, new_data = dt_test)
+dt_jc     <- juice(dt_rec)
+
+# ---- all-predictors model using grid of real and proxy predictors ----
+pred_grid <- expand.grid(
+  slope = c("inlake_slope", "slope_mean"),
+  dist = c("dist_deepest", "dist_viscenter"))
+
+fit_model <- function(x, exclude){
+  preds <- names(x)[!(names(x) %in% c("lake_maxdepth_m", exclude))]
+  x     <- dplyr::select(x, c("lake_maxdepth_m", preds))
+
+  fit1 <- linear_reg(penalty = 0.001) %>%
+    set_engine("glmnet") %>%
+    fit(lake_maxdepth_m ~ ., data = x)
+
+  dt_test %>%
+    select(lake_maxdepth_m) %>%
+    mutate(lake_maxdepth_m = log(lake_maxdepth_m)) %>%
+    bind_cols(
+      predict(fit1, new_data = test_proc[, preds])
+    )
+}
+
+dt_fits <- lapply(1:4, function(i)
+  fit_model(x = dt_jc, exclude = as.character(unlist(pred_grid[i,]))))
+dt_metrics <- lapply(dt_fits, function(x)
+  tidyr::pivot_wider(
+    metrics(x, truth = lake_maxdepth_m, estimate = .pred),
+    names_from = .metric, values_from = .estimate))
+
+# TODO: save this table
+bind_cols(bind_rows(dt_metrics), pred_grid[4:1,])
+
+# TODO: fit a model for inlake_slope
+
+
+# ---- joint prediction of slope and distance using sam's covariates
+library(brms)
+
+fit1 <- brm(
+  mvbind(inlake_slope, dist_deepest) ~ lake_waterarea_ha +
+    lake_shorelinedevfactor_nounits + ws_lake_arearatio,
+  data = dt_jc, chains = 2
+)
+
+# pp_check(fit1, resp = "distdeepest")
+# pp_check(fit1, resp = "inlakeslope")
+# bayes_R2(fit1)
+
+# 2nd stage model of max depth using posterior slope and distance as covariates
+# use tidybayes package
+
+fit2 <- brm(
+  lake_maxdepth_m ~ dist_deepest + inlake_slope, data = dt_jc_2nd,
+  chains = 2
+)
+
+bayes_R2(fit2)
 
 # plot(calc_depth(dt$inlake_slope, dt$dist_deepest), dt$lake_maxdepth_m)
 # hist(dt$inlake_slope)
