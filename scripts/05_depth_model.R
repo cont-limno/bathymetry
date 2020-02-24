@@ -21,13 +21,16 @@ library(yardstick)
 set.seed(1234)
 
 dt <- dt_raw %>%
-  dplyr::select(lake_maxdepth_m, inlake_slope, slope_mean,
+  dplyr::select(lagoslakeid, lake_maxdepth_m, inlake_slope, slope_mean,
                 dist_deepest, dist_viscenter,
                 reservoir_class, shape_class,
+                lake_perimeter_m, lake_islandarea_ha,
+                lake_elevation_m,
                 lake_waterarea_ha, # oliver covariates
                 lake_shorelinedevfactor_nounits,
                 ws_lake_arearatio,
                 hu4_zoneid) %>%
+  mutate(lagoslakeid = factor(lagoslakeid)) %>%
   mutate_if(is.character, factor)
 
 dt_split <- initial_split(dt)
@@ -48,7 +51,10 @@ pred_grid <- expand.grid(
   dist = c("dist_deepest", "dist_viscenter"))
 
 fit_model <- function(x, exclude){
-  preds <- names(x)[!(names(x) %in% c("lake_maxdepth_m", exclude))]
+  # x <- dt_jc
+  # exclude <- as.character(unlist(pred_grid[1,]))
+  preds <- names(x)[!(names(x) %in% c("lagoslakeid", "lake_maxdepth_m",
+                                      exclude))]
   x     <- dplyr::select(x, c("lake_maxdepth_m", preds))
 
   fit1 <- linear_reg(penalty = 0.001) %>%
@@ -60,20 +66,77 @@ fit_model <- function(x, exclude){
     mutate(lake_maxdepth_m = log(lake_maxdepth_m)) %>%
     bind_cols(
       predict(fit1, new_data = test_proc[, preds])
-    )
+    ) %>%
+    bind_cols(test_proc[,"lagoslakeid"]) %>%
+    mutate(resid = lake_maxdepth_m - .pred,
+           model = paste0(exclude, collapse = "-"))
 }
 
 dt_fits <- lapply(1:4, function(i)
   fit_model(x = dt_jc, exclude = as.character(unlist(pred_grid[i,]))))
+
 dt_metrics <- lapply(dt_fits, function(x)
   tidyr::pivot_wider(
     metrics(x, truth = lake_maxdepth_m, estimate = .pred),
-    names_from = .metric, values_from = .estimate))
+    names_from = .metric, values_from = .estimate)) %>%
+  bind_rows() %>%
+  bind_cols(pred_grid[4:1,])
 
-# TODO: save this table
-bind_cols(bind_rows(dt_metrics), pred_grid[4:1,])
+saveRDS(dt_train, "data/01_depth_model/depth_training.rds")
+saveRDS(bind_rows(dt_fits),
+        "data/01_depth_model/depth_grid.rds")
+saveRDS(dt_metrics,
+        "data/01_depth_model/depth_grid_metrics.rds")
 
-# TODO: fit a model for inlake_slope
+# fit a model for inlake_slope and dist_deepest
+lgus_predictors <- read.csv("data/lagosne_depth_predictors.csv",
+                            stringsAsFactors = FALSE) %>%
+  select_if(is.numeric) %>%
+  select(-contains("code"), -contains("ftype"), -contains("huc12"),
+         -contains("lagoslakeid"),
+         -has_limno, -contains("depth_m"),
+         # -contains("focallakewater"),
+         -contains("width"), -contains("length"),
+         -contains("totalarea"),
+         -contains("nws"), -contains("orientation"),
+         -contains("ws_"), -contains("max"),
+         -dist_between, -shape_offset
+         )
+
+####
+inlake_slope_rec <- recipe(inlake_slope ~ ., data = lgus_predictors) %>%
+  step_normalize(all_numeric(), -all_outcomes()) %>%
+  step_log(all_outcomes()) %>%
+  prep()
+dt_inlake_slope <- juice(inlake_slope_rec) %>%
+  dplyr::select(-dist_deepest)
+
+fit <- lm(inlake_slope ~ ., data = dt_inlake_slope)
+# hist(residuals(fit))
+fit <- broom::tidy(fit) %>%
+  dplyr::arrange(desc(abs(estimate)))
+jsta::pdf_table(fit, "slope.pdf")
+head(fit)
+
+# slope is dependent on the arrangement of hydro features
+
+####
+
+dist_deepest_rec <- recipe(dist_deepest ~ ., data = lgus_predictors) %>%
+  step_normalize(all_numeric(), -all_outcomes()) %>%
+  step_log(all_outcomes()) %>%
+  prep()
+dt_dist_deepest <- juice(dist_deepest_rec) %>%
+  dplyr::select(-inlake_slope)
+
+fit <- lm(dist_deepest ~ ., data = dt_dist_deepest)
+# hist(residuals(fit))
+fit <- broom::tidy(fit) %>%
+  dplyr::arrange(desc(abs(estimate)))
+jsta::pdf_table(fit, "dist.pdf")
+head(fit)
+
+# dist is dependent on the size of the hydro system
 
 
 # ---- joint prediction of slope and distance using sam's covariates
