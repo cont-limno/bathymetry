@@ -10,12 +10,31 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fi
 source("../scripts/99_utils.R")
 ```
 
-```{r 02_depth_model, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 
-dt <- readRDS("../data/01_depth_model/depth_model.rds")
+```{r 02_depth_model_grid_resid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+
+lgus <- read.csv("../data/lagosus_depth_predictors.csv", 
+                 stringsAsFactors = FALSE) %>%
+  mutate(lagoslakeid = as.character(lagoslakeid)) %>%
+  dplyr::select(-lake_maxdepth_m) %>%
+  distinct(lagoslakeid, .keep_all = TRUE)
+dt   <- readRDS("../data/01_depth_model/depth_grid.rds") %>%
+  mutate(lagoslakeid = as.character(lagoslakeid)) %>%
+  left_join(lgus, by = "lagoslakeid")
+
+ggplot(data = dt) + 
+  geom_density(aes(x = resid, fill = shape_class)) +
+  geom_vline(aes(xintercept = 0)) +
+  facet_wrap(~ model)
+
+ggplot(data = dt) + 
+  geom_density(aes(x = resid, fill = reservoir_class)) +
+  geom_vline(aes(xintercept = 0)) +
+  facet_wrap(~ model)
 ```
 
 ```{r 02_depth_model_fitted, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+dt <- readRDS("../data/01_depth_model/depth_model.rds")
 
 gg_noshape <- ggplot() +
   geom_point(data = dplyr::filter(dt$no_shape, shape_class == "convex"),
