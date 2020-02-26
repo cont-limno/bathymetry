@@ -32,7 +32,7 @@ knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
 ```
 
-### predictor summary table
+![Summary of lake depth predictor variables.](../tables/01_predictors.pdf){width=65%}
 
 ### variable importance for true slopes and distances (5)
 
@@ -47,8 +47,6 @@ knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
 ```{r 01_geometry_grid, fig.cap = "Comparison among lake shape and reservoir classes for A-B) distance to deepest point versus distance to lake visual center and C-D) buffer slope versus inlake slope.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 knitr::include_graphics("../figures/01_geometry_grid-1.pdf")
 ```
-
-![Summary of lake depth predictor variables.](../tables/01_predictors.pdf){width=65%}
 
 ```{r heatmap, fig.cap = "Correlation matrix heatmap.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/01_heatmap-1.pdf")
