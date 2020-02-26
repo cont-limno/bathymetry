@@ -102,7 +102,9 @@ data/00_hypso/hypso.csv
 	Rscript $<
 
 data/00_geometry/nearshore.csv: scripts/00_get_nearshore.R \
-data/lagosus_depth.csv
+data/lagosus_depth.csv \
+data/00_bathy_depth/bathy_pnts.rds \
+data/lagosne_depth_predictors.csv
 	Rscript $<
 
 manuscript/figures.pdf: manuscript/figures.Rmd \
@@ -116,9 +118,7 @@ figures/01_contrasts_depth-1.pdf \
 figures/01_contrasts_tally-1.pdf \
 figures/slope_diagram.pdf \
 figures/lake_shape.pdf \
-figures/gg_distance-1.pdf \
-figures/02_depth_model_fitted-1.pdf \
-figures/02_hypso_model_fitted-1.pdf
+figures/gg_distance-1.pdf
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	-pdftk manuscript/figures.pdf cat 2-end output manuscript/figures2.pdf
 	-mv manuscript/figures2.pdf manuscript/figures.pdf
