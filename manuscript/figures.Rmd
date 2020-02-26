@@ -6,29 +6,45 @@ output:
     keep_tex: yes
 header-includes: 
 - \usepackage{colortbl}
+- \usepackage{float}
 ---
 
 \arrayrulecolor{white}
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 5, fig.height = 6, dev = c("pdf"))
+knitr::opts_chunk$set(fig.pos = 'H')
 ```
 
 \pagebreak
 
-![Diagram showing the assumption of most lake depth models that the nearshore slope is extends into the lake and that all lakes have a common relationship between nearshore and in-lake slope. ](../figures/slope_diagram.pdf){width=80%}
+![Diagram showing the assumption of most lake depth models that the nearshore slope is extends into the lake and that all lakes have a common relationship between nearshore and in-lake slope. ](../figures/slope_diagram.pdf){width=75%}
 
-![Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right)](../figures/lake_shape.pdf){width=80%}
+```{r lake_shape, echo=FALSE, out.extra='', fig.align='center', fig.cap="Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right)"}
+knitr::include_graphics("../figures/lake_shape.pdf")
+```
 
-```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported max depth and max depth calculated from bathymetry surfaces.", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r maps_dot_bathy, fig.cap = "Map of study lakes showing A) lake maximum depth measurements, B) cross-section shape class, and C) reservoir classification.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+knitr::include_graphics("../figures/00_map_bathy-1.pdf")
+```
+
+```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported max depth and max depth calculated from bathymetry surfaces.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 # see 00_qa.Rmd
 knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
 ```
 
-```{r maps_dot_bathy, fig.cap = "Map of study lakes showing A) lake maximum depth measurements, B) cross-section shape class, and C) reservoir classification.", warning=FALSE, echo = FALSE, eval=TRUE}
-knitr::include_graphics("../figures/00_map_bathy-1.pdf")
-```
+### predictor summary table
 
-```{r 01_geometry_grid, fig.cap = "Comparison among lake shape and reservoir classes for A-B) distance to deepest point versus distance to lake visual center and C-D) buffer slope versus inlake slope.", warning=FALSE, echo = FALSE, eval=TRUE}
+### variable importance for true slopes and distances (5)
+
+### model metrics grid (table)
+
+### 2 x 4 grid of residual box plots for shape and reservoir by true and proxy dist/slope (6)
+ 
+### 4 x 2 grid of dotplots of depth, slope, area, dist by shape and reservoir class (7)
+
+# Appendix
+
+```{r 01_geometry_grid, fig.cap = "Comparison among lake shape and reservoir classes for A-B) distance to deepest point versus distance to lake visual center and C-D) buffer slope versus inlake slope.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 knitr::include_graphics("../figures/01_geometry_grid-1.pdf")
 ```
 
