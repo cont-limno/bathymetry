@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-## Bathymetry manuscript
+## What can bathymetry data tell us about conventional lake depth data and predictive models?
 
 ### Products
 
