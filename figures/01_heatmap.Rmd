@@ -51,3 +51,21 @@ create_heatmap <- function(x){
 create_heatmap(dt_raw_ne)
 create_heatmap(dt_raw_ne_normal)
 ```
+
+```{r metric_correlations_setup, echo=FALSE, warning=FALSE}
+
+dt <- dplyr::select(dt_raw_ne, names(dt_raw_ne)[names(dt_raw_ne) %in%
+                    c("lake_meandepth_m", 
+              names(readRDS("../data/01_depth_model/depth_training.rds")))])
+names(dt) <- gsub("^lake_", "", names(dt))
+
+gg_slope <- jsta::jheatmap(dt, focal_columns = "inlake_slope")$gtable
+gg_dist <- jsta::jheatmap(dt, focal_columns = "dist_deepest")$gtable
+```
+
+```{r metric_correlations, echo=FALSE, warning=FALSE}
+cowplot::plot_grid(
+  gg_slope, 
+  gg_dist, 
+  rel_widths = c(1, 0.95))
+```
