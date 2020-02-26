@@ -26,35 +26,49 @@ dt   <- readRDS("../data/01_depth_model/depth_grid.rds") %>%
   mutate(lagoslakeid = as.character(lagoslakeid)) %>%
   left_join(lgus, by = "lagoslakeid")
 
-ggplot(data = dt) + 
-  geom_density(aes(x = resid, fill = shape_class)) +
-  geom_vline(aes(xintercept = 0)) +
+gg_shape <- ggplot(data = dt) + 
+  geom_density(aes(x = resid, fill = shape_class), alpha = 0.75, adjust = 1.3) +
+  geom_vline(aes(xintercept = 0), linetype = "dashed") +
   facet_wrap(~ model) + 
-    theme(legend.position = "none",
-        plot.margin = unit(c(1.5,1.5,0.2,0.2), "cm"))
-grid::grid.text(unit(0.93, "npc"), 0.32, 
-                label = 'proxy slope', rot = 270) # bottom right
-grid::grid.text(unit(0.93, "npc"), 0.65, 
-                label = 'true slope', rot = 270) # top right
-grid::grid.text(unit(0.7, "npc"), 0.89, 
-                label = 'proxy distance') # right
-grid::grid.text(unit(0.3, "npc"), 0.89, 
-                label = 'true distance') # left
+    theme(legend.position = "bottom",
+        strip.background = element_blank(), 
+        strip.text = element_blank(),
+        plot.margin = unit(c(1.2,0.2,0.2,0.2), "cm"))  +
+  guides(fill = guide_legend(nrow = 2))
 
-ggplot(data = dt) + 
-  geom_density(aes(x = resid, fill = reservoir_class)) +
-  geom_vline(aes(xintercept = 0)) +
+gg_shape <- ggdraw(gg_shape)  +
+  # draw_label("proxy", x = 0.83, y = 0.32, angle = 270, size = 10) +
+  # draw_label("true", x = 0.83, y = 0.65, angle = 270, size = 10) +
+  # draw_label("slope", x = 0.93, y = 0.5, size = 10, angle = 270) +
+  draw_label("proxy", x = 0.7, y = 0.89, size = 10) +
+  draw_label("true", x = 0.3, y = 0.89, size = 10) +
+  draw_label("distance", x = 0.5, y = 0.94, size = 10)# +
+  #draw_label("Shape class", x = 0.5, y = 0.98, size = 10, fontface = "bold")
+
+
+gg_reservoir <- ggplot(data = dt) + 
+  geom_density(aes(x = resid, fill = reservoir_class), alpha = 0.75, adjust = 1.3) +
+  geom_vline(aes(xintercept = 0), linetype = "dashed") +
   facet_wrap(~ model) +
-  theme(legend.position = "none",
-        plot.margin = unit(c(1.5,1.5,0.2,0.2), "cm"))
-grid::grid.text(unit(0.93, "npc"), 0.32, 
-                label = 'proxy slope', rot = 270) # bottom right
-grid::grid.text(unit(0.93, "npc"), 0.65, 
-                label = 'true slope', rot = 270) # top right
-grid::grid.text(unit(0.7, "npc"), 0.89, 
-                label = 'proxy distance') # right
-grid::grid.text(unit(0.3, "npc"), 0.89, 
-                label = 'true distance') # left
+  theme(legend.position = "bottom",
+        strip.background = element_blank(), 
+        strip.text = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        plot.margin = unit(c(1.2,1.2,0.2,0.2), "cm")) +
+  guides(fill = guide_legend(nrow = 2))
+
+gg_reservoir <- ggdraw(gg_reservoir) +
+  draw_label("proxy", x = 0.83, y = 0.44, angle = 270, size = 10) +
+  draw_label("true", x = 0.83, y = 0.77, angle = 270, size = 10) +
+  draw_label("slope", x = 0.93, y = 0.62, size = 10, angle = 270) +
+  draw_label("proxy", x = 0.7, y = 0.89, size = 10) +
+  draw_label("true", x = 0.3, y = 0.89, size = 10) +
+  draw_label("distance", x = 0.5, y = 0.94, size = 10)# +
+  # draw_label("Reservoir class", x = 0.5, y = 0.98, size = 10, fontface = "bold")
+
+cowplot::plot_grid(gg_shape, gg_reservoir, 
+                   nrow = 1, rel_widths = c(1, 0.95))
 ```
 
 ```{r 02_depth_model_fitted, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
