@@ -5,7 +5,7 @@ source("scripts/99_utils.R")
 
 set.seed(55)
 max_buffer_dist <- 100 # to match Hollister (2011)
-n_lakes         <- 170
+n_lakes         <- 510
 
 dt         <- read.csv("data/lagosus_depth.csv",
                     stringsAsFactors = FALSE)
@@ -27,9 +27,11 @@ ll_ids <- ll_ids[!duplicated(ll_ids)]
 
 get_slope <- function(ll_id){
   # ll_id <- ll_ids[1]
+  # ll_id <- 2645
   ll_poly <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", ll_id)
+  ll_poly <- lwgeom::st_make_valid(ll_poly)
   ll_iws  <- query_gis("IWS", "lagoslakeid", ll_id)
-  # TODO: make this a one-sided buffer [sf doesn't offer this :(]
+  # hack together a one-sided buffer [sf doesn't offer this :(]
   ll_buff <- st_buffer(ll_poly, max_buffer_dist)
   ll_buff <- st_difference(ll_buff, ll_poly)
 
@@ -62,6 +64,10 @@ get_slope <- function(ll_id){
     paste0("data/", tolower(deepest_pnt$state), "_bathy/", ll_id, ".tif")
     )
   st_crs(deepest_pnt) <- st_crs(r_crs)
+  if(is.na(st_distance(st_transform(ll_poly, st_crs(r_crs)), deepest_pnt))){
+    st_crs(deepest_pnt) <- st_crs(ll_poly)
+    r_crs <- projectRaster(r_crs, crs = st_crs(ll_poly)$proj4string)
+  }
 
   ll_poly_hull <- st_zm(st_cast(
     concaveman::concaveman(st_cast(ll_poly, "MULTILINESTRING")),
@@ -70,12 +76,13 @@ get_slope <- function(ll_id){
     concaveman::concaveman(st_cast(ll_buff, "MULTILINESTRING")),
     "MULTILINESTRING"))
   shore_pnt <- sf::st_nearest_points(deepest_pnt,
-                                     st_transform(ll_poly_hull, st_crs(r_crs)))
+                                  st_transform(ll_poly_hull, st_crs(deepest_pnt)))
   buffer_line  <- sf::st_nearest_points(shore_pnt,
-                                        st_transform(ll_buff_hull, st_crs(r_crs)))
+                                  st_transform(ll_buff_hull, st_crs(deepest_pnt)))
   buffer_line <- st_buffer(buffer_line, 20)
 
-  # mapview(elev) + mapview(ll_poly_hull) + mapview(ll_buff_hull) + mapview(buffer_line) + mapview(st_buffer(buffer_line, 20))
+  # mapview(elev) +
+  # mapview(ll_poly_hull) + mapview(ll_buff_hull) + mapview(deepest_pnt) + mapview(buffer_line) + mapview(st_buffer(buffer_line, 20))
 
   slope_online        <- raster::extract(slope, as_Spatial(buffer_line))[[1]]
   slope_online_mean   <- mean(slope_online, na.rm = TRUE) * res(elev)[1]

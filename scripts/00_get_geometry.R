@@ -11,15 +11,16 @@ lg <- lagosus_load("locus")
 #   the distance between these points
 #   the true in-lake "slope"
 get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
-  # llid <- 5636
-  # r <- raster(paste0("data/nh_bathy/", llid, ".tif"))
+  # llid <- 2119
+  # r <- raster(paste0("data/mi_bathy/", llid, ".tif"))
   # deep_positive = TRUE
   # ft <- 3.281
   # ft = 1
 
   dt_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha",
                                    "lagoslakeid", llid)
-  proj_str <- st_crs(r)$proj4string
+  proj_str_init <- st_crs(r)$proj4string
+  proj_str <- proj_str_init
   if(nrow(st_coordinates(st_transform(dt_poly, proj_str))) >= 1){
     dt_poly <- st_transform(dt_poly, proj_str)
   }else{
@@ -112,6 +113,11 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
   inlake_slope_mean   <- mean(r_slope@data@values, na.rm = TRUE) * res(r)[1]
   inlake_slope_median <- median(r_slope@data@values, na.rm = TRUE) * res(r)[1]
 
+  # make sure pnt deepest and pnt_viscenter match
+  # the projection of the on disk raster
+  # attempt to project pnts to `proj_str_init`
+  # if empty project raster to `proj_str`
+
   list(pnt_deepest = pnt_deepest, pnt_viscenter = pnt_viscenter,
        dist_deepest = dist_deepest, dist_viscenter = dist_viscenter,
        dist_between = dist_between, inlake_slope = inlake_slope,
@@ -128,10 +134,10 @@ rm_bad_rasters <- function(rsubs){
 }
 
 loop_state <- function(fpath, outname, deep_positive, ft = 1){
-  # fpath <- "data/me_bathy/"
-  # outname <- "data/00_bathy_depth/00_bathy_depth_me.rds"
+  # fpath <- "data/mi_bathy/"
+  # outname <- "data/00_bathy_depth/00_bathy_depth_mi.rds"
   # deep_positive = TRUE
-  # ft = 1
+  # ft = 3.281
   flist <- list.files(fpath, pattern = "\\d.tif",
                          full.names = TRUE, include.dirs = TRUE)
   # print(flist)
