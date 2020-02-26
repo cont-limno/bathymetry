@@ -34,9 +34,13 @@ knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
 
 ![Summary of lake depth predictor variables.](../tables/01_predictors.pdf){width=65%}
 
-### variable importance for true slopes and distances (5)
+```{r metric_correlations, fig.cap = "metric correlations", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+knitr::include_graphics("../figures/metric_correlations-1.pdf")
+```
 
-### model metrics grid (table)
+```{r depth_model_metrics, fig.cap = "depth model metrics", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+knitr::include_graphics("../tables/depth_model_metrics-1.pdf")
+```
 
 ### 2 x 4 grid of residual box plots for shape and reservoir by true and proxy dist/slope (6)
  

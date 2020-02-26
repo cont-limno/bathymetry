@@ -10,6 +10,10 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fi
 source("../scripts/99_utils.R")
 ```
 
+```{r depth_model_metrics}
+dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds")
+jsta::pdf_table(dt_metrics, "../tables/depth_model_metrics-1.pdf")
+```
 
 ```{r 02_depth_model_grid_resid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 
@@ -25,12 +29,32 @@ dt   <- readRDS("../data/01_depth_model/depth_grid.rds") %>%
 ggplot(data = dt) + 
   geom_density(aes(x = resid, fill = shape_class)) +
   geom_vline(aes(xintercept = 0)) +
-  facet_wrap(~ model)
+  facet_wrap(~ model) + 
+    theme(legend.position = "none",
+        plot.margin = unit(c(1.5,1.5,0.2,0.2), "cm"))
+grid::grid.text(unit(0.93, "npc"), 0.32, 
+                label = 'proxy slope', rot = 270) # bottom right
+grid::grid.text(unit(0.93, "npc"), 0.65, 
+                label = 'true slope', rot = 270) # top right
+grid::grid.text(unit(0.7, "npc"), 0.89, 
+                label = 'proxy distance') # right
+grid::grid.text(unit(0.3, "npc"), 0.89, 
+                label = 'true distance') # left
 
 ggplot(data = dt) + 
   geom_density(aes(x = resid, fill = reservoir_class)) +
   geom_vline(aes(xintercept = 0)) +
-  facet_wrap(~ model)
+  facet_wrap(~ model) +
+  theme(legend.position = "none",
+        plot.margin = unit(c(1.5,1.5,0.2,0.2), "cm"))
+grid::grid.text(unit(0.93, "npc"), 0.32, 
+                label = 'proxy slope', rot = 270) # bottom right
+grid::grid.text(unit(0.93, "npc"), 0.65, 
+                label = 'true slope', rot = 270) # top right
+grid::grid.text(unit(0.7, "npc"), 0.89, 
+                label = 'proxy distance') # right
+grid::grid.text(unit(0.3, "npc"), 0.89, 
+                label = 'true distance') # left
 ```
 
 ```{r 02_depth_model_fitted, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
