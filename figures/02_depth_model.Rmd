@@ -11,7 +11,10 @@ source("../scripts/99_utils.R")
 ```
 
 ```{r depth_model_metrics}
-dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds")
+dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
+  mutate_if(is.numeric, function(x) round(x, 2)) %>%
+  dplyr::select(slope, dist, everything(), -.estimator)
+
 jsta::pdf_table(dt_metrics, "../tables/depth_model_metrics-1.pdf")
 ```
 
