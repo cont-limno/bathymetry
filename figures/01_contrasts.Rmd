@@ -192,8 +192,8 @@ theme_opts <- theme(axis.text.x = element_text(angle = 90),
 gg_shape <- cowplot::plot_grid(
   gg_depth_shape_class + ggtitle("Depth (m)") + theme_opts,
   gg_area_shape_class + ggtitle("Area (ha)") + theme_opts, 
-  gg_area_shape_class + ggtitle("Inlake slope (m/m)") + theme_opts, 
-  gg_area_shape_class + ggtitle("Deepest point distance (m)") + theme_opts, 
+  gg_slope_shape_class + ggtitle("Inlake slope (m/m)") + theme_opts, 
+  gg_dist_shape_class + ggtitle("Deepest point distance (m)") + theme_opts, 
   nrow = 1)
  
 gg_reservoir <- cowplot::plot_grid(gg_depth_reservoir + theme_opts, 
