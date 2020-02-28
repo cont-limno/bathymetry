@@ -184,7 +184,7 @@ geom_pointrange(aes(x = cat, y = `50%`,
 
 ```
 
-```{r 01_contrasts, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height = 4}
+```{r 01_contrasts, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height = 3.5}
 theme_opts <- theme(axis.text.x = element_text(angle = 90), 
                     axis.title = element_blank(),
                     plot.title = element_text(size = 8))

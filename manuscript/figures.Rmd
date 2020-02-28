@@ -42,13 +42,13 @@ knitr::include_graphics("../tables/01_predictors.pdf")
 \captionsetup[figure]{labelformat=default}
 \setcounter{figure}{4}
 
-```{r metric_correlations, fig.cap = "Pearson correlation coefficients of map-derived metrics against inlake slope and deepest point distance metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+```{r metric_correlations, fig.cap = "Pearson correlation coefficients of map-derived metrics against inlake slope and deepest point distance metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', out.width="11cm", fig.align='center'}
 knitr::include_graphics("../figures/metric_correlations-1.pdf")
 ```
 
 \captionsetup[figure]{name=Table}
 \captionsetup[figure]{labelformat=empty}
-```{r depth_model_metrics, fig.cap = "Table 2: Model fit and predictive accuarcy metrics for all combinations of true and proxy slopes and distances. ", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+```{r depth_model_metrics, fig.cap = "Table 2: Model fit and predictive accuarcy metrics for all combinations of true (inlakeslope, distdeepest) and proxy (slopemean, distviscenter) metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../tables/depth_model_metrics-1.pdf")
 ```
 \captionsetup[figure]{name=Figure}
@@ -59,7 +59,7 @@ knitr::include_graphics("../tables/depth_model_metrics-1.pdf")
 knitr::include_graphics("../figures/02_depth_model_grid_resid-1.pdf")
 ```
 
-```{r contrasts, fig.cap = "Lake characteristics by categorical variables.", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r contrasts, fig.cap = "Lake characteristics by categorical variables.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 knitr::include_graphics("../figures/01_contrasts-1.pdf")
 ```
 
@@ -79,7 +79,7 @@ knitr::include_graphics("../figures/slope-compare-1.pdf")
 knitr::include_graphics("../figures/01_hypsography-1.pdf")
 ```
 
-```{r glaciated_vs_shapeclass, fig.cap = "Cross tabulation between lake glaciation and shape class. Circles are proportional to the number of lakes in each category. If a lake has been glaciated it is more likely to be convex. However, if a lake has not been glaciated there is no tendencey towards a particular shape class.", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r glaciated_vs_shapeclass, fig.cap = "Cross tabulation between lake glaciation and shape class. Circles are proportional to the number of lakes in each category. If a lake has been glaciated it is more likely to be convex. However, if a lake has not been glaciated there is no tendencey towards a particular shape class.", warning=FALSE, echo = FALSE, eval=FALSE}
 knitr::include_graphics("../figures/glaciated_vs_shapeclass-1.pdf")
 ```
 
@@ -113,6 +113,6 @@ knitr::include_graphics("../figures/02_hypso_model_importance-1.pdf")
 
 <!-- ![Messager et al. 2016 equation table](../figures/messager_eq_table.png){width=100%} -->
 
-```{r 01_geometry_map, fig.cap = "Green points show the 'visual center' of the lake. Red points show the true deepest point of a lake.", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r 01_geometry_map, fig.cap = "Green points show the 'visual center' of the lake. Red points show the true deepest point of a lake.", warning=FALSE, echo = FALSE, eval=FALSE}
 knitr::include_graphics("../figures/gg_distance-3.pdf")
 ```
