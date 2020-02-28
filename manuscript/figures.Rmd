@@ -24,31 +24,31 @@ knitr::opts_chunk$set(fig.pos = 'H')
 knitr::include_graphics("../figures/lake_shape.pdf")
 ```
 
-```{r maps_dot_bathy, fig.cap = "Map of study lakes showing A) lake maximum depth measurements, B) cross-section shape class, and C) reservoir classification.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+```{r maps_dot_bathy, fig.cap = "Map of study lakes showing A) lake maximum depth measurements, B) cross-section shape class, and C) reservoir classification.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 ```
 
-```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported max depth and max depth calculated from bathymetry surfaces.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported depth and depth calculated from bathymetry surfaces.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 # see 00_qa.Rmd
 knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
 ```
 
 \captionsetup[figure]{name=Table}
 \captionsetup[figure]{labelformat=empty}
-```{r 01_predictors, fig.cap = "Table 1: Summary of lake depth predictor variables", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r 01_predictors, fig.cap = "Table 1: Summary of lake depth predictor variables.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../tables/01_predictors.pdf")
 ```
 \captionsetup[figure]{name=Figure}
 \captionsetup[figure]{labelformat=default}
 \setcounter{figure}{4}
 
-```{r metric_correlations, fig.cap = "metric correlations", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+```{r metric_correlations, fig.cap = "Pearson correlation coefficients of map-derived metrics against inlake slope and deepest point distance metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 knitr::include_graphics("../figures/metric_correlations-1.pdf")
 ```
 
 \captionsetup[figure]{name=Table}
 \captionsetup[figure]{labelformat=empty}
-```{r depth_model_metrics, fig.cap = "Table 2: depth model metrics", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+```{r depth_model_metrics, fig.cap = "Table 2: Model fit and predictive accuarcy metrics for all combinations of true and proxy slopes and distances. ", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 knitr::include_graphics("../tables/depth_model_metrics-1.pdf")
 ```
 \captionsetup[figure]{name=Figure}
@@ -59,8 +59,11 @@ knitr::include_graphics("../tables/depth_model_metrics-1.pdf")
 knitr::include_graphics("../figures/02_depth_model_grid_resid-1.pdf")
 ```
 
-### 4 x 2 grid of dotplots of depth, slope, area, dist by shape and reservoir class (7)
+```{r contrasts, fig.cap = "Lake characteristics by categorical variables.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/01_contrasts-1.pdf")
+```
 
+\pagebreak
 # Appendix
 \setcounter{figure}{0}
 
@@ -74,14 +77,6 @@ knitr::include_graphics("../figures/slope-compare-1.pdf")
 
 ```{r hypsography, fig.cap = "Hypsography classification by state.", warning=FALSE, echo = FALSE, eval=TRUE}
 knitr::include_graphics("../figures/01_hypsography-1.pdf")
-```
-
-```{r contrasts_depth, fig.cap = "Lake maximum depth by categorical variables.", warning=FALSE, echo = FALSE, eval=TRUE}
-knitr::include_graphics("../figures/01_contrasts_depth-1.pdf")
-```
-
-```{r constrasts_distance, fig.cap = "Contrasting distance from shore to the deepest point in the lake and distance to the lake visual center for natural lakes and reservoirs.", warning=FALSE, echo = FALSE, eval=TRUE}
-knitr::include_graphics("../figures/gg_distance-2.pdf")
 ```
 
 ```{r glaciated_vs_shapeclass, fig.cap = "Cross tabulation between lake glaciation and shape class. Circles are proportional to the number of lakes in each category. If a lake has been glaciated it is more likely to be convex. However, if a lake has not been glaciated there is no tendencey towards a particular shape class.", warning=FALSE, echo = FALSE, eval=TRUE}
