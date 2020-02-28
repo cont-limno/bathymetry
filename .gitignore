@@ -3,7 +3,6 @@
 check_progress.Rmd
 *.cpg
 data/00_hypso/hypso_classes.csv
-data/00_hypso/hypso.csv
 data/00_lagosne/*.csv
 data/00_lagosus_locus/
 data/00_manual/*.csv
