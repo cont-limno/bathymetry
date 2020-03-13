@@ -5,7 +5,7 @@ source("scripts/99_utils.R")
 
 set.seed(55)
 max_buffer_dist <- 100 # to match Hollister (2011)
-n_lakes         <- 510
+n_lakes         <- 1000
 
 dt         <- read.csv("data/lagosus_depth.csv",
                     stringsAsFactors = FALSE)
@@ -27,10 +27,10 @@ ll_ids <- ll_ids[!duplicated(ll_ids)]
 
 get_slope <- function(ll_id){
   # ll_id <- ll_ids[1]
-  # ll_id <- 2645
-  ll_poly <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", ll_id)
+  # ll_id <- 7922
+  ll_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha", "lagoslakeid", ll_id)
   ll_poly <- lwgeom::st_make_valid(ll_poly)
-  ll_iws  <- query_gis("IWS", "lagoslakeid", ll_id)
+  ll_iws  <- LAGOSUSgis::query_gis("ws", "lagoslakeid", ll_id)
   # hack together a one-sided buffer [sf doesn't offer this :(]
   ll_buff <- st_buffer(ll_poly, max_buffer_dist)
   ll_buff <- st_difference(ll_buff, ll_poly)
