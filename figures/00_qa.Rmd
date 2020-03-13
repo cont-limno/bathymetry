@@ -54,6 +54,7 @@ gg_mean <- ggplot() +
   geom_point(data = dplyr::filter(dt_sub, !(lake_state %in% c("ME"))), 
              aes(x = bathymetry, y = combined, color = lake_state)) +
   geom_abline(aes(intercept = 0, slope = 1)) +
+  labs(color = "") +
   xlab("Calculated (m)") + ylab("Reported (m)") +
   ggtitle("Mean Depth")
 
@@ -79,8 +80,10 @@ gg_max <- ggplot(data = dt_sub) +
   xlab("Calculated (m)") + ylab("Reported (m)") +
   ggtitle("Max Depth")
 
-cowplot::plot_grid(gg_max + theme(legend.position = "none"), 
-                   gg_mean + theme(axis.title.y = element_blank()), 
+cowplot::plot_grid(gg_max + cowplot::theme_cowplot() +
+                     theme(legend.position = "none"), 
+                   gg_mean + cowplot::theme_cowplot() + 
+                     theme(axis.title.y = element_blank()), 
                    rel_widths = c(0.8, 1))
 ```
 
