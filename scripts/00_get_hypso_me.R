@@ -25,6 +25,10 @@ pnts <- st_transform(pnts, st_crs(lg_poly))
 pnts <- st_join(pnts, lg_poly) %>%
   dplyr::filter(!is.na(lagoslakeid))
 
+# remove problematic lakes
+bad_llids <- c(7922)
+pnts <- dplyr::filter(pnts, !(lagoslakeid %in% bad_llids))
+
 # remove lakes not in lagosne xwalk table as they likely have a
 # non-functional basin split issue
 lg_xwalk <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv",
