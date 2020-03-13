@@ -115,6 +115,7 @@ figures/lgnemanual-vs-bathy-depth-1.pdf \
 tables/depth_model_metrics-1.pdf \
 figures/01_heatmap-1.pdf \
 figures/01_hypsography-1.pdf \
+figures/02_depth_model_grid_resid-1.pdf \
 figures/01_contrasts_depth-1.pdf \
 figures/01_contrasts_tally-1.pdf \
 figures/slope_diagram.pdf \
@@ -168,6 +169,12 @@ data/lagosus_depth.csv
 	pdfcrop $@ $@
 
 figures/02_depth_model_fitted-1.pdf: figures/02_depth_model.Rmd \
+data/lagosus_depth.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
+figures/02_depth_model_grid_resid-1.pdf: figures/02_depth_model.Rmd \
+data/01_depth_model/depth_grid.rds \
 data/lagosus_depth.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
