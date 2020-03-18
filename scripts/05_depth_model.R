@@ -14,6 +14,29 @@ nearshore <- read.csv("data/00_geometry/nearshore.csv",
 dt_raw <- left_join(dt_raw, nearshore) %>%
   dplyr::filter(!is.na(slope_mean))
 
+# calculate the trig products as covariates
+# pred_grid <- expand.grid(
+#   slope = c("inlake_slope", "slope_mean"),
+#   dist = c("dist_deepest", "dist_viscenter"))
+
+dt_raw$slope_mean_norm <- scales::rescale(dt_raw$slope_mean,
+                                          c(min(dt_raw$inlake_slope),
+                                            max(dt_raw$inlake_slope)))
+dt_raw$dist_viscenter_norm <- scales::rescale(dt_raw$dist_viscenter,
+                                          c(min(dt_raw$dist_deepest),
+                                            max(dt_raw$dist_deepest)))
+
+dt_raw$theta_true_true   <- calc_depth(dt_raw$inlake_slope, dt_raw$dist_deepest)
+dt_raw$theta_true_false  <- calc_depth(dt_raw$inlake_slope, dt_raw$dist_viscenter_norm)
+dt_raw$theta_false_true  <- calc_depth(dt_raw$slope_mean_norm, dt_raw$dist_deepest)
+dt_raw$theta_false_false <- calc_depth(dt_raw$slope_mean_norm, dt_raw$dist_viscenter_norm)
+
+plot(dt_raw$theta_true_true, dt_raw$lake_maxdepth_m)
+plot(dt_raw$theta_true_false, dt_raw$lake_maxdepth_m)
+plot(dt_raw$theta_false_true, dt_raw$lake_maxdepth_m)
+plot(dt_raw$theta_false_false, dt_raw$lake_maxdepth_m)
+abline(0, 1)
+
 # data prep
 library(recipes)
 library(rsample)
