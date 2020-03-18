@@ -41,7 +41,7 @@ dt_raw <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
             by = c("lagosne_lagoslakeid" = "lagoslakeid")) %>%
   # remove duplicate columns in original depth product
   dplyr::select(-contains("_lat_"), -contains("_lon_"),
-                -contains("program"), -contains("effort"),
+                -contains("program")# , -contains("effort"),
                 -contains("gnis"), -contains("states"),
                 -contains("border"), -contains("namelagos"),
                 -contains("predicted"))

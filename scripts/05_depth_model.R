@@ -3,6 +3,7 @@ source("scripts/99_utils.R")
 
 dt_raw <- read.csv("data/lagosne_depth_predictors.csv",
                stringsAsFactors = FALSE) %>%
+  dplyr::filter(lagos_effort == "bathymetry") %>%
   dplyr::filter(!is.na(shape_class)) %>%
   dplyr::filter(!(shape_class %in% c("neither"))) %>%
   dplyr::filter(inlake_slope < 1) %>%
@@ -75,6 +76,10 @@ fit_model <- function(x, exclude){
 dt_fits <- lapply(1:4, function(i)
   fit_model(x = dt_jc, exclude = as.character(unlist(pred_grid[i,]))))
 
+plot(dt_fits[[1]]$lake_maxdepth_m, dt_fits[[1]]$.pred)
+abline(0, 1)
+dt_fits[[1]][dt_fits[[1]]$lake_maxdepth_m > 4,]
+
 dt_metrics <- lapply(dt_fits, function(x)
   tidyr::pivot_wider(
     metrics(x, truth = lake_maxdepth_m, estimate = .pred),
@@ -87,6 +92,8 @@ saveRDS(bind_rows(dt_fits),
         "data/01_depth_model/depth_grid.rds")
 saveRDS(dt_metrics,
         "data/01_depth_model/depth_grid_metrics.rds")
+
+if(interactive()){
 
 # fit a model for inlake_slope and dist_deepest
 lgus_predictors <- read.csv("data/lagosne_depth_predictors.csv",
@@ -176,7 +183,6 @@ dt <- dt %>%
          dist_deepest = dist_deepest_s,
          lake_maxdepth_m = max_depth_s)
 
-if(interactive()){
   library(brms)
 
 # ---- focus on modelling inlake_slope ----
