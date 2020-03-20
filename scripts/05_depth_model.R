@@ -114,27 +114,28 @@ fit_model <- function(theta, dt_train, dt_test){
     mutate_at(vars(lake_maxdepth_m, .pred), exp)
   res$resid <- res$lake_maxdepth_m - res$.pred
   res$theta <- theta
-  res
+
+  list(res = res, fit = fit1)
 }
 
 dt_fits <- lapply(1:4, function(i)
   fit_model(theta = theta_vec[i], data_train, data_test))
 
-plot(dt_fits[[1]]$lake_maxdepth_m, dt_fits[[1]]$.pred)
+plot(dt_fits[[1]]$res$lake_maxdepth_m, dt_fits[[1]]$res$.pred)
 abline(0, 1)
 
 (dt_metrics <-
     lapply(dt_fits, function(x){
       tidyr::pivot_wider(
-        metrics(x, truth = lake_maxdepth_m, estimate = .pred),
+        metrics(x$res, truth = lake_maxdepth_m, estimate = .pred),
         names_from = .metric, values_from = .estimate)
       }) %>%
   bind_rows() %>%
   bind_cols(data.frame(model = theta_vec)))
 
-saveRDS(dt_train, "data/01_depth_model/depth_training.rds")
-saveRDS(bind_rows(dt_fits),
-        "data/01_depth_model/depth_grid.rds")
+# saveRDS(dt_train, "data/01_depth_model/depth_training.rds")
+# saveRDS(bind_rows(dt_fits),
+#         "data/01_depth_model/depth_grid.rds")
 saveRDS(dt_metrics,
         "data/01_depth_model/depth_grid_metrics.rds")
 
