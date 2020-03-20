@@ -28,7 +28,7 @@ dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
 ggplot(data = dt_metrics, 
                     aes(x = reorder(slope, desc(slope)), y = distance, 
                         fill = rsq)) +
-  geom_tile() +
+  geom_tile(color = "black") +
   scale_fill_viridis_c(begin = 0.4, end = 0.7, na.value = "transparent") +
   scale_x_discrete(limits = rev(levels(dt_metrics$slope)), 
                    position = "top") +
