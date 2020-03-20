@@ -6,7 +6,7 @@ dt_raw <- read.csv("data/lagosne_depth_predictors.csv",
   dplyr::filter(lagos_effort == "bathymetry") %>%
   dplyr::filter(!is.na(shape_class)) %>%
   dplyr::filter(!(shape_class %in% c("neither"))) %>%
-  dplyr::filter(inlake_slope < 1) %>%
+  dplyr::filter(inlake_slope < 0.25) %>%
   dplyr::filter(!is.na(reservoir_class))
 nearshore <- read.csv("data/00_geometry/nearshore.csv",
                       stringsAsFactors = FALSE) %>%
@@ -22,9 +22,23 @@ dt_raw <- left_join(dt_raw, nearshore) %>%
 dt_raw$slope_mean_norm <- scales::rescale(dt_raw$slope_mean,
                                           c(min(dt_raw$inlake_slope),
                                             max(dt_raw$inlake_slope)))
+# plot(dt_raw$slope_mean_norm, dt_raw$inlake_slope)
+# abline(0, 1)
+# fit <- lm(inlake_slope ~ slope_mean_norm, data = dt_raw)
+# dt_raw$slope_mean_fitted <- dt_raw$slope_mean_norm *
+#   broom::tidy(fit)$estimate[2] + broom::tidy(fit)$estimate[1]
+# dt_raw$slope_mean_fitted <- scales::rescale(dt_raw$slope_mean_fitted,
+#                                           c(min(dt_raw$inlake_slope),
+#                                             max(dt_raw$inlake_slope)))
+# plot(dt_raw$slope_mean_norm, dt_raw$inlake_slope)
+# lines(dt_raw$slope_mean_norm, dt_raw$slope_mean_fitted)
+# plot(dt_raw$slope_mean_fitted, dt_raw$inlake_slope)
 dt_raw$dist_viscenter_norm <- scales::rescale(dt_raw$dist_viscenter,
                                           c(min(dt_raw$dist_deepest),
                                             max(dt_raw$dist_deepest)))
+
+# plot(dt_raw$dist_viscenter_norm, dt_raw$dist_deepest)
+# abline(0, 1)
 
 dt_raw$theta_true_true   <- calc_depth(dt_raw$inlake_slope, dt_raw$dist_deepest)
 dt_raw$theta_true_false  <- calc_depth(dt_raw$inlake_slope, dt_raw$dist_viscenter_norm)
@@ -96,7 +110,8 @@ fit_model <- function(theta, dt_train, dt_test){
     bind_cols(
       predict(fit1, new_data = test_proc[, preds])
     ) %>%
-    bind_cols(test_proc[,"lagoslakeid"])
+    bind_cols(test_proc[,"lagoslakeid"]) %>%
+    mutate_at(vars(lake_maxdepth_m, .pred), exp)
   res$resid <- res$lake_maxdepth_m - res$.pred
   res$theta <- theta
   res
@@ -108,12 +123,14 @@ dt_fits <- lapply(1:4, function(i)
 plot(dt_fits[[1]]$lake_maxdepth_m, dt_fits[[1]]$.pred)
 abline(0, 1)
 
-dt_metrics <- lapply(dt_fits, function(x)
-  tidyr::pivot_wider(
-    metrics(x, truth = lake_maxdepth_m, estimate = .pred),
-    names_from = .metric, values_from = .estimate)) %>%
+(dt_metrics <-
+    lapply(dt_fits, function(x){
+      tidyr::pivot_wider(
+        metrics(x, truth = lake_maxdepth_m, estimate = .pred),
+        names_from = .metric, values_from = .estimate)
+      }) %>%
   bind_rows() %>%
-  bind_cols(data.frame(model = theta_vec))
+  bind_cols(data.frame(model = theta_vec)))
 
 saveRDS(dt_train, "data/01_depth_model/depth_training.rds")
 saveRDS(bind_rows(dt_fits),
@@ -123,7 +140,57 @@ saveRDS(dt_metrics,
 
 if(interactive()){
 
-# fit a model for inlake_slope and dist_deepest
+# ---- get bootstrap rmse estimates ----
+
+library(purrr)
+fit_model_cv <- function(theta, dt){
+  # theta <- theta_vec[2]
+
+  pred_exclude <- c(theta_vec[!(theta_vec %in% theta)], "inlake_slope", "dist_deepest")
+  dt_rec <- recipe(lake_maxdepth_m ~ ., data = dt) %>%
+    step_normalize(all_numeric(), -all_outcomes(), -theta) %>%
+    step_log(all_outcomes(), theta) %>%
+    prep()
+  dt_jc     <- juice(dt_rec)
+  preds    <- names(dt_jc)[!(names(dt_jc) %in% c("lagoslakeid", "lake_maxdepth_m",
+                                                 pred_exclude))]
+  dt_jc <- dplyr::select(dt_jc, "lake_maxdepth_m", c(all_of(theta), all_of(preds)))
+
+  # https://stateofther.github.io/finistR2019/s-tidymodels.html
+  lm_mod <-
+    linear_reg(penalty = 0.001) %>%
+    set_engine("glmnet")
+
+  cv_fit <- function(splits, mod, ...){
+    res_mod <-
+      fit(mod, lake_maxdepth_m ~ ., data = analysis(splits))
+    return(res_mod)
+  }
+
+  cv_pred <- function(splits, mod){
+    holdout <- assessment(splits)
+    pred_assess <- bind_cols(truth = holdout$lake_maxdepth_m,
+                             predict(mod, new_data = holdout))
+    return(pred_assess)
+    }
+
+  cv_train <- vfold_cv(dt_jc, v = 10, repeats = 5, strata = "lake_maxdepth_m")
+  res_cv_train <-
+    cv_train %>%
+    mutate(res_mod = map(splits, .f = cv_fit, lm_mod),
+           res_pred = map2(splits, res_mod, .f = cv_pred))
+
+  multimetric <- metric_set(yardstick::rmse)
+  res_cv_train %>%
+    mutate(metrics = map(res_pred, multimetric, truth = truth, estimate = .pred)) %>%
+    unnest(metrics) %>%
+    pull(.estimate) %>%
+    mean()
+}
+lapply(1:4, function(i)
+  fit_model_cv(theta = theta_vec[i], dt))
+
+# ---- fit a model for inlake_slope and dist_deepest ----
 lgus_predictors <- read.csv("data/lagosne_depth_predictors.csv",
                             stringsAsFactors = FALSE) %>%
   select_if(is.numeric) %>%
