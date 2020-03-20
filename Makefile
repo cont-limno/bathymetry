@@ -174,6 +174,7 @@ data/lagosus_depth.csv
 	pdfcrop $@ $@
 
 figures/02_depth_model_grid_resid-1.pdf: figures/02_depth_model.Rmd \
+data/01_depth_model/depth_grid_metrics.rds \
 data/01_depth_model/depth_grid.rds \
 data/lagosus_depth.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"

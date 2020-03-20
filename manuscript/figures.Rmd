@@ -48,8 +48,8 @@ knitr::include_graphics("../figures/metric_correlations-1.pdf")
 
 \captionsetup[figure]{name=Table}
 \captionsetup[figure]{labelformat=empty}
-```{r depth_model_metrics, fig.cap = "Table 2: Model fit and predictive accuarcy metrics for all combinations of true (inlakeslope, distdeepest) and proxy (slopemean, distviscenter) metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
-knitr::include_graphics("../tables/depth_model_metrics-1.pdf")
+```{r depth_model_metrics, fig.cap = "Table 2: Model fit and predictive accuracy metrics for all combinations of true (inlakeslope, distdeepest) and proxy (slopemean, distviscenter) metrics. Tiles are colored by their R2 values and labeled with their RMSE values.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+knitr::include_graphics("../figures/depth_model_metrics-1.pdf")
 ```
 \captionsetup[figure]{name=Figure}
 \captionsetup[figure]{labelformat=default}

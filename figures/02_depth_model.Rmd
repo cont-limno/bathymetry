@@ -10,12 +10,32 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fi
 source("../scripts/99_utils.R")
 ```
 
-```{r depth_model_metrics}
+```{r depth_model_metrics, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3, fig.width=4.5}
 dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
-  mutate_if(is.numeric, function(x) round(x, 2)) %>%
-  dplyr::select(slope, dist, everything(), -.estimator)
+  mutate_if(is.numeric, function(x) as.character(round(x, 2))) %>%
+  mutate(rsq = as.numeric(rsq)) %>%
+  mutate(rsq = case_when(
+    as.character(model) == "theta_true_true" ~ NA_real_,
+    TRUE ~ rsq)) %>%
+  mutate(rmse = case_when(
+    as.character(model) == "theta_true_true" ~ "-",
+    TRUE ~ rmse)) %>%
+  mutate(model = gsub("theta_", "", model)) %>%
+  mutate(model = gsub("false", "proxy", model)) %>%
+  tidyr::separate(model, c("slope", "distance")) %>%
+  dplyr::select(slope, distance, everything(), -.estimator)
 
-jsta::pdf_table(dt_metrics, "../tables/depth_model_metrics-1.pdf")
+ggplot(data = dt_metrics, 
+                    aes(x = reorder(slope, desc(slope)), y = distance, 
+                        fill = rsq)) +
+  geom_tile() +
+  scale_fill_viridis_c(begin = 0.4, end = 0.7, na.value = "transparent") +
+  scale_x_discrete(limits = rev(levels(dt_metrics$slope)), 
+                   position = "top") +
+  geom_text(aes(label = rmse), vjust = .5, fontface  = "bold", alpha = 1) +
+  xlab("slope") +
+  cowplot::theme_cowplot() +
+  theme(axis.line = element_blank())
 ```
 
 ```{r 02_depth_model_grid_resid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
@@ -27,12 +47,16 @@ lgus <- read.csv("../data/lagosus_depth_predictors.csv",
   distinct(lagoslakeid, .keep_all = TRUE)
 dt   <- readRDS("../data/01_depth_model/depth_grid.rds") %>%
   mutate(lagoslakeid = as.character(lagoslakeid)) %>%
+  mutate(resid = case_when(theta == "theta_true_true" ~ NA_real_, 
+                           TRUE ~ resid)) %>%
+  mutate(theta = factor(theta, levels = c("theta_true_true", "theta_true_false", 
+                                  "theta_false_true", "theta_false_false"))) %>%
   left_join(lgus, by = "lagoslakeid")
 
 gg_shape <- ggplot(data = dt) + 
   geom_density(aes(x = resid, fill = shape_class), alpha = 0.75, adjust = 1.3) +
   geom_vline(aes(xintercept = 0), linetype = "dashed") +
-  facet_wrap(~ model) + 
+  facet_wrap(~ theta) + 
     theme(legend.position = "bottom",
         strip.background = element_blank(), 
         strip.text = element_blank(),
@@ -52,7 +76,7 @@ gg_shape <- ggdraw(gg_shape)  +
 gg_reservoir <- ggplot(data = dt) + 
   geom_density(aes(x = resid, fill = reservoir_class), alpha = 0.75, adjust = 1.3) +
   geom_vline(aes(xintercept = 0), linetype = "dashed") +
-  facet_wrap(~ model) +
+  facet_wrap(~ theta) +
   theme(legend.position = "bottom",
         strip.background = element_blank(), 
         strip.text = element_blank(),
