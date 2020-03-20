@@ -14,18 +14,23 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.path =
 library(kableExtra)
 suppressMessages(library(dplyr))
 library(magrittr)
+library(stringr)
 
 # setwd("tables")
 nearshore <- read.csv("../data/00_geometry/nearshore.csv", 
                       stringsAsFactors = FALSE) %>%
   dplyr::select(llid, buffer_slope = slope_mean)
-dt <- read.csv("../data/lagosus_depth_predictors.csv", 
+dt_raw <- read.csv("../data/lagosus_depth_predictors.csv", 
                stringsAsFactors = FALSE) %>%
   distinct(lagoslakeid, .keep_all = TRUE) %>%
   left_join(nearshore, by = c("lagoslakeid" = "llid")) %>%
   dplyr::select(-contains("lagoslakeid"), 
                 -contains("lake_nhd"), 
-                -contains("lake_huc")) %>%
+                -contains("lake_huc"))
+
+compute_stats <- function(dt){
+  # dt <- dt_raw
+  dt <- dt %>%
   tidyr::gather(key = "variable") %>%
   group_by(variable) %>%
   mutate(value = as.numeric(value)) %>%
@@ -50,16 +55,32 @@ dt <- read.csv("../data/lagosus_depth_predictors.csv",
   # left_join(dt_units, by = "variable") %>%
   # dplyr::select(variable, units, everything())
 
-dt <- ungroup(dt)
-# dt <- left_join(dt, pred_key, by = c("variable" = "var"))
-# dt <- dplyr::filter(dt, !is.na(pretty))
+  dt <- ungroup(dt)
+  # dt <- left_join(dt, pred_key, by = c("variable" = "var"))
+  # dt <- dplyr::filter(dt, !is.na(pretty))
+  
+  # dt <- mutate(dt, pretty = case_when(
+  #   nchar(units) > 0 ~ paste0(pretty, " (", units, ")"),
+  #   TRUE ~ pretty), 
+  #   IQR = paste0(q25, " - ", q75))
+  dt <- dplyr::select(dt, variable, # Variable = pretty,
+                      Median = q50, Q25 = q25, Q75 = q75, n)
+  dt
+}
 
-# dt <- mutate(dt, pretty = case_when(
-#   nchar(units) > 0 ~ paste0(pretty, " (", units, ")"),
-#   TRUE ~ pretty), 
-#   IQR = paste0(q25, " - ", q75))
-dt <- dplyr::select(dt, variable, # Variable = pretty,
-                    Median = q50, Q25 = q25, Q75 = q75, n)
+# compute stats for bathymetry lakes
+dt_bathy <- dplyr::filter(dt_raw, lagos_effort == "bathymetry")
+dt_bathy <- compute_stats(dt_bathy)
+dt_bathy <- data.frame(dt_bathy)
+# compute stats for all of lagosus
+dt_all <- data.frame(compute_stats(dt_raw))
+# interleave
+dt_bathy <- bind_cols(dplyr::select(dt_bathy, variable), 
+          setNames(
+            bind_cols(lapply(names(dt_bathy)[2:5], 
+                           function(i) paste0(dt_bathy[,i], 
+                                              " (", dt_all[,i], ")"))), 
+            names(dt_bathy)[2:5]))
 
 # knitr::kable(dt, digits = 0, format = "markdown") 
 #%>%
@@ -68,12 +89,12 @@ dt <- dplyr::select(dt, variable, # Variable = pretty,
 
 ```{r predictors_table}
 # setwd("figures")
-dt <- dt %>%
-  dplyr::filter(variable %in% 
-              c("lake_meandepth_m", 
-              names(readRDS("../data/01_depth_model/depth_training.rds")), 
-              "buffer_slope")) %>%
-  mutate(n = dt$n[which(dt$variable == "inlake_slope")])
+dt <- dt_bathy %>%
+  dplyr::filter(str_detect(variable, 
+                           "^lake_|^ws_lake_arearatio|^dist_|_slope")) %>%
+  dplyr::filter(!str_detect(variable,
+                      "totalarea|islandperimeter|between|buffer100m")) %>%
+  mutate(n = dt_bathy$n[which(dt_bathy$variable == "inlake_slope")])
 
 knitr::kable(dt, digits = 0, format = "markdown") 
 ```

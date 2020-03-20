@@ -35,7 +35,7 @@ knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
 
 \captionsetup[figure]{name=Table}
 \captionsetup[figure]{labelformat=empty}
-```{r 01_predictors, fig.cap = "Table 1: Summary of lake depth predictor variables.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r 01_predictors, fig.cap = "Table 1: Summary of lake depth predictor variables for modelling efforts (and for lakes continent-wide).", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../tables/01_predictors.pdf")
 ```
 \captionsetup[figure]{name=Figure}
