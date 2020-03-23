@@ -3,9 +3,7 @@ source("scripts/99_utils.R")
 # lagos geo module should have terrain metrics for mean slope
 # Oliver (year) found that max slope was most informative
 
-set.seed(55)
 max_buffer_dist <- 100 # to match Hollister (2011)
-n_lakes         <- 1500
 
 dt         <- read.csv("data/lagosus_depth.csv",
                     stringsAsFactors = FALSE)
@@ -16,12 +14,13 @@ dt_pred    <- read.csv("data/lagosne_depth_predictors.csv",
 
 # attempt at manual calculation of max buffer slope
 
-ll_ids            <- sample(dt_pred$lagoslakeid, n_lakes)
+ll_ids            <- unique(dt_pred$lagoslakeid)
 flist             <- list.files("data/elevatr", pattern = "\\d*.tif",
                     full.names = TRUE, include.dirs = TRUE)
 existing_surfaces <- gsub(".tif", "",
                 stringr::str_extract(flist, "\\d*(!?.tif)"))
-ll_ids <- c(ll_ids, existing_surfaces)
+ll_ids <- c(existing_surfaces)
+# ll_ids <- c(ll_ids, existing_surfaces)
 ll_ids <- ll_ids[!duplicated(ll_ids)]
 # sapply(flist[!(ll_ids %in% dt_pred$lagoslakeid)], "unlink")
 
@@ -50,9 +49,9 @@ get_slope <- function(ll_id){
   elev      <- mask(elev, as_Spatial(ll_buff))
   slope     <- terrain(elev, "slope")
 
-  slope_mean   <- mean(slope@data@values, na.rm = TRUE) * res(elev)[1]
-  slope_median <- median(slope@data@values, na.rm = TRUE) * res(elev)[1]
-  slope_max    <- max(slope@data@values, na.rm = TRUE) * res(elev)[1]
+  slope_mean   <- mean(slope@data@values, na.rm = TRUE) # * res(elev)[1]
+  slope_median <- median(slope@data@values, na.rm = TRUE) # * res(elev)[1]
+  slope_max    <- max(slope@data@values, na.rm = TRUE) # * res(elev)[1]
   slope_ne     <- dplyr::filter(dt_pred, lagoslakeid == ll_id) %>%
     dplyr::select(buffer100m_slope_mean, buffer100m_slope_max) %>%
     mutate_all(function(x) x / 10) # lagosne slopes are per 10m
