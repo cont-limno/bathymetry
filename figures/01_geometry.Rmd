@@ -30,6 +30,7 @@ gg_scatter_state <- ggplot(data = st_drop_geometry(dt)) +
 
 gg_scatter_shape <- st_drop_geometry(dt) %>%
   dplyr::filter(!is.na(shape_class)) %>%
+  dplyr::filter(dist_viscenter >= dist_deepest) %>%
   dplyr::arrange(desc(factor(shape_class, 
                         levels = c("neither", "concave", "convex")))) %>%
   ggplot(aes(x = dist_deepest, y = dist_viscenter, color = shape_class)) + 
@@ -39,9 +40,12 @@ gg_scatter_shape <- st_drop_geometry(dt) %>%
   xlab("Deepest point distance (m)") +
   ylab("Visual center distance (m)")
 
-gg_scatter_reservoir <- ggplot(data = dplyr::filter(
-  st_drop_geometry(dt), !is.na(reservoir_class))) + 
+gg_scatter_reservoir <- st_drop_geometry(dt) %>%
+  dplyr::filter(!is.na(reservoir_class)) %>%
+  dplyr::filter(dist_viscenter >= dist_deepest) %>%
+  ggplot() + 
   geom_point(aes(x = dist_deepest, y = dist_viscenter, color = reservoir_class)) +
+  scale_color_discrete(labels = c("NL     ", "Res")) + 
   # geom_abline(aes(intercept = 0, slope = 1)) +
   xlab("Deepest point distance (m)") +
   ylab("Visual center distance (m)")
@@ -198,8 +202,11 @@ gg_slope_reservoir <- ggplot(data = dplyr::filter(test, !is.na(reservoir_class))
   labs(color = "")
 ```
 
-```{r 01_geometry_grid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=5, fig.height=4.2}
-theme_opts <- theme(legend.position = "none")
+```{r 01_geometry_grid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=5.5, fig.height=4.2}
+theme_opts <- cowplot::theme_cowplot() + 
+  theme(legend.position = "none", 
+        axis.text = element_text(size = 10), 
+        axis.title = element_text(size = 11))
 
 legend_shape     <- cowplot::get_legend(gg_scatter_shape)
 legend_reservoir <- cowplot::get_legend(gg_scatter_reservoir + labs(color = ""))
@@ -208,6 +215,7 @@ legend_panel     <- cowplot::plot_grid(legend_shape, legend_reservoir,
                                        align = "hv")
 
 cowplot::plot_grid(
+  cowplot::plot_grid(
   cowplot::plot_grid(gg_scatter_shape + 
                        labs(color = "") +
                        # theme(axis.title.x = element_blank()) +
@@ -216,13 +224,17 @@ cowplot::plot_grid(
                        labs(color = "") +
                        theme(#axis.title.x = element_blank(), 
                              axis.title.y = element_blank()) +
-                       theme_opts,
+                       theme_opts, 
+                     ncol = 2),
+  cowplot::plot_grid(ggplot() + geom_blank() + 
+                       theme_opts + theme(axis.line = element_blank()), 
                      gg_slope_shape +
                        theme_opts,
                      gg_slope_reservoir + 
                        theme(axis.title.y = element_blank()) +
-                       theme_opts, 
-                     rel_widths = c(1, 0.93, 1, 1)), 
-  legend_panel, rel_widths = c(1, 0.2)
+                       theme_opts,
+                     ncol = 3, rel_widths = c(0.08, 1, 1)), 
+                     rel_widths = c(1, 1), nrow = 2), 
+  legend_panel, rel_widths = c(1, 0.12)
 )
 ```

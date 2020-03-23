@@ -5,7 +5,7 @@ source("scripts/99_utils.R")
 
 set.seed(55)
 max_buffer_dist <- 100 # to match Hollister (2011)
-n_lakes         <- 1000
+n_lakes         <- 1500
 
 dt         <- read.csv("data/lagosus_depth.csv",
                     stringsAsFactors = FALSE)
