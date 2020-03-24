@@ -34,12 +34,13 @@ taxonomy <- read.csv("data/taxonomy.csv",
 dt       <- read.csv("data/00_bathy_depth/00_bathy_depth.csv", 
                stringsAsFactors = FALSE) %>%
   names() %>%  as.data.frame() %>%  setNames("col_name") %>%
-  left_join(taxonomy)
+  left_join(taxonomy) %>% data.frame()
+
 knitr::kable(dt) 
 ```
 </details> &nbsp;
 
-Data: [bathymetry derived lake geometry](data/depth_predictors.csv)
+Datad: [bathymetry derived lake geometry](data/depth_predictors.csv)
 
 <details>
 <summary>Data dictionary</summary>

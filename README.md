@@ -44,7 +44,7 @@ long the longitude of the lake center point
 
  
 
-Data: [bathymetry derived lake geometry](data/depth_predictors.csv)
+Datad: [bathymetry derived lake geometry](data/depth_predictors.csv)
 
 <details>
 
