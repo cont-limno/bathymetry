@@ -28,8 +28,8 @@ depth](data/00_bathy_depth/00_bathy_depth.csv)
 | lat                           | the latitude of the lake center point                                                                                                                                                                                                                                       |
 | long                          | the longitude of the lake center point                                                                                                                                                                                                                                      |
 
-Data: [bathymetry derived lake
-geometry](data/depth_predictors.csv)
+Data: [bathymetry derived depth
+predictors](data/depth_predictors.csv)
 
 | column name                       | description                                                                                                                                                                                                   |
 | :-------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

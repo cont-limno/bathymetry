@@ -39,7 +39,7 @@ dt       <- read.csv("data/00_bathy_depth/00_bathy_depth.csv",
 knitr::kable(dt)
 ```
 
-Data: [bathymetry derived lake geometry](data/depth_predictors.csv)
+Data: [bathymetry derived depth predictors](data/depth_predictors.csv)
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # see scripts/99_make_taxonomy.R
