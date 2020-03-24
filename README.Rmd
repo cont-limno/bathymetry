@@ -16,32 +16,15 @@ knitr::opts_chunk$set(
 
 ### Products
 
-Data Summary: [manuscript/data.pdf](manuscript/data.pdf)
-
 Figures: [manuscript/figures.pdf](manuscript/figures.pdf)
-
-Tables: [manuscript/tables.pdf](manuscript/tables.pdf)
-
-Data: [bathymetry derived lake depth](data/00_bathy_depth/00_bathy_depth.csv)
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-# see scripts/99_make_taxonomy.R
-library(dplyr)
-taxonomy <- read.csv("data/taxonomy.csv", 
-                     stringsAsFactors = FALSE)
-dt       <- read.csv("data/00_bathy_depth/00_bathy_depth.csv", 
-               stringsAsFactors = FALSE) %>%
-  names() %>%  as.data.frame() %>%  setNames("col_name") %>%
-  left_join(taxonomy) %>% data.frame() %>%
-  dplyr::filter(!is.na(description)) %>%
-  setNames(c("column name", "description"))
-
-knitr::kable(dt)
-```
 
 Data: [bathymetry derived depth predictors](data/depth_predictors.csv)
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+taxonomy <- read.csv("data/taxonomy.csv", 
+                     stringsAsFactors = FALSE)
+
 # see scripts/99_make_taxonomy.R
 dt <- read.csv("data/depth_predictors.csv", 
                stringsAsFactors = FALSE) %>% 
@@ -53,3 +36,16 @@ dt <- read.csv("data/depth_predictors.csv",
 knitr::kable(dt)
 ```
 
+Data: [bathymetry derived lake depth](data/00_bathy_depth/00_bathy_depth.csv)
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# see scripts/99_make_taxonomy.R
+dt       <- read.csv("data/00_bathy_depth/00_bathy_depth.csv", 
+               stringsAsFactors = FALSE) %>%
+  names() %>%  as.data.frame() %>%  setNames("col_name") %>%
+  left_join(taxonomy) %>% data.frame() %>%
+  dplyr::filter(!is.na(description)) %>%
+  setNames(c("column name", "description"))
+
+knitr::kable(dt)
+```
