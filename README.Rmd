@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-## What can bathymetry data tell us about conventional lake depth data and predictive models?
+## Bathymetry data from thousands of lakes show that difficulty modeling in-lake slope limits lake depth prediction
 
 ### Products
 
@@ -26,22 +26,27 @@ Data: [bathymetry derived lake depth](data/00_bathy_depth/00_bathy_depth.csv)
 
 <details>
 <summary>Data dictionary</summary>
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # see scripts/99_make_taxonomy.R
-
-dt <- read.csv("data/00_bathy_depth/00_bathy_depth.csv", stringsAsFactors = FALSE)
-knitr::kable(setNames(data.frame(names(dt)), "field")) 
+library(dplyr)
+taxonomy <- read.csv("data/taxonomy.csv", 
+                     stringsAsFactors = FALSE)
+dt       <- read.csv("data/00_bathy_depth/00_bathy_depth.csv", 
+               stringsAsFactors = FALSE) %>%
+  names() %>%  as.data.frame() %>%  setNames("col_name") %>%
+  left_join(taxonomy)
+knitr::kable(dt) 
 ```
 </details> &nbsp;
 
-Data: [bathymetry derived lake geometry](data/00_bathy_depth/bathy_geometry.csv)
+Data: [bathymetry derived lake geometry](data/depth_predictors.csv)
 
 <details>
 <summary>Data dictionary</summary>
 ```{r, echo=FALSE}
 # see scripts/99_make_taxonomy.R
 
-dt <- read.csv("data/00_bathy_depth/bathy_geometry.csv", stringsAsFactors = FALSE)
+dt <- read.csv("data/depth_predictors.csv", stringsAsFactors = FALSE)
 knitr::kable(setNames(data.frame(names(dt)), "field"))
 ```
 </details>
