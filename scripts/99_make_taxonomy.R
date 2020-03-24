@@ -6,6 +6,8 @@
 #                stringsAsFactors = FALSE)
 # cat(unique(c(names(dt), names(dt2))))
 
+library(dplyr)
+
 taxonomy_key <- bind_rows(
   c(col_name = "llid",
     description = "unique lake identifier developed for LAGOS-US"),
@@ -56,8 +58,7 @@ taxonomy_key <- bind_rows(
     description = "surface area of islands within outer boundary of lake waterbody polygon from NHD by way of the LAGOS-US Locus module"),
   c(col_name = "lake_elevation_m",
     description = "the elevation of the lake polygon centroid, in meters (referenced to the North American Vertical Datum of 1988 (NAVD88)) and obtained from the National Elevation Dataset by way of the LAGOS-US Locus module"),
-  c(col_name = "lake_shorelinedevfactor_nounits",
-    description = "shoreline development factor calculated as the lake_perimeter_m / (2*√(π*lake_waterarea_ha*10000)) by way of the LAGOS-US Locus module"),
+  c(col_name = "lake_shorelinedevfactor_nounits", description = "shoreline development factor calculated as the lake_perimeter_m / (2*√(π*lake_waterarea_ha*10000)) by way of the LAGOS-US Locus module"),
   c(col_name = "ws_lake_arearatio", description = "ratio between interlake watershed area and lake water area by way of the LAGOS-US Locus module"),
   c(col_name = "hu4_zoneid", description = "unique identifier assigned by LAGOS-US for zones in the spatial division HU4")
   )

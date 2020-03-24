@@ -212,7 +212,11 @@ tables/00_data.pdf: tables/00_data.Rmd data/lagosus_depth.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
-README.md: README.Rmd
+data/taxonomy.csv: scripts/99_make_taxonomy.R
+	Rscript $<
+
+README.md: README.Rmd \
+data/taxonomy.csv
 	Rscript -e "rmarkdown::render('$<')"
 
 lagos_depth.pdf: lagos_depth.Rmd

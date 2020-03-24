@@ -24,8 +24,6 @@ Tables: [manuscript/tables.pdf](manuscript/tables.pdf)
 
 Data: [bathymetry derived lake depth](data/00_bathy_depth/00_bathy_depth.csv)
 
-<details>
-<summary>Data dictionary</summary>
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # see scripts/99_make_taxonomy.R
 library(dplyr)
@@ -34,20 +32,24 @@ taxonomy <- read.csv("data/taxonomy.csv",
 dt       <- read.csv("data/00_bathy_depth/00_bathy_depth.csv", 
                stringsAsFactors = FALSE) %>%
   names() %>%  as.data.frame() %>%  setNames("col_name") %>%
-  left_join(taxonomy) %>% data.frame()
+  left_join(taxonomy) %>% data.frame() %>%
+  dplyr::filter(!is.na(description)) %>%
+  setNames(c("column name", "description"))
 
-knitr::kable(dt) 
+knitr::kable(dt)
 ```
-</details> &nbsp;
 
-Datad: [bathymetry derived lake geometry](data/depth_predictors.csv)
+Data: [bathymetry derived lake geometry](data/depth_predictors.csv)
 
-<details>
-<summary>Data dictionary</summary>
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # see scripts/99_make_taxonomy.R
+dt <- read.csv("data/depth_predictors.csv", 
+               stringsAsFactors = FALSE) %>% 
+  names() %>%  as.data.frame() %>%  setNames("col_name") %>%
+  left_join(taxonomy) %>% data.frame() %>%
+  dplyr::filter(!is.na(description)) %>%
+  setNames(c("column name", "description"))
 
-dt <- read.csv("data/depth_predictors.csv", stringsAsFactors = FALSE)
-knitr::kable(setNames(data.frame(names(dt)), "field"))
+knitr::kable(dt)
 ```
-</details>
+
