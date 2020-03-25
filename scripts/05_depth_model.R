@@ -40,15 +40,15 @@ dt_raw$dist_viscenter_norm <- scales::rescale(dt_raw$dist_viscenter,
 # plot(dt_raw$dist_viscenter_norm, dt_raw$dist_deepest)
 # abline(0, 1)
 
-dt_raw$theta_true_true   <- calc_depth(dt_raw$inlake_slope, dt_raw$dist_deepest)
-dt_raw$theta_true_false  <- calc_depth(dt_raw$inlake_slope, dt_raw$dist_viscenter_norm)
-dt_raw$theta_false_true  <- calc_depth(dt_raw$slope_mean_norm, dt_raw$dist_deepest)
-dt_raw$theta_false_false <- calc_depth(dt_raw$slope_mean_norm, dt_raw$dist_viscenter_norm)
+dt_raw$maxdepth_true_true   <- calc_depth(dt_raw$inlake_slope, dt_raw$dist_deepest)
+dt_raw$maxdepth_true_false  <- calc_depth(dt_raw$inlake_slope, dt_raw$dist_viscenter_norm)
+dt_raw$maxdepth_false_true  <- calc_depth(dt_raw$slope_mean_norm, dt_raw$dist_deepest)
+dt_raw$maxdepth_false_false <- calc_depth(dt_raw$slope_mean_norm, dt_raw$dist_viscenter_norm)
 
-# plot(dt_raw$theta_true_true, dt_raw$lake_maxdepth_m)
-# plot(dt_raw$theta_true_false, dt_raw$lake_maxdepth_m)
-# plot(dt_raw$theta_false_true, dt_raw$lake_maxdepth_m)
-# plot(dt_raw$theta_false_false, dt_raw$lake_maxdepth_m)
+# plot(dt_raw$maxdepth_true_true, dt_raw$lake_maxdepth_m)
+# plot(dt_raw$maxdepth_true_false, dt_raw$lake_maxdepth_m)
+# plot(dt_raw$maxdepth_false_true, dt_raw$lake_maxdepth_m)
+# plot(dt_raw$maxdepth_false_false, dt_raw$lake_maxdepth_m)
 # abline(0, 1)
 
 # data prep
@@ -60,8 +60,8 @@ set.seed(1234)
 
 dt <- dt_raw %>%
   dplyr::select(lagoslakeid, lake_maxdepth_m,
-                theta_true_true, theta_true_false,
-                theta_false_true, theta_false_false,
+                maxdepth_true_true, maxdepth_true_false,
+                maxdepth_false_true, maxdepth_false_false,
                 inlake_slope, slope_mean,
                 dist_deepest, dist_viscenter,
                 reservoir_class, shape_class,
@@ -74,23 +74,29 @@ dt <- dt_raw %>%
   mutate(lagoslakeid = factor(lagoslakeid)) %>%
   mutate_if(is.character, factor)
 
+write.csv(dt, "data/depth_predictors.csv",
+          row.names = FALSE)
+
 data_split <- initial_split(dt)
 data_train <- training(data_split)
 data_test  <- testing(data_split)
 
 # ---- all-predictors model using grid of real and proxy predictors ----
-theta_vec <-  c("theta_true_true", "theta_true_false",
-                "theta_false_true", "theta_false_false")
+maxdepth_vec <-  c("maxdepth_true_true", "maxdepth_true_false",
+                "maxdepth_false_true", "maxdepth_false_false")
 
-fit_model <- function(theta, dt_train, dt_test){
-  # theta <- theta_vec[1]
+fit_model <- function(maxdepth, dt_train, dt_test){
+  # maxdepth <- maxdepth_vec[3]
   # dt_train <- data_train
   # dt_test  <- data_test
-  pred_exclude <- c(theta_vec[!(theta_vec %in% theta)], "inlake_slope", "dist_deepest")
+
+  pred_exclude <- c(maxdepth_vec[!(maxdepth_vec %in% maxdepth)],
+                    "inlake_slope", "dist_deepest", "slope_mean", "dist_viscenter",
+                    "reservoir_class", "shape_class")
 
   dt_rec <- recipe(lake_maxdepth_m ~ ., data = dt_train) %>%
-    step_normalize(all_numeric(), -all_outcomes(), -theta) %>%
-    step_log(all_outcomes(), theta) %>%
+    step_normalize(all_numeric(), -all_outcomes(), -maxdepth) %>%
+    step_log(all_outcomes(), maxdepth) %>%
     prep()
   # dt_rec
   test_proc <- bake(dt_rec, new_data = dt_test)
@@ -98,13 +104,17 @@ fit_model <- function(theta, dt_train, dt_test){
 
   preds    <- names(dt_jc)[!(names(dt_jc) %in% c("lagoslakeid", "lake_maxdepth_m",
                                       pred_exclude))]
-  dt_jc <- dplyr::select(dt_jc, "lake_maxdepth_m", c(all_of(theta), all_of(preds)))
+  dt_jc <- dplyr::select(dt_jc, "lake_maxdepth_m", c(all_of(maxdepth), all_of(preds)))
 
-  fit1 <- linear_reg(penalty = 0.001) %>%
-    set_engine("glmnet") %>%
+  # fit1 <- linear_reg(penalty = 0.001) %>%
+  #   set_engine("glmnet") %>%
+  #   fit(lake_maxdepth_m ~ ., data = dt_jc)
+
+  fit1 <- rand_forest(mode = "regression") %>%
+    set_engine("ranger", verbose = TRUE, importance = "impurity") %>%
     fit(lake_maxdepth_m ~ ., data = dt_jc)
 
-  res <- dt_test %>%
+  res          <- dt_test %>%
     select(lake_maxdepth_m) %>%
     mutate_all(log) %>%
     bind_cols(
@@ -112,14 +122,21 @@ fit_model <- function(theta, dt_train, dt_test){
     ) %>%
     bind_cols(test_proc[,"lagoslakeid"]) %>%
     mutate_at(vars(lake_maxdepth_m, .pred), exp)
-  res$resid <- res$lake_maxdepth_m - res$.pred
-  res$theta <- theta
+  res$resid    <- res$lake_maxdepth_m - res$.pred
+  res$maxdepth <- maxdepth
 
   list(res = res, fit = fit1)
 }
 
 dt_fits <- lapply(1:4, function(i)
-  fit_model(theta = theta_vec[i], data_train, data_test))
+  fit_model(maxdepth = maxdepth_vec[i], data_train, data_test))
+
+importance(dt_fits[[2]]$fit$fit)[
+  rev(order(importance(dt_fits[[2]]$fit$fit)))]
+importance(dt_fits[[3]]$fit$fit)[
+  rev(order(importance(dt_fits[[3]]$fit$fit)))]
+importance(dt_fits[[4]]$fit$fit)[
+  rev(order(importance(dt_fits[[4]]$fit$fit)))]
 
 plot(dt_fits[[1]]$res$lake_maxdepth_m, dt_fits[[1]]$res$.pred)
 abline(0, 1)
@@ -131,7 +148,7 @@ abline(0, 1)
         names_from = .metric, values_from = .estimate)
       }) %>%
   bind_rows() %>%
-  bind_cols(data.frame(model = theta_vec)))
+  bind_cols(data.frame(model = maxdepth_vec)))
 
 # saveRDS(dt_train, "data/01_depth_model/depth_training.rds")
 saveRDS(bind_rows(lapply(dt_fits, function(x) x$res)),
@@ -144,23 +161,28 @@ if(interactive()){
 # ---- get bootstrap rmse estimates ----
 
 library(purrr)
-fit_model_cv <- function(theta, dt){
-  # theta <- theta_vec[2]
+fit_model_cv <- function(maxdepth, dt){
+  # maxdepth <- maxdepth_vec[2]
 
-  pred_exclude <- c(theta_vec[!(theta_vec %in% theta)], "inlake_slope", "dist_deepest")
-  dt_rec <- recipe(lake_maxdepth_m ~ ., data = dt) %>%
-    step_normalize(all_numeric(), -all_outcomes(), -theta) %>%
-    step_log(all_outcomes(), theta) %>%
+  pred_exclude <- c(maxdepth_vec[!(maxdepth_vec %in% maxdepth)], "inlake_slope", "dist_deepest")
+  dt_rec       <- recipe(lake_maxdepth_m ~ ., data = dt) %>%
+    step_normalize(all_numeric(), -all_outcomes(), -maxdepth) %>%
+    step_log(all_outcomes(), maxdepth) %>%
     prep()
-  dt_jc     <- juice(dt_rec)
-  preds    <- names(dt_jc)[!(names(dt_jc) %in% c("lagoslakeid", "lake_maxdepth_m",
-                                                 pred_exclude))]
-  dt_jc <- dplyr::select(dt_jc, "lake_maxdepth_m", c(all_of(theta), all_of(preds)))
+  dt_jc        <- juice(dt_rec)
+  preds        <- names(dt_jc)[!(names(dt_jc) %in%
+                                   c("lagoslakeid", "lake_maxdepth_m",
+                                     pred_exclude))]
+  dt_jc        <- dplyr::select(dt_jc, "lake_maxdepth_m",
+                                c(all_of(maxdepth), all_of(preds)))
 
   # https://stateofther.github.io/finistR2019/s-tidymodels.html
-  lm_mod <-
-    linear_reg(penalty = 0.001) %>%
-    set_engine("glmnet")
+  # lm_mod <-
+  #   linear_reg(penalty = 0.001) %>%
+  #   set_engine("glmnet")
+
+  lm_mod <- rand_forest(mode = "regression") %>%
+    set_engine("ranger")
 
   cv_fit <- function(splits, mod, ...){
     res_mod <-
@@ -169,7 +191,7 @@ fit_model_cv <- function(theta, dt){
   }
 
   cv_pred <- function(splits, mod){
-    holdout <- assessment(splits)
+    holdout     <- assessment(splits)
     pred_assess <- bind_cols(truth = holdout$lake_maxdepth_m,
                              predict(mod, new_data = holdout))
     return(pred_assess)
@@ -189,7 +211,7 @@ fit_model_cv <- function(theta, dt){
     mean()
 }
 lapply(1:4, function(i)
-  fit_model_cv(theta = theta_vec[i], dt))
+  fit_model_cv(maxdepth = maxdepth_vec[i], dt))
 
 # ---- fit a model for inlake_slope and dist_deepest ----
 lgus_predictors <- read.csv("data/lagosne_depth_predictors.csv",
