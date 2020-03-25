@@ -66,11 +66,11 @@ knitr::include_graphics("../figures/02_depth_model_importance-1.pdf")
 knitr::include_graphics("../figures/01_contrasts-1.pdf")
 ```
 
-```{r metric_correlations, fig.cap = "Pearson correlation coefficients of map-derived metrics against inlake slope and deepest point distance metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.width="11cm", fig.align='center', out.extra=''}
+```{r metric_correlations, fig.cap = "Pearson correlation coefficients of map-derived metrics against inlake slope and deepest point distance metrics.", warning=FALSE, echo = FALSE, eval=FALSE, out.width="11cm", fig.align='center', out.extra=''}
 knitr::include_graphics("../figures/metric_correlations-1.pdf")
 ```
 
-```{r heatmap, fig.cap = "Correlation matrix heatmap.", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r heatmap, fig.cap = "Correlation matrix heatmap.", warning=FALSE, echo = FALSE, eval=FALSE}
 knitr::include_graphics("../figures/slope-compare-1.pdf")
 ```
 
@@ -102,11 +102,11 @@ knitr::include_graphics("../figures/02_depth_oliver-1.pdf")
 knitr::include_graphics("../figures/02_depth_oliver-4.pdf")
 ```
 
-```{r 02_hypso_model_fitted, fig.cap = "Confusion matrix comparing two classification methods", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r 02_hypso_model_fitted, fig.cap = "Confusion matrix comparing two classification methods", warning=FALSE, echo = FALSE, eval=FALSE}
 knitr::include_graphics("../figures/02_hypso_model_fitted-1.pdf")
 ```
 
-```{r 02_hypso_model_importance, fig.cap = "Recusive Partitioning variable importance.", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r 02_hypso_model_importance, fig.cap = "Recusive Partitioning variable importance.", warning=FALSE, echo = FALSE, eval=FALSE}
 knitr::include_graphics("../figures/02_hypso_model_importance-1.pdf")
 ```
 
