@@ -111,7 +111,7 @@ fit_model <- function(maxdepth, dt_train, dt_test){
   #   fit(lake_maxdepth_m ~ ., data = dt_jc)
 
   fit1 <- rand_forest(mode = "regression") %>%
-    set_engine("ranger", verbose = TRUE, importance = "impurity") %>%
+    set_engine("ranger", verbose = TRUE, importance = "permutation", scale.permutation.importance = TRUE) %>%
     fit(lake_maxdepth_m ~ ., data = dt_jc)
 
   res          <- dt_test %>%
