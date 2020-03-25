@@ -151,6 +151,7 @@ abline(0, 1)
   bind_cols(data.frame(model = maxdepth_vec)))
 
 # saveRDS(dt_train, "data/01_depth_model/depth_training.rds")
+saveRDS(dt_fits, "data/01_depth_model/depth_fits.rds")
 saveRDS(bind_rows(lapply(dt_fits, function(x) x$res)),
         "data/01_depth_model/depth_grid.rds")
 saveRDS(dt_metrics,
