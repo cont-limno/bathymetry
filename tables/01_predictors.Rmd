@@ -20,10 +20,11 @@ library(stringr)
 nearshore <- read.csv("../data/00_geometry/nearshore.csv", 
                       stringsAsFactors = FALSE) %>%
   dplyr::select(llid, buffer_slope = slope_mean)
-dt_raw <- read.csv("../data/lagosus_depth_predictors.csv", 
+dt_all <- read.csv("../data/lagosus_depth_predictors.csv", 
                stringsAsFactors = FALSE) %>%
-  distinct(lagoslakeid, .keep_all = TRUE) %>%
-  left_join(nearshore, by = c("lagoslakeid" = "llid")) %>%
+  distinct(lagoslakeid, .keep_all = TRUE)
+dt_bathy <- dt_all %>%
+  right_join(nearshore, by = c("lagoslakeid" = "llid")) %>%
   dplyr::select(-contains("lagoslakeid"), 
                 -contains("lake_nhd"), 
                 -contains("lake_huc"))
@@ -69,18 +70,20 @@ compute_stats <- function(dt){
 }
 
 # compute stats for bathymetry lakes
-dt_bathy <- dplyr::filter(dt_raw, lagos_effort == "bathymetry")
 dt_bathy <- compute_stats(dt_bathy)
 dt_bathy <- data.frame(dt_bathy)
 # compute stats for all of lagosus
-dt_all <- data.frame(compute_stats(dt_raw))
+dt_all <- data.frame(compute_stats(dt_all))
+dt_all <- dplyr::filter(dt_all, variable %in% dt_bathy$variable) 
 # interleave
-dt_bathy <- bind_cols(dplyr::select(dt_bathy, variable), 
-          setNames(
-            bind_cols(lapply(names(dt_bathy)[2:5], 
+dt_combined <- bind_cols(lapply(names(dt_bathy)[2:5], 
                            function(i) paste0(dt_bathy[,i], 
-                                              " (", dt_all[,i], ")"))), 
-            names(dt_bathy)[2:5]))
+                                              " (", dt_all[,i], ")"))) %>%
+  setNames(names(dt_bathy)[2:5])
+
+dt_combined <- bind_cols(
+  dplyr::select(dt_bathy, variable), 
+  dt_combined)
 
 # knitr::kable(dt, digits = 0, format = "markdown") 
 #%>%
@@ -89,12 +92,19 @@ dt_bathy <- bind_cols(dplyr::select(dt_bathy, variable),
 
 ```{r predictors_table}
 # setwd("figures")
-dt <- dt_bathy %>%
+dt <- dt_combined %>%
   dplyr::filter(str_detect(variable, 
                            "^lake_|^ws_lake_arearatio|^dist_|_slope")) %>%
   dplyr::filter(!str_detect(variable,
-                      "totalarea|islandperimeter|between|buffer100m")) %>%
-  mutate(n = dt_bathy$n[which(dt_bathy$variable == "inlake_slope")])
+                      "totalarea|islandperimeter|between|buffer100m")) # %>%
+  # mutate(n = dt_bathy$n[which(dt_bathy$variable == "inlake_slope")])
+
+# remove sample size reporting for bathy specific variables
+dt[
+  dt$variable %in% c("dist_deepest", "dist_viscenter", "inlake_slope"), 2:5] <- 
+  dt[
+  dt$variable %in% c("dist_deepest", "dist_viscenter", "inlake_slope"), 2:5] %>%
+apply(2, function(x) stringr::str_replace(x, "\\(([^\\)]+)\\)", "(-)"))
 
 knitr::kable(dt, digits = 0, format = "markdown") 
 ```
