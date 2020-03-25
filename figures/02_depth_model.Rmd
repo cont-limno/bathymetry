@@ -41,7 +41,7 @@ ggplot(data = dt_metrics,
   theme(axis.line = element_blank())
 ```
 
-```{r 02_depth_model_importance, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.5, fig.width=8}
+```{r 02_depth_model_importance, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.5, fig.width=6}
 dt_fits <- readRDS("../data/01_depth_model/depth_fits.rds")
 
 tidy_importance <- function(x){
@@ -79,15 +79,17 @@ dt_imp$variable <- factor(dt_imp$variable, levels = var_order)
 
 ggplot() + 
   geom_point(data = dt_imp, aes(percent_inc_mse, variable, color = model)) +   
-  # geom_hline(linetype = 3, size = 1, colour = "gray", 
-  #                yintercept = 1:nlevels(dt$variable)) + 
+  labs(color = "slope-distance\nmeasure") +
+  geom_hline(linetype = 3, size = 1, colour = "gray",
+                 yintercept = 1:nlevels(dt_imp$variable)) +
   theme(text = element_text(family="Times"),
         panel.background = element_blank(), panel.grid = element_blank(),
         panel.border = element_rect(fill = NA), # legend.position = "none", 
         axis.title.x = element_text(family="sans", face = "bold", 
         vjust = -0.5, size = 12), 
         axis.text = element_text(family="sans",size = 11, 
-                                 color = "black")) + 
+                                 color = "black"), 
+         legend.key = element_blank()) + 
         ylab("") + xlab("Percent Increase in Mean Square Error")
 ```
 
