@@ -19,7 +19,7 @@
 "maxdepth_false_false","lake maximum depth calculated from slope_mean and dist_viscenter in meters",NA
 "inlake_slope","slope of the lake bottom assuming a straight line from the shore to the deepest point of the lake in units of depth change in meters per meter distance","Inlake slope (m/m)"
 "slope_mean","average slope of the land surrounding a lake in a 100m buffer","Mean slope (m/m)"
-"buffer_slope","average slope of the land surrounding a lake in a 100m buffer","Buffer slope (m/m)"
+"buffer_slope","average slope of the land surrounding a lake in a 100m buffer","Nearshore slope (m/m)"
 "dist_deepest","distance from the lake shoreline to the deepest point of the lake in meters","Deepest point distance (m)"
 "dist_viscenter","distance from the lake shoreline to the point furthest from the lake shoreline in meters","Visual center distance (m)"
 "reservoir_class","classification of lakes are natural lakes or reservoirs by way of Polus et al.","Reservoir class"
