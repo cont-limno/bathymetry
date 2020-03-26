@@ -10,36 +10,63 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fi
 source("../scripts/99_utils.R")
 ```
 
+```{r define-plots}
+contrast_plot <- function(..., plot_type){
+  if(plot_type == "violin"){
+    violin_plot(...)
+  }else{
+    pointrange_plot(...)
+  }
+}
+
+violin_plot <- function(x, grp, varb, label){
+  ggplot(data = x) +
+  geom_violin(aes(x = UQ(rlang::sym(grp)), y = UQ(rlang::sym(varb))), 
+              adjust = 0.8, scale = "count", 
+              draw_quantiles = c(0.25, 0.5, 0.75)) +
+    ylab(label) + xlab("")
+}
+
+quantile_collapse <- function(x){
+  list(tibble::enframe(
+    quantile(x, probs = c(0.05,0.5,0.95), na.rm = TRUE)))
+}
+
+pointrange_plot <- function(x, grp, varb, label){
+  x %>%
+  group_by(UQ(rlang::sym(grp))) %>%
+    dplyr::select(UQ(rlang::sym(grp)), UQ(rlang::sym(varb))) %>%
+    summarize_all(quantile_collapse) %>%
+    unnest() %>%
+  tidyr::spread(name, value) %>%
+  ggplot() +
+geom_pointrange(aes(x = UQ(rlang::sym(grp)), y = `50%`, 
+                      ymin = `5%`, ymax = `95%`)) +
+  ylab(label) + xlab("")
+}
+```
+
 ```{r gg_depth_shape_class, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 
 dt <- read.csv("../data/00_hypso/hypso_predictors.csv", 
                stringsAsFactors = FALSE)
 
+# gg_depth_shape_class <- dt %>%
+#   dplyr::filter(shape_class != "neither") %>%  
+#   contrast_plot(grp = "shape_class", varb = "lake_maxdepth_m", 
+#                 label = "Depth (m)", plot_type = "violin")
+
 gg_depth_shape_class <- dt %>%
-  dplyr::filter(shape_class != "neither") %>%
-  group_by(shape_class) %>%
-  summarize(lake_maxdepth_m = list(tibble::enframe(
-    quantile(lake_maxdepth_m, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
-  unnest() %>%
-  tidyr::spread(name, value) %>%
-  ggplot() +
-geom_pointrange(aes(x = shape_class, y = `50%`, 
-                      ymin = `5%`, ymax = `95%`)) +
-  ylab("Depth (m)") + xlab("")
+  dplyr::filter(shape_class != "neither") %>%  
+  contrast_plot(grp = "shape_class", varb = "lake_maxdepth_m", 
+                label = "Depth (m)", plot_type = "pointrange")
 ```
 
 ```{r gg_area_shape_class, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_area_shape_class <- dt %>%
-  dplyr::filter(shape_class != "neither") %>%
-  group_by(shape_class) %>%
-  summarize(lake_waterarea_ha = list(tibble::enframe(
-    quantile(lake_waterarea_ha, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
-  unnest() %>%
-  tidyr::spread(name, value) %>%
-  ggplot() +
-geom_pointrange(aes(x = shape_class, y = `50%`, 
-                      ymin = `5%`, ymax = `95%`)) +
-  ylab("Area (ha)") + xlab("")
+  dplyr::filter(shape_class != "neither") %>%  
+  contrast_plot(grp = "shape_class", varb = "lake_waterarea_ha", 
+                label = "Area (ha)", plot_type = "pointrange")
 ```
 
 ```{r gg_slope_shape_class, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
