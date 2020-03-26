@@ -19,8 +19,10 @@ flist             <- list.files("data/elevatr", pattern = "\\d*.tif",
                     full.names = TRUE, include.dirs = TRUE)
 existing_surfaces <- gsub(".tif", "",
                 stringr::str_extract(flist, "\\d*(!?.tif)"))
-ll_ids <- c(existing_surfaces)
-# ll_ids <- c(ll_ids, existing_surfaces)
+ll_ids_new <- ll_ids[!(ll_ids %in% existing_surfaces)]
+# ll_ids <- c(existing_surfaces)
+# ll_ids <- c(ll_ids_new)
+ll_ids <- c(ll_ids_new, existing_surfaces)
 ll_ids <- ll_ids[!duplicated(ll_ids)]
 # sapply(flist[!(ll_ids %in% dt_pred$lagoslakeid)], "unlink")
 
