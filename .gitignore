@@ -77,3 +77,4 @@ data/00_bathy_depth/00_bathy_depth*.rds
 data/01_depth_model/*.rds
 dist.pdf
 slope.pdf
+data/00_reservoir_classification/*.xlsx
