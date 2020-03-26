@@ -330,8 +330,7 @@ cowplot::plot_grid(gg_tally_programtype, gg_tally_maxdepthclass,
 read.csv(
   "../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>% 
    dplyr::filter(!is.na(lake_maxdepth_m)) %>%
-   group_by(sourcetype_depth, sourceurl_depth) %>% 
-   tally() %>% 
+   distinct(sourcetype_depth, sourceurl_depth) %>% 
    ungroup() %>% group_by(sourcetype_depth) %>%
    tally() %>%
    ggplot(aes(x = sourcetype_depth, y = n)) + 
