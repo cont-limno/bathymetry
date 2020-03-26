@@ -20,7 +20,7 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 ![Diagram showing the assumption of most lake depth models that the nearshore slope extends into the lake and that all lakes have a common relationship between nearshore and inlake slope. ](../figures/slope_diagram.pdf){width=75%}
 
-```{r lake_shape, echo=FALSE, out.extra='', fig.align='center', fig.cap="Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right)"}
+```{r lake_shape, echo=FALSE, out.extra='', fig.align='center', fig.cap="Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right). Dashed lines represent extrapolated nearshore slope while solid lines represent the lake bottom."}
 knitr::include_graphics("../figures/lake_shape.pdf")
 ```
 
@@ -28,7 +28,7 @@ knitr::include_graphics("../figures/lake_shape.pdf")
 knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 ```
 
-```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported depth and depth calculated from bathymetry surfaces by US State.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported depth and depth calculated from bathymetry surfaces by US State.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 # see 00_qa.Rmd
 knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
 ```
