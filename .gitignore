@@ -78,3 +78,4 @@ data/01_depth_model/*.rds
 dist.pdf
 slope.pdf
 data/00_reservoir_classification/*.xlsx
+scripts/three-d_modelling.R
