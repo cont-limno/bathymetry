@@ -113,9 +113,9 @@ figures/00_map_bathy-1.pdf \
 figures/01_geometry_grid-1.pdf \
 figures/lgnemanual-vs-bathy-depth-1.pdf \
 tables/depth_model_metrics-1.pdf \
-figures/01_heatmap-1.pdf \
 figures/01_hypsography-1.pdf \
 figures/02_depth_model_grid_resid-1.pdf \
+figures/02_depth_model_importance-1.pdf \
 figures/01_contrasts_depth-1.pdf \
 figures/01_contrasts_tally-1.pdf \
 figures/slope_diagram.pdf \
@@ -125,6 +125,7 @@ figures/gg_distance-1.pdf
 	-pdftk manuscript/figures.pdf cat 2-end output manuscript/figures2.pdf
 	-mv manuscript/figures2.pdf manuscript/figures.pdf
 #	cd figures && make pnglatest
+# figures/01_heatmap-1.pdf \
 
 # data/gis.gpkg
 figures/00_map-1.pdf: figures/00_maps.Rmd
@@ -173,6 +174,12 @@ data/lagosus_depth.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
+figures/02_depth_model_importance-1.pdf: figures/02_depth_model.Rmd \
+data/01_depth_model/depth_fits.rds \
+data/taxonomy.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
 figures/02_depth_model_grid_resid-1.pdf: figures/02_depth_model.Rmd \
 data/01_depth_model/depth_grid_metrics.rds \
 data/01_depth_model/depth_grid.rds \
@@ -204,7 +211,10 @@ manuscript/tables.pdf: tables/00_data.pdf \
 tables/01_predictors.pdf
 	pdftk $^ cat output manuscript/tables.pdf
 
-tables/01_predictors.pdf: tables/01_predictors.Rmd data/lagosus_depth.csv
+tables/01_predictors.pdf: tables/01_predictors.Rmd \
+data/00_geometry/nearshore.csv \
+data/lagosus_depth_predictors.csv \
+data/taxonomy.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 

@@ -106,5 +106,11 @@ dt[
   dt$variable %in% c("dist_deepest", "dist_viscenter", "inlake_slope"), 2:5] %>%
 apply(2, function(x) stringr::str_replace(x, "\\(([^\\)]+)\\)", "(-)"))
 
+taxonomy_key <- read.csv("../data/taxonomy.csv", stringsAsFactors = FALSE)
+
+dt <- left_join(dt, taxonomy_key, by = c("variable" = "col_name")) %>%
+  dplyr::mutate(variable = pretty) %>% select(-pretty, -description)
+
+options(knitr.kable.NA = '-')
 knitr::kable(dt, digits = 0, format = "markdown") 
 ```

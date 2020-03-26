@@ -1,30 +1,33 @@
-"col_name","description"
-"llid","unique lake identifier developed for LAGOS-US"
-"state","abbreviation of the state used to search for a lake's depth"
-"max_depth_m","lake maximum depth in meters"
-"mean_depth_m","lake mean depth in meters"
-"source","url link of the source of depth data"
-"lake_waterarea_ha","surface area of lake waterbody polygon from NHD (excludes islands) by way of the LAGOS-US Locus module"
-"lake_connectivity_permanent","connectivity of focal lake to upstream features (DrainageLK = drainage lake with an upstream lake, Drainage = drainage lake with upstream stream, Headwater = lake with outlet but no inlet, Isolated = lake with no inlets or outlets) by way of the LAGOS-US Locus module"
-"lake_lat_decdeg","the latitude of the lake center point (NAD83) from the LAGOS-US Locus module"
-"lake_lon_decdeg","the longitude of the lake center point (NAD83) from the LAGOS-US Locus module"
-"lat","the latitude of the lake center point"
-"long","the longitude of the lake center point"
-"lagoslakeid","unique lake identifier developed for LAGOS-US"
-"lake_maxdepth_m","lake maximum depth in meters"
-"maxdepth_true_true","lake maximum depth calculated from inlake_slope and dist_deepest in meters"
-"maxdepth_true_false","lake maximum depth calculated from inlake_slope and dist_viscenter"
-"maxdepth_false_true","lake maximum depth calculated from slope_mean and dist_deepest in meters"
-"maxdepth_false_false","lake maximum depth calculated from slope_mean and dist_viscenter in meters"
-"inlake_slope","slope of the lake bottom assuming a straight line from the shore to the deepest point of the lake in units of depth change in meters per meter distance"
-"slope_mean","average slope of the land surrounding a lake in a 100m buffer"
-"dist_deepest","distance from the lake shoreline to the deepest point of the lake in meters"
-"dist_viscenter","distance from the lake shoreline to the point furthest from the lake shoreline in meters"
-"reservoir_class","classification of lakes are natural lakes or reservoirs by way of Polus et al."
-"shape_class","classification of lakes as concave or convex following Hakanson (1977)"
-"lake_perimeter_m","perimeter of outer boundary of lake waterbody polygon from the NHD (excludes islands) by way of the LAGOS-US Locus module"
-"lake_islandarea_ha","surface area of islands within outer boundary of lake waterbody polygon from NHD by way of the LAGOS-US Locus module"
-"lake_elevation_m","the elevation of the lake polygon centroid, in meters (referenced to the North American Vertical Datum of 1988 (NAVD88)) and obtained from the National Elevation Dataset by way of the LAGOS-US Locus module"
-"lake_shorelinedevfactor_nounits","shoreline development factor calculated as the lake_perimeter_m / (2*√(π*lake_waterarea_ha*10000)) by way of the LAGOS-US Locus module"
-"ws_lake_arearatio","ratio between interlake watershed area and lake water area by way of the LAGOS-US Locus module"
-"hu4_zoneid","unique identifier assigned by LAGOS-US for zones in the spatial division HU4"
+"col_name","description","pretty"
+"llid","unique lake identifier developed for LAGOS-US",NA
+"state","abbreviation of the state used to search for a lake's depth","State"
+"max_depth_m","lake maximum depth in meters","Max depth (m)"
+"mean_depth_m","lake mean depth in meters","Mean depth (m)"
+"source","url link of the source of depth data",NA
+"lake_waterarea_ha","surface area of lake waterbody polygon from NHD (excludes islands) by way of the LAGOS-US Locus module","Area (ha)"
+"lake_connectivity_permanent","connectivity of focal lake to upstream features (DrainageLK = drainage lake with an upstream lake, Drainage = drainage lake with upstream stream, Headwater = lake with outlet but no inlet, Isolated = lake with no inlets or outlets) by way of the LAGOS-US Locus module",NA
+"lake_lat_decdeg","the latitude of the lake center point (NAD83) from the LAGOS-US Locus module",NA
+"lake_lon_decdeg","the longitude of the lake center point (NAD83) from the LAGOS-US Locus module",NA
+"lat","the latitude of the lake center point",NA
+"long","the longitude of the lake center point",NA
+"lagoslakeid","unique lake identifier developed for LAGOS-US",NA
+"lake_maxdepth_m","lake maximum depth in meters","Max depth (m)"
+"lake_meandepth_m","lake mean depth in meters","Mean depth (m)"
+"maxdepth_true_true","lake maximum depth calculated from inlake_slope and dist_deepest in meters",NA
+"maxdepth_true_false","lake maximum depth calculated from inlake_slope and dist_viscenter",NA
+"maxdepth_false_true","lake maximum depth calculated from slope_mean and dist_deepest in meters",NA
+"maxdepth_false_false","lake maximum depth calculated from slope_mean and dist_viscenter in meters",NA
+"inlake_slope","slope of the lake bottom assuming a straight line from the shore to the deepest point of the lake in units of depth change in meters per meter distance","Inlake slope (m/m)"
+"slope_mean","average slope of the land surrounding a lake in a 100m buffer","Mean slope (m/m)"
+"buffer_slope","average slope of the land surrounding a lake in a 100m buffer","Buffer slope (m/m)"
+"dist_deepest","distance from the lake shoreline to the deepest point of the lake in meters","Deepest point distance (m)"
+"dist_viscenter","distance from the lake shoreline to the point furthest from the lake shoreline in meters","Visual center distance (m)"
+"reservoir_class","classification of lakes are natural lakes or reservoirs by way of Polus et al.","Reservoir class"
+"shape_class","classification of lakes as concave or convex following Hakanson (1977)","Shape class"
+"lake_perimeter_m","perimeter of outer boundary of lake waterbody polygon from the NHD (excludes islands) by way of the LAGOS-US Locus module","Perimeter (m)"
+"lake_islandarea_ha","surface area of islands within outer boundary of lake waterbody polygon from NHD by way of the LAGOS-US Locus module","Island area (ha)"
+"lake_elevation_m","the elevation of the lake polygon centroid, in meters (referenced to the North American Vertical Datum of 1988 (NAVD88)) and obtained from the National Elevation Dataset by way of the LAGOS-US Locus module","Elevation (m)"
+"lake_shorelinedevfactor_nounits","shoreline development factor calculated as the lake_perimeter_m / (2*sqrt(pi*lake_waterarea_ha*10000)) by way of the LAGOS-US Locus module","Shoreline development"
+"ws_lake_arearatio","ratio between interlake watershed area and lake water area by way of the LAGOS-US Locus module","Watershed-lake ratio"
+"hu4_zoneid","unique identifier assigned by LAGOS-US for zones in the spatial division HU4","HUC4 ID"
+"trig_depth","Trigonometrically derived max depth (m)","Derived max depth (m)"

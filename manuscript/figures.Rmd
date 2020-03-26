@@ -106,7 +106,7 @@ knitr::include_graphics("../figures/02_depth_oliver-4.pdf")
 knitr::include_graphics("../figures/02_hypso_model_fitted-1.pdf")
 ```
 
-```{r 02_hypso_model_importance, fig.cap = "Recusive Partitioning variable importance.", warning=FALSE, echo = FALSE, eval=FALSE}
+```{r 02_hypso_model_importance, fig.cap = "Recusive Partitioning variable importance.", warning=FALSE, echo = FALSE, eval=FALSE, out.extra=''}
 knitr::include_graphics("../figures/02_hypso_model_importance-1.pdf")
 ```
 

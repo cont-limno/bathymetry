@@ -31,8 +31,10 @@ dt <- read.csv("data/depth_predictors.csv",
   names() %>%  as.data.frame() %>%  setNames("col_name") %>%
   left_join(taxonomy) %>% data.frame() %>%
   dplyr::filter(!is.na(description)) %>%
-  setNames(c("column name", "description"))
+  setNames(c("column name", "description", "variable")) %>%
+  select(`column name`, variable, description)
 
+options(knitr.kable.NA = '-')
 knitr::kable(dt)
 ```
 
@@ -45,7 +47,8 @@ dt       <- read.csv("data/00_bathy_depth/00_bathy_depth.csv",
   names() %>%  as.data.frame() %>%  setNames("col_name") %>%
   left_join(taxonomy) %>% data.frame() %>%
   dplyr::filter(!is.na(description)) %>%
-  setNames(c("column name", "description"))
+  setNames(c("column name", "description", "variable")) %>%
+  select(`column name`, variable, description)
 
 knitr::kable(dt)
 ```

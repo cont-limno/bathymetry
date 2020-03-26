@@ -12,7 +12,7 @@ if(interactive()){
 source("../scripts/99_utils.R")
 ```
 
-```{r depth_model_metrics, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=2.8, fig.width=4.2}
+```{r depth_model_metrics, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=2.6, fig.width=4}
 dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
   mutate_if(is.numeric, function(x) as.character(round(x, 2))) %>%
   mutate(rsq = as.numeric(rsq)) %>%
@@ -41,8 +41,9 @@ ggplot(data = dt_metrics,
   theme(axis.line = element_blank())
 ```
 
-```{r 02_depth_model_importance, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.5, fig.width=6}
-dt_fits <- readRDS("../data/01_depth_model/depth_fits.rds")
+```{r 02_depth_model_importance, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.2, fig.width=5}
+dt_fits      <- readRDS("../data/01_depth_model/depth_fits.rds")
+taxonomy_key <- read.csv("../data/taxonomy.csv", stringsAsFactors = FALSE)
 
 tidy_importance <- function(x){
   # x <- dt_fits[[2]]$fit$fit
@@ -71,11 +72,15 @@ dt_imp <- bind_rows(lapply(1:3, function(i){
 dt_imp$model <- factor(dt_imp$model, levels = model_names)
 
 var_order <- 
-  group_by(dt_imp, variable) %>% 
+  left_join(dt_imp, taxonomy_key, by = c("variable" = "col_name")) %>%
+  group_by(pretty) %>% 
   summarize(max = max(percent_inc_mse)) %>%
   arrange(max) %>%
-  pull(variable)
-dt_imp$variable <- factor(dt_imp$variable, levels = var_order)
+  pull(pretty)
+dt_imp <- left_join(dt_imp, taxonomy_key, by = c("variable" = "col_name")) %>%
+  mutate(pretty = factor(pretty, levels = var_order)) %>%
+  mutate(variable = pretty) %>%  dplyr::select(-description) %>%
+  dplyr::select(-pretty)
 
 ggplot() + 
   geom_point(data = dt_imp, aes(percent_inc_mse, variable, color = model)) +   
@@ -85,9 +90,9 @@ ggplot() +
   theme(text = element_text(family="Times"),
         panel.background = element_blank(), panel.grid = element_blank(),
         panel.border = element_rect(fill = NA), # legend.position = "none", 
-        axis.title.x = element_text(family="sans", face = "bold", 
-        vjust = -0.5, size = 12), 
-        axis.text = element_text(family="sans",size = 11, 
+        axis.title.x = element_text(family = "sans", face = "bold", 
+        vjust = -0.5, size = 10), 
+        axis.text = element_text(family="sans",size = 9, 
                                  color = "black"), 
          legend.key = element_blank()) + 
         ylab("") + xlab("Percent Increase in Mean Square Error")
