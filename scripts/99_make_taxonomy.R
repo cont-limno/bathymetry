@@ -58,7 +58,7 @@ taxonomy_key <- bind_rows(
     pretty = "Mean slope (m/m)"),
   c(col_name = "buffer_slope",
     description = "average slope of the land surrounding a lake in a 100m buffer",
-    pretty = "Buffer slope (m/m)"),
+    pretty = "Nearshore slope (m/m)"),
   c(col_name = "dist_deepest",
     description = "distance from the lake shoreline to the deepest point of the lake in meters",
     pretty = "Deepest point distance (m)"),
