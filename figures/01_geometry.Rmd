@@ -188,8 +188,8 @@ gg_slope_shape <- ggplot(data = test,
     geom_point() +
   geom_smooth(data = dplyr::filter(test, shape_class != "neither"), 
               method = "lm", se = FALSE) +
-  xlab("Buffer slope (mean)") +
-  ylab("In-lake slope") +
+  xlab("Nearshore slope (mean)") +
+  ylab("Inlake slope") +
   labs(color = "")
 
 gg_slope_reservoir <- ggplot(data = dplyr::filter(test, !is.na(reservoir_class)), 
@@ -197,8 +197,8 @@ gg_slope_reservoir <- ggplot(data = dplyr::filter(test, !is.na(reservoir_class))
                                  color = reservoir_class)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
-  xlab("Buffer slope (mean)") +
-  ylab("In-lake slope") +
+  xlab("Nearshore slope (mean)") +
+  ylab("Inlake slope") +
   labs(color = "")
 ```
 
