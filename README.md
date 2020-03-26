@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-## Bathymetry data from thousands of lakes show that difficulty modeling in-lake slope confounds lake depth prediction
+## Bathymetry data from thousands of lakes show that lake depth prediction is confounded by difficulty modeling inlake slope
 
 ### Products
 
