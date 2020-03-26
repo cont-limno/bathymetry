@@ -18,7 +18,7 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 \pagebreak
 
-![Diagram showing the assumption of most lake depth models that the nearshore slope extends into the lake and that all lakes have a common relationship between nearshore and in-lake slope. ](../figures/slope_diagram.pdf){width=75%}
+![Diagram showing the assumption of most lake depth models that the nearshore slope extends into the lake and that all lakes have a common relationship between nearshore and inlake slope. ](../figures/slope_diagram.pdf){width=75%}
 
 ```{r lake_shape, echo=FALSE, out.extra='', fig.align='center', fig.cap="Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right)"}
 knitr::include_graphics("../figures/lake_shape.pdf")
@@ -66,16 +66,16 @@ knitr::include_graphics("../figures/02_depth_model_importance-1.pdf")
 knitr::include_graphics("../figures/01_contrasts-1.pdf")
 ```
 
+```{r hypsography, fig.cap = "Hypsography classification by state.", warning=FALSE, echo = FALSE, eval=TRUE}
+knitr::include_graphics("../figures/01_hypsography-1.pdf")
+```
+
 ```{r metric_correlations, fig.cap = "Pearson correlation coefficients of map-derived metrics against inlake slope and deepest point distance metrics.", warning=FALSE, echo = FALSE, eval=FALSE, out.width="11cm", fig.align='center', out.extra=''}
 knitr::include_graphics("../figures/metric_correlations-1.pdf")
 ```
 
 ```{r heatmap, fig.cap = "Correlation matrix heatmap.", warning=FALSE, echo = FALSE, eval=FALSE}
 knitr::include_graphics("../figures/slope-compare-1.pdf")
-```
-
-```{r hypsography, fig.cap = "Hypsography classification by state.", warning=FALSE, echo = FALSE, eval=TRUE}
-knitr::include_graphics("../figures/01_hypsography-1.pdf")
 ```
 
 ```{r glaciated_vs_shapeclass, fig.cap = "Cross tabulation between lake glaciation and shape class. Circles are proportional to the number of lakes in each category. If a lake has been glaciated it is more likely to be convex. However, if a lake has not been glaciated there is no tendencey towards a particular shape class.", warning=FALSE, echo = FALSE, eval=FALSE}
