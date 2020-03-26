@@ -10,12 +10,14 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fi
 source("../scripts/99_utils.R")
 ```
 
-```{r define-plots}
+```{r define-plots, echo=FALSE}
 contrast_plot <- function(..., plot_type){
+  theme_opts <- cowplot::theme_cowplot()
+  
   if(plot_type == "violin"){
-    violin_plot(...)
+    violin_plot(...) + theme_opts
   }else{
-    pointrange_plot(...)
+    pointrange_plot(...) + theme_opts
   }
 }
 
@@ -71,34 +73,19 @@ gg_area_shape_class <- dt %>%
 
 ```{r gg_slope_shape_class, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_slope_shape_class <- dt %>%
-  dplyr::filter(shape_class != "neither") %>%
-  group_by(shape_class) %>%
-  summarize(inlake_slope = list(tibble::enframe(
-    quantile(inlake_slope, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
-  unnest() %>%
-  tidyr::spread(name, value) %>%
-  ggplot() +
-geom_pointrange(aes(x = shape_class, y = `50%`, 
-                      ymin = `5%`, ymax = `95%`)) +
-  ylab("Inlake slope (m/m)") + xlab("")
+  dplyr::filter(shape_class != "neither") %>%  
+  contrast_plot(grp = "shape_class", varb = "inlake_slope", 
+                label = "Inlake slope (m/m)", plot_type = "pointrange")
 ```
 
 ```{r gg_dist_shape_class, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_dist_shape_class <- dt %>%
-  dplyr::filter(shape_class != "neither") %>%
-  group_by(shape_class) %>%
-  summarize(dist_deepest = list(tibble::enframe(
-    quantile(dist_deepest, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
-  unnest() %>%
-  tidyr::spread(name, value) %>%
-  ggplot() +
-geom_pointrange(aes(x = shape_class, y = `50%`, 
-                      ymin = `5%`, ymax = `95%`)) +
-  ylab("Deepest point distance (m)") + xlab("")
+  dplyr::filter(shape_class != "neither") %>%  
+  contrast_plot(grp = "shape_class", varb = "dist_deepest", 
+                label = "Deepest point distance (m)", plot_type = "pointrange")
 ```
 
 ```{r gg_depth_connectivity, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
-
 gg_depth_conny_class <- dt %>%
   dplyr::filter(!is.na(lake_connectivity_class)) %>%
   group_by(lake_connectivity_class) %>%
@@ -129,63 +116,31 @@ geom_pointrange(aes(x = lake_glaciatedlatewisc, y = `50%`,
 ```
 
 ```{r gg_depth_reservoir, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
-
-(gg_depth_reservoir <- dt %>%
-  dplyr::filter(!is.na(reservoir_class)) %>%
-  group_by(reservoir_class) %>%
-  summarize(lake_maxdepth_m = list(tibble::enframe(
-    quantile(lake_maxdepth_m, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
-  unnest() %>%
-  tidyr::spread(name, value) %>%
-  ggplot() +
-geom_pointrange(aes(x = reservoir_class, y = `50%`, 
-                      ymin = `5%`, ymax = `95%`)) +
-  ylab("Depth (m)") + xlab(""))
+gg_depth_reservoir <- dt %>%
+  dplyr::filter(!is.na(reservoir_class)) %>%  
+  contrast_plot(grp = "reservoir_class", varb = "lake_maxdepth_m", 
+                label = "Depth (m)", plot_type = "pointrange")
 ```
 
 ```{r gg_area_reservoir, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
-
-(gg_area_reservoir <- dt %>%
-  dplyr::filter(!is.na(reservoir_class)) %>%
-  group_by(reservoir_class) %>%
-  summarize(lake_waterarea_ha = list(tibble::enframe(
-    quantile(lake_waterarea_ha, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
-  unnest() %>%
-  tidyr::spread(name, value) %>%
-  ggplot() +
-geom_pointrange(aes(x = reservoir_class, y = `50%`, 
-                      ymin = `5%`, ymax = `95%`)) +
-  ylab("Area (ha)") + xlab(""))
+gg_area_reservoir <- dt %>%
+  dplyr::filter(!is.na(reservoir_class)) %>%  
+  contrast_plot(grp = "reservoir_class", varb = "lake_waterarea_ha", 
+                label = "Area (ha)", plot_type = "pointrange")
 ```
 
 ```{r gg_slope_reservoir, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
-
-(gg_slope_reservoir <- dt %>%
-  dplyr::filter(!is.na(reservoir_class)) %>%
-  group_by(reservoir_class) %>%
-  summarize(inlake_slope = list(tibble::enframe(
-    quantile(inlake_slope, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
-  unnest() %>%
-  tidyr::spread(name, value) %>%
-  ggplot() +
-geom_pointrange(aes(x = reservoir_class, y = `50%`, 
-                      ymin = `5%`, ymax = `95%`)) +
-  ylab("Inlake slope (m/m)") + xlab(""))
+gg_slope_reservoir <- dt %>%
+  dplyr::filter(!is.na(reservoir_class)) %>%  
+  contrast_plot(grp = "reservoir_class", varb = "inlake_slope", 
+                label = "Inlake slope (m/m)", plot_type = "pointrange")
 ```
 
 ```{r gg_dist_reservoir, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
-
-(gg_dist_reservoir <- dt %>%
-  dplyr::filter(!is.na(reservoir_class)) %>%
-  group_by(reservoir_class) %>%
-  summarize(dist_deepest = list(tibble::enframe(
-    quantile(dist_deepest, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
-  unnest() %>%
-  tidyr::spread(name, value) %>%
-  ggplot() +
-geom_pointrange(aes(x = reservoir_class, y = `50%`, 
-                      ymin = `5%`, ymax = `95%`)) +
-  ylab("Deepest point distance (m)") + xlab(""))
+gg_dist_reservoir <- dt %>%
+  dplyr::filter(!is.na(reservoir_class)) %>%  
+  contrast_plot(grp = "reservoir_class", varb = "dist_deepest", 
+                label = "Deepest point distance (m)", plot_type = "pointrange")
 ```
 
 ```{r gg_depth_xtabs, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
@@ -230,7 +185,7 @@ gg_reservoir <- cowplot::plot_grid(gg_depth_reservoir + theme_opts,
                                    nrow = 1)
 
 cowplot::plot_grid(gg_shape, gg_reservoir, 
-                   nrow = 2, rel_heights = c(1, 0.85))
+                   nrow = 2, rel_heights = c(1, 0.76))
 
 cowplot::plot_grid(gg_depth_xtabs + theme_opts, 
                    ggplot() + geom_blank() + 
