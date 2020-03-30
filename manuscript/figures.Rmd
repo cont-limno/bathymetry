@@ -24,10 +24,6 @@ knitr::opts_chunk$set(fig.pos = 'H')
 knitr::include_graphics("../figures/lake_shape.pdf")
 ```
 
-```{r maps_dot_bathy, fig.cap = "Map of study lakes showing A) lake maximum depth measurements, B) cross-section shape class, and C) reservoir classification.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
-knitr::include_graphics("../figures/00_map_bathy-1.pdf")
-```
-
 ```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported depth and depth calculated from bathymetry surfaces by US State.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 # see 00_qa.Rmd
 knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
@@ -40,14 +36,18 @@ knitr::include_graphics("../tables/01_predictors.pdf")
 ```
 \captionsetup[figure]{name=Figure}
 \captionsetup[figure]{labelformat=default}
-\setcounter{figure}{4}
+\setcounter{figure}{3}
 
-```{r 01_geometry_grid, fig.cap = "Comparison among lake shape and reservoir classes for A-B) distance to deepest point versus distance to lake visual center and C-D) buffer slope versus inlake slope.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r 01_geometry_grid, fig.cap = "Comparison among lake shape and reservoir classes for A-B) distance to deepest point versus distance to lake visual center and C-D) nearshore slope versus inlake slope.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../figures/01_geometry_grid-1.pdf")
 ```
 
-```{r depth_model_metrics, fig.cap = "Model fit and predictive accuracy metrics for all combinations of true (inlakeslope, distdeepest) and proxy (slopemean, distviscenter) metrics. Tiles are colored by their R2 values and labeled with their RMSE values.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r depth_model_metrics, fig.cap = "Model fit and predictive accuracy metrics for all combinations of true (inlake slope, deepest point distance) and proxy (nearshore slope, visual center distance) metrics. Tiles are colored by their $R^2$ values and labeled with their RMSE values.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../figures/depth_model_metrics-1.pdf")
+```
+
+```{r 02_depth_model_importance, fig.cap = "Importance plot for random forest variables showing increase in mean square error. Higher values indicate greater importance to model predictions.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+knitr::include_graphics("../figures/02_depth_model_importance-1.pdf")
 ```
 
 ```{r depth_model_grid_resid, fig.cap = "Depth model residuals by shape and reservoir class.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
@@ -58,15 +58,15 @@ knitr::include_graphics("../figures/02_depth_model_grid_resid-1.pdf")
 # Appendix
 \setcounter{figure}{0}
 
-```{r 02_depth_model_importance, fig.cap = "Importance plot for random forest variables showing increase in mean square error. Higher values indicate greater importance to model predictions.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
-knitr::include_graphics("../figures/02_depth_model_importance-1.pdf")
+```{r maps_dot_bathy, fig.cap = "Map of study lakes showing A) lake maximum depth measurements, B) cross-section shape class, and C) reservoir classification.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 ```
 
 ```{r contrasts, fig.cap = "Lake characteristics by categorical variables.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 knitr::include_graphics("../figures/01_contrasts-1.pdf")
 ```
 
-```{r hypsography, fig.cap = "Hypsography classification by state.", warning=FALSE, echo = FALSE, eval=TRUE}
+```{r hypsography, fig.cap = "Hypsography classification by state.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 knitr::include_graphics("../figures/01_hypsography-1.pdf")
 ```
 
