@@ -31,10 +31,11 @@ gg_scatter_state <- ggplot(data = st_drop_geometry(dt)) +
 gg_scatter_shape <- st_drop_geometry(dt) %>%
   dplyr::filter(!is.na(shape_class)) %>%
   dplyr::filter(dist_viscenter >= dist_deepest) %>%
+  dplyr::filter(dist_deepest < 3200) %>%
   dplyr::arrange(desc(factor(shape_class, 
                         levels = c("neither", "concave", "convex")))) %>%
   ggplot(aes(x = dist_deepest, y = dist_viscenter, color = shape_class)) + 
-  geom_point() +
+  geom_point(size = 1) +
   # geom_abline(aes(intercept = 0, slope = 1)) +
   labs(color = "") +
   xlab("Deepest point distance (m)") +
@@ -44,7 +45,8 @@ gg_scatter_reservoir <- st_drop_geometry(dt) %>%
   dplyr::filter(!is.na(reservoir_class)) %>%
   dplyr::filter(dist_viscenter >= dist_deepest) %>%
   ggplot() + 
-  geom_point(aes(x = dist_deepest, y = dist_viscenter, color = reservoir_class)) +
+  geom_point(aes(x = dist_deepest, y = dist_viscenter, color = reservoir_class), 
+             size = 1) +
   scale_color_discrete(labels = c("NL     ", "Res")) + 
   # geom_abline(aes(intercept = 0, slope = 1)) +
   xlab("Deepest point distance (m)") +
@@ -182,21 +184,27 @@ test <- left_join(dt, lgus_pred, by = c("llid" = "lagoslakeid")) %>%
 
 # GGally::ggpairs(dplyr::select(test, matches("class"))) 
                               
-gg_slope_shape <- ggplot(data = test, 
-                         aes(slope_mean, inlake_slope.y, 
-                             color = shape_class)) + 
-    geom_point() +
-  geom_smooth(data = dplyr::filter(test, shape_class != "neither"), 
+gg_slope_shape <- ggplot(data = test) + 
+  geom_point(aes(slope_mean, inlake_slope.y, 
+                             color = shape_class), size = 1) +
+  geom_smooth(aes(slope_mean, inlake_slope.y, 
+                             color = shape_class), data = dplyr::filter(test, shape_class != "neither"), 
               method = "lm", se = FALSE) +
+  geom_segment(aes(x = 0, xend = 0.35, y = 0, yend = 0.35), 
+               linetype = "dashed", size = 0.4) +
+  # geom_abline(slope = 1, intercept = 0) +
   xlab("Nearshore slope (mean)") +
   ylab("Inlake slope") +
   labs(color = "")
 
-gg_slope_reservoir <- ggplot(data = dplyr::filter(test, !is.na(reservoir_class)), 
-                             aes(slope_mean, inlake_slope.y, 
-                                 color = reservoir_class)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE) +
+gg_slope_reservoir <- ggplot(data = dplyr::filter(test, !is.na(reservoir_class))) +
+  geom_point(aes(slope_mean, inlake_slope.y, 
+                                 color = reservoir_class), size = 1) +
+  geom_smooth(aes(slope_mean, inlake_slope.y, 
+                                 color = reservoir_class), 
+              method = "lm", se = FALSE) +
+  geom_segment(aes(x = 0, xend = 0.35, y = 0, yend = 0.35), 
+               linetype = "dashed", size = 0.4) +
   xlab("Nearshore slope (mean)") +
   ylab("Inlake slope") +
   labs(color = "")
@@ -207,11 +215,15 @@ theme_opts <- cowplot::theme_cowplot() +
   theme(legend.position = "none", 
         axis.text = element_text(size = 10), 
         axis.title = element_text(size = 11))
+gg_spacer <- ggplot() + geom_blank() + theme(panel.background = element_blank())
 
-legend_shape     <- cowplot::get_legend(gg_scatter_shape)
-legend_reservoir <- cowplot::get_legend(gg_scatter_reservoir + labs(color = ""))
-legend_panel     <- cowplot::plot_grid(legend_shape, legend_reservoir, 
-                                       ncol = 1, 
+legend_shape     <- cowplot::get_legend(gg_scatter_shape +
+                                          theme(legend.direction = "horizontal"))
+legend_reservoir <- cowplot::get_legend(gg_scatter_reservoir + labs(color = "") +
+                                          theme(legend.direction = "horizontal"))
+legend_panel     <- cowplot::plot_grid(gg_spacer, legend_shape, 
+                                       gg_spacer, legend_reservoir, 
+                                       nrow = 1, rel_widths = c(0.1, 1, 0.08, 1),
                                        align = "hv")
 
 cowplot::plot_grid(
@@ -235,6 +247,6 @@ cowplot::plot_grid(
                        theme_opts,
                      ncol = 3, rel_widths = c(0.08, 1, 1)), 
                      rel_widths = c(1, 1), nrow = 2), 
-  legend_panel, rel_widths = c(1, 0.12)
+ legend_panel, rel_heights = c(1, 0.12), ncol = 1
 )
 ```
