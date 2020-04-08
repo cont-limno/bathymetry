@@ -1,5 +1,6 @@
 all: datasets \
 manuscript/figures.pdf \
+manuscript/appendix.pdf \
 README.md
 
 datasets: data/lagosus_depth.csv \
@@ -106,6 +107,11 @@ data/lagosus_depth.csv \
 data/00_bathy_depth/bathy_pnts.rds \
 data/lagosne_depth_predictors.csv
 	Rscript $<
+
+manuscript/appendix.pdf: manuscript/appendix.Rmd
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	-pdftk manuscript/appendix.pdf cat 2-end output manuscript/appendix2.pdf
+	-mv manuscript/appendix2.pdf manuscript/appendix.pdf
 
 manuscript/figures.pdf: manuscript/figures.Rmd \
 manuscript/tables.pdf \

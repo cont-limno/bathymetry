@@ -79,3 +79,4 @@ dist.pdf
 slope.pdf
 data/00_reservoir_classification/*.xlsx
 scripts/three-d_modelling.R
+manuscript/appendix.tex
