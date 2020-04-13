@@ -50,11 +50,18 @@ J.Stachelek\textsuperscript{1},
 
 \textbf{Introduction}
 
+How do reported values of lake depth compare to depth calculated from detailed bathymetry?
+
 \pagebreak
 \setcounter{figure}{0}
 
 ```{r maps_dot_bathy, fig.cap = "Map of study lakes showing A) lake maximum depth measurements, B) cross-section shape class, and C) reservoir classification.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../figures/00_map_bathy-1.pdf")
+```
+
+```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported depth and depth calculated from bathymetry surfaces by US State.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+# see 00_qa.Rmd
+knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
 ```
 
 ```{r contrasts, fig.cap = "Lake characteristics by categorical variables.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}

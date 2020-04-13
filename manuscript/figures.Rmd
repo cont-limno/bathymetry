@@ -24,11 +24,6 @@ knitr::opts_chunk$set(fig.pos = 'H')
 knitr::include_graphics("../figures/lake_shape.pdf")
 ```
 
-```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported depth and depth calculated from bathymetry surfaces by US State.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
-# see 00_qa.Rmd
-knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
-```
-
 \captionsetup[figure]{name=Table}
 \captionsetup[figure]{labelformat=empty}
 ```{r 01_predictors, fig.cap = "Table 1: Summary of lake depth predictor variables for modelling efforts (and for lakes continent-wide).", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
@@ -52,66 +47,4 @@ knitr::include_graphics("../figures/02_depth_model_importance-1.pdf")
 
 ```{r depth_model_grid_resid, fig.cap = "Depth model residuals by shape and reservoir class.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 knitr::include_graphics("../figures/02_depth_model_grid_resid-1.pdf")
-```
-
-\pagebreak
-# Appendix
-\setcounter{figure}{0}
-
-```{r maps_dot_bathy, fig.cap = "Map of study lakes showing A) lake maximum depth measurements, B) cross-section shape class, and C) reservoir classification.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
-knitr::include_graphics("../figures/00_map_bathy-1.pdf")
-```
-
-```{r contrasts, fig.cap = "Lake characteristics by categorical variables.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
-knitr::include_graphics("../figures/01_contrasts-1.pdf")
-```
-
-```{r hypsography, fig.cap = "Hypsography classification by state.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
-knitr::include_graphics("../figures/01_hypsography-1.pdf")
-```
-
-```{r metric_correlations, fig.cap = "Pearson correlation coefficients of GIS-derived metrics against inlake slope and deepest point distance metrics.", warning=FALSE, echo = FALSE, eval=FALSE, out.width="11cm", fig.align='center', out.extra=''}
-knitr::include_graphics("../figures/metric_correlations-1.pdf")
-```
-
-```{r heatmap, fig.cap = "Correlation matrix heatmap.", warning=FALSE, echo = FALSE, eval=FALSE}
-knitr::include_graphics("../figures/slope-compare-1.pdf")
-```
-
-```{r glaciated_vs_shapeclass, fig.cap = "Cross tabulation between lake glaciation and shape class. Circles are proportional to the number of lakes in each category. If a lake has been glaciated it is more likely to be convex. However, if a lake has not been glaciated there is no tendencey towards a particular shape class.", warning=FALSE, echo = FALSE, eval=FALSE}
-knitr::include_graphics("../figures/glaciated_vs_shapeclass-1.pdf")
-```
-
-```{r contrasts_tally, fig.cap = "Number of lake depth measurements by categories.", warning=FALSE, echo = FALSE, eval=FALSE}
-knitr::include_graphics("../figures/01_contrasts_tally-1.pdf")
-```
-
-```{r 02_depth_model_fitted, fig.cap = "A model that does not include shape class over predicts depth in concave lakes but does not systematically under predict depth in convex lakes.", warning=FALSE, echo = FALSE, eval=FALSE}
-knitr::include_graphics("../figures/02_depth_model_fitted-1.pdf")
-```
-
-```{r 02_depth_oliver-2, fig.cap = "Reproduction of Oliver 2016 using LAGOSUS data in LAGOSNE footprint.", warning=FALSE, echo = FALSE, eval=FALSE}
-knitr::include_graphics("../figures/02_depth_oliver-2.pdf")
-```
-
-```{r 02_depth_oliver-1, fig.cap = "Reproduction of Oliver 2016 using LAGOSUS data in LAGOSNE footprint.", warning=FALSE, echo = FALSE, eval=FALSE}
-knitr::include_graphics("../figures/02_depth_oliver-1.pdf")
-```
-
-```{r 02_depth_oliver-4, fig.cap = "Oliver 2016 observed versus predicted.", warning=FALSE, echo = FALSE, eval=FALSE}
-knitr::include_graphics("../figures/02_depth_oliver-4.pdf")
-```
-
-```{r 02_hypso_model_fitted, fig.cap = "Confusion matrix comparing two classification methods", warning=FALSE, echo = FALSE, eval=FALSE}
-knitr::include_graphics("../figures/02_hypso_model_fitted-1.pdf")
-```
-
-```{r 02_hypso_model_importance, fig.cap = "Recusive Partitioning variable importance.", warning=FALSE, echo = FALSE, eval=FALSE, out.extra=''}
-knitr::include_graphics("../figures/02_hypso_model_importance-1.pdf")
-```
-
-<!-- ![Messager et al. 2016 equation table](../figures/messager_eq_table.png){width=100%} -->
-
-```{r 01_geometry_map, fig.cap = "Green points show the 'visual center' of the lake. Red points show the true deepest point of a lake.", warning=FALSE, echo = FALSE, eval=FALSE}
-knitr::include_graphics("../figures/gg_distance-3.pdf")
 ```
