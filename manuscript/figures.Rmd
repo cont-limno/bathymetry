@@ -31,7 +31,7 @@ knitr::include_graphics("../tables/01_predictors.pdf")
 ```
 \captionsetup[figure]{name=Figure}
 \captionsetup[figure]{labelformat=default}
-\setcounter{figure}{3}
+\setcounter{figure}{2}
 
 ```{r 01_geometry_grid, fig.cap = "Comparison among lake shape and reservoir classes for A-B) distance to deepest point versus distance to lake visual center and C-D) nearshore slope versus inlake slope. Also shown is a 1:1 line for comparison.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../figures/01_geometry_grid-1.pdf")
