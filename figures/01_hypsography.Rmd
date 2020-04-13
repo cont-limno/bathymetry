@@ -12,7 +12,7 @@ source("../scripts/99_utils.R")
 
 ```{r 01_hypsography, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 
-ids <- factor(c("convex", "concave"))
+ids <- factor(c("convex", "concave"), levels = c("convex", "concave"))
 polys <- data.frame(
   id = rep(ids, each = 3),
   x = c(0, 100, 0, 
@@ -20,17 +20,42 @@ polys <- data.frame(
   y = c(100, 0, 0, 
         100, 100, 0))
 
-dt_raw <- read.csv("../data/00_hypso/hypso.csv", stringsAsFactors = FALSE)
+dt_raw     <- read.csv("../data/00_hypso/hypso.csv", stringsAsFactors = FALSE)
 
-ggplot(data = dt_raw) +
-  geom_polygon(data = polys, aes(x = x, y = y, group = id, fill = id), alpha = 0.2) +
-  geom_line(aes(x = area_percent, y = depth_percent, group = llid)) +
+# generate labels with percent in each class
+dt_classes <- read.csv("../data/00_hypso/hypso_classes.csv", 
+                       stringsAsFactors = FALSE) %>%
+  left_join(dt_raw)
+class_tally <- dt_classes %>%
+  dplyr::filter(shape_class != "neither") %>%
+  group_by (state, shape_class) %>%
+  summarise (n=n()) %>%
+  mutate(rel.freq = paste0(round(100 * n/sum(n), 0), "%")) %>%
+  dplyr::select(-n) %>%
+  tidyr::pivot_wider(names_from = state, values_from = rel.freq) %>%
+  t()
+class_tally <- setNames(
+  tibble::as_tibble(class_tally[-1,]), c("concave", "convex")) %>%
+  mutate(state = row.names(class_tally)[-1]) %>%
+  mutate(state_label = paste0(state, " (", convex, ",", concave, ")"))
+dt_raw <- left_join(dt_raw, class_tally, by = "state")
+
+res <- ggplot(data = dt_raw) +
+  geom_polygon(data = polys, aes(x = x, y = y, group = id, fill = id), alpha = 0.5) +
+  scale_fill_manual(values = c(concave = "#F8766D", convex = "#00BA38")) +
+  geom_line(aes(x = area_percent, y = depth_percent, group = llid), size = 0.2) +
   geom_abline(intercept = -100, slope = 1, color = "red") +
   ylim(c(100, 0)) +
   ylab("Depth (percent)") + xlab("Area (percent)") + 
   ggtitle(paste0("Normalized hypsography for ", length(unique(dt_raw$llid)), " lakes")) + 
   theme(legend.position = c(0.84, 0.2), 
         legend.title = element_blank()) +
-  facet_wrap(~state)
+  facet_wrap(~state_label)
+
+leg <- cowplot::get_legend(res + theme(legend.direction = "horizontal"))
+
+cowplot::plot_grid(res + theme(legend.position = "none"), 
+                   leg, 
+                   nrow = 2, rel_heights = c(1, 0.09))
 
 ```
