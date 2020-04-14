@@ -36,7 +36,7 @@ Supporting information for
 
 \vspace{1em}
 
-J.Stachelek\textsuperscript{1}, 
+J. Stachelek\textsuperscript{1}, P. Hanly\textsuperscript{1}, and P.A. Soranno\textsuperscript{1}
 
 \vspace{1em}
 
@@ -44,13 +44,43 @@ J.Stachelek\textsuperscript{1},
 
 \vspace{8em}
 
+\raggedright
 \textbf{Contents of this file}
 
-\vspace{4em}
+\textbf{Figure S1} Map of study lakes
 
-\textbf{Introduction}
+\textbf{Figure S2} Comparison between reported depth and depth estimated from bathymetry surfaces
 
-How do reported values of lake depth compare to depth calculated from detailed bathymetry?
+\textbf{Figure S3} Lake characteristics by categorical variables
+
+\textbf{Figure S4} Hypsography classification by state
+
+<!-- \vspace{4em} -->
+
+<!-- \textbf{Introduction} -->
+
+<!-- How do reported values of lake depth compare to depth calculated from detailed bathymetry? -->
+
+<!-- we estimated calculated the maximum depth of approximately 5,000 lakes in the Northeastern and Midwestern US from bathymetry data and compared the results against a database of lake depths developed by (LAGOSUS-Depth citation). -->
+
+<!-- One of our objectives was to see whether uncertainty or bias in reported lake depths is likely responsible for the poor performance of prior depth prediction studies.  -->
+
+<!-- We refer to these values as “calculated depth” to distinguish them from “reported depth” values one might find listed in a report or other document.  -->
+
+<!-- To evaluate the accuracy of reported lake depth values, we compared depths calculated from bathymetry surfaces against reported depths in the LAGOSUS-Depth product (citation). No reported depth values originated from the same source as its corresponding calculated value. -->
+
+<!-- How do reported values of lake depth compare to depth calculated from detailed bathymetry? -->
+<!-- Given the importance of depth-dependent processes in determining lake function, it is encouraging that reported maximum depth values are closely aligned with “true” depth values calculated from bathymetry. This suggests that uncertainty or bias in reported lake depths is not likely responsible for the poor performance of prior depth prediction studies. -->
+
+<!-- We propose that the median spread among reported and calculated values of maximum be used as a benchmark for future studies. Future studies should not expect to have prediction errors smaller than our observed spread (0.3 m) among reported and calculated maximum depth values. -->
+
+<!-- Although it might seem that the mismatch and relatively poor correspondence between reported and calculated values of mean depth calls into question the basis of prior studies depending on the mean depth metric, there are several possible explanations for our finding. -->
+
+<!-- First, the mismatch between reported and calculated mean depth may be a result of using different definitions for lake boundaries (or a result of variation in lake water levels). In our study, we defined a lake boundary based on the waterbody polygons in the NHD but on-the-ground surveys could very well be using different boundaries. This could lead to discrepancies in mean depth values because calculated values would be based on different lake basin extents or entirely different numbers of basins. -->
+
+<!-- An alternative explanation is that reported values of mean depth are not based on the same definition of mean depth as we have used in our calculations. Whereas we have calculated mean depth mathematically, reported mean depth values may be based on expert judgement or simply a qualitative estimate of the general depth one might experience out on a lake. -->
+
+<!-- Finally, our calculated mean depth values may be sensitive to the resolution and type of the source bathymetry data. For example, in the case of the Maine data the source bathymetry data was point measurements made along depth sounding transects rather than depth contours, polygons, or interpolated raster products. As a result, the density of data used for smoothing interpolations in Maine lakes was much lower than in other states. This could lead to overestimation of mean depth due to limited sampling in shallow areas as they are relatively inaccessible by boat (Furnans and Austin 2008). -->
 
 \pagebreak
 \setcounter{figure}{0}
@@ -59,7 +89,7 @@ How do reported values of lake depth compare to depth calculated from detailed b
 knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 ```
 
-```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported depth and depth calculated from bathymetry surfaces by US State.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported depth and depth estimated from bathymetry surfaces by US State where reported depths come from the LAGOSUS-Depth product (citation). For this figure, no reported depth values originated from the same source as its corresponding bathymetry-derived value.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 # see 00_qa.Rmd
 knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
 ```
