@@ -70,6 +70,9 @@ J. Stachelek\textsuperscript{1}, P. Hanly\textsuperscript{1}, and P.A. Soranno\t
 <!-- To evaluate the accuracy of reported lake depth values, we compared depths calculated from bathymetry surfaces against reported depths in the LAGOSUS-Depth product (citation). No reported depth values originated from the same source as its corresponding calculated value. -->
 
 <!-- How do reported values of lake depth compare to depth calculated from detailed bathymetry? -->
+
+<!-- Reported maximum depth values were very similar to calculated maximum depth values as evidenced by their alignment along a 1:1 line (Figure 3). Conversely, the alignment between reported and calculated mean depth values was more messy. In particular, the calculated mean depth of Maine lakes appeared to be consistently underestimated compared to reported values.  -->
+
 <!-- Given the importance of depth-dependent processes in determining lake function, it is encouraging that reported maximum depth values are closely aligned with “true” depth values calculated from bathymetry. This suggests that uncertainty or bias in reported lake depths is not likely responsible for the poor performance of prior depth prediction studies. -->
 
 <!-- We propose that the median spread among reported and calculated values of maximum be used as a benchmark for future studies. Future studies should not expect to have prediction errors smaller than our observed spread (0.3 m) among reported and calculated maximum depth values. -->
