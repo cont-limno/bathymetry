@@ -231,9 +231,13 @@ cowplot::plot_grid(
   cowplot::plot_grid(gg_scatter_shape + 
                        labs(color = "") +
                        # theme(axis.title.x = element_blank()) +
+                       annotate("text", x = 2000, y = 300, label = "R^2 == 0.80",
+                                parse = TRUE) +
                        theme_opts,
                      gg_scatter_reservoir + 
                        labs(color = "") +
+                       # annotate("text", x = 1800, y = 500, label = "R^2 == 0.80",
+                       #          parse = TRUE) +
                        theme(#axis.title.x = element_blank(), 
                              axis.title.y = element_blank()) +
                        theme_opts, 
@@ -241,8 +245,12 @@ cowplot::plot_grid(
   cowplot::plot_grid(ggplot() + geom_blank() + 
                        theme_opts + theme(axis.line = element_blank()), 
                      gg_slope_shape +
+                       annotate("text", x = 0.33, y = 0.03, label = "R^2 == 0.17",
+                                parse = TRUE) +
                        theme_opts,
                      gg_slope_reservoir + 
+                         # annotate("text", x = 0.3, y = 0.03, label = "R^2 == 0.17",
+                         #        parse = TRUE) +
                        theme(axis.title.y = element_blank()) +
                        theme_opts,
                      ncol = 3, rel_widths = c(0.08, 1, 1)), 
