@@ -89,7 +89,7 @@ taxonomy_key <- bind_rows(
     pretty = "HUC4 ID"),
   c(col_name = "trig_depth",
     description = "Trigonometrically derived max depth (m)",
-    pretty = "Derived max depth (m)")
+    pretty = "Geometric max depth (m)")
   )
 
 write.csv(taxonomy_key, "data/taxonomy.csv", row.names = FALSE)

@@ -30,4 +30,4 @@
 "lake_shorelinedevfactor_nounits","shoreline development factor calculated as the lake_perimeter_m / (2*sqrt(pi*lake_waterarea_ha*10000)) by way of the LAGOS-US Locus module","Shoreline development"
 "ws_lake_arearatio","ratio between interlake watershed area and lake water area by way of the LAGOS-US Locus module","Watershed-lake ratio"
 "hu4_zoneid","unique identifier assigned by LAGOS-US for zones in the spatial division HU4","HUC4 ID"
-"trig_depth","Trigonometrically derived max depth (m)","Derived max depth (m)"
+"trig_depth","Trigonometrically derived max depth (m)","Geometric max depth (m)"
