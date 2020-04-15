@@ -39,7 +39,7 @@ gg_scatter_shape <- st_drop_geometry(dt) %>%
   # geom_abline(aes(intercept = 0, slope = 1)) +
   labs(color = "") +
   xlab("Deepest point distance (m)") +
-  ylab("Visual center distance (m)")
+  ylab("Visual center\ndistance (m)")
 
 gg_scatter_reservoir <- st_drop_geometry(dt) %>%
   dplyr::filter(!is.na(reservoir_class)) %>%
@@ -50,7 +50,7 @@ gg_scatter_reservoir <- st_drop_geometry(dt) %>%
   scale_color_discrete(labels = c("NL     ", "Res")) + 
   # geom_abline(aes(intercept = 0, slope = 1)) +
   xlab("Deepest point distance (m)") +
-  ylab("Visual center distance (m)")
+  ylab("Visual center\ndistance (m)")
 ```
 
 ```{r gg_distance, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3}
@@ -223,17 +223,19 @@ legend_reservoir <- cowplot::get_legend(gg_scatter_reservoir + labs(color = "") 
                                           theme(legend.direction = "horizontal"))
 legend_panel     <- cowplot::plot_grid(gg_spacer, legend_shape, 
                                        gg_spacer, legend_reservoir, 
-                                       nrow = 1, rel_widths = c(0.1, 1, 0.08, 1),
+                                       nrow = 1, rel_widths = c(0.2, 1, 0.08, 1),
                                        align = "hv")
 
+text_size <- 2.5
 cowplot::plot_grid(
   cowplot::plot_grid(
   cowplot::plot_grid(gg_scatter_shape + 
                        labs(color = "") +
                        # theme(axis.title.x = element_blank()) +
-                       annotate("text", x = 2000, y = 300, label = "R^2 == 0.80",
-                                parse = TRUE) +
+                       annotate("text", x = 2250, y = 300, label = "R^2 == 0.80",
+                                parse = TRUE, size = text_size) +
                        theme_opts,
+                     gg_spacer,
                      gg_scatter_reservoir + 
                        labs(color = "") +
                        # annotate("text", x = 1800, y = 500, label = "R^2 == 0.80",
@@ -241,20 +243,21 @@ cowplot::plot_grid(
                        theme(#axis.title.x = element_blank(), 
                              axis.title.y = element_blank()) +
                        theme_opts, 
-                     ncol = 2),
+                     ncol = 3, rel_widths = c(1, 0, 1)),
   cowplot::plot_grid(ggplot() + geom_blank() + 
                        theme_opts + theme(axis.line = element_blank()), 
                      gg_slope_shape +
-                       annotate("text", x = 0.33, y = 0.03, label = "R^2 == 0.17",
-                                parse = TRUE) +
+                       annotate("text", x = 0.36, y = 0.03, label = "R^2 == 0.17",
+                                parse = TRUE, size = text_size) +
                        theme_opts,
+                     gg_spacer,
                      gg_slope_reservoir + 
                          # annotate("text", x = 0.3, y = 0.03, label = "R^2 == 0.17",
                          #        parse = TRUE) +
                        theme(axis.title.y = element_blank()) +
                        theme_opts,
-                     ncol = 3, rel_widths = c(0.08, 1, 1)), 
-                     rel_widths = c(1, 1), nrow = 2), 
+                     ncol = 4, rel_widths = c(0.11, 1, 0.11, 1)), 
+                     rel_widths = c(0.7, 1), nrow = 2), 
  legend_panel, rel_heights = c(1, 0.12), ncol = 1
 )
 ```
