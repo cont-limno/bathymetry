@@ -33,11 +33,12 @@ knitr::include_graphics("../tables/01_predictors.pdf")
 \captionsetup[figure]{labelformat=default}
 \setcounter{figure}{2}
 
-```{r 01_geometry_grid, fig.cap = "Comparison among lake shape and reservoir classes for A-B) distance to deepest point versus distance to lake visual center and C-D) nearshore slope versus inlake slope. Also shown is a 1:1 line for comparison.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r 01_geometry_grid, fig.cap = "Comparison among lake shape and reservoir classes for A-B) distance to deepest point versus distance to lake visual center and C-D) nearshore slope versus inlake slope. A dashed 1:1 line is shown for comparison. Cross-section shape and reservoir class plots are not identical because not all lakes had a reservoir classification exceeding a 0.75 probability confidence level.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../figures/01_geometry_grid-1.pdf")
 ```
 
 ```{r depth_model_metrics, fig.cap = "Model fit and predictive accuracy metrics for all combinations of true (inlake slope, deepest point distance) and proxy (nearshore slope, visual center distance) metrics. Tiles are colored by their $R^2$ values and labeled with their RMSE values.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+# see 02_depth_model.Rmd
 knitr::include_graphics("../figures/depth_model_metrics-1.pdf")
 ```
 
@@ -45,6 +46,7 @@ knitr::include_graphics("../figures/depth_model_metrics-1.pdf")
 knitr::include_graphics("../figures/02_depth_model_importance-1.pdf")
 ```
 
-```{r depth_model_grid_resid, fig.cap = "Depth model residuals by shape and reservoir class.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+```{r depth_model_grid_resid, fig.cap = "Depth model residuals by cross-section shape and reservoir class.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+# see 02_depth_model.Rmd
 knitr::include_graphics("../figures/02_depth_model_grid_resid-1.pdf")
 ```
