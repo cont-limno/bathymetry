@@ -1,16 +1,17 @@
+source("scripts/99_utils.R")
 
-# What percentage of lakes are in each shape class?
+# ---- What percentage of lakes are in each shape class? ----
 dt <- read.csv("data/00_hypso/hypso_classes.csv", stringsAsFactors = FALSE)
 table(dt$shape_class)[1] / sum(table(dt$shape_class)) * 100
 table(dt$shape_class)[2] / sum(table(dt$shape_class)) * 100
 
-# What percentage of lakes are in each reservoir class?
+# ---- What percentage of lakes are in each reservoir class? ----
 dt <- read.csv("data/00_reservoir_classification/reservoir_classes_clean.csv",
                stringsAsFactors = FALSE)
 table(dt$reservoir_class)[1] / sum(table(dt$reservoir_class))
 table(dt$reservoir_class)[2] / sum(table(dt$reservoir_class))
 
-# What are the summary stats of the papers looked at by Hakanson (1977)?
+# ---- What are the summary stats of the papers looked at by Hakanson (1977)? ----
 hak_areas <- as.numeric(c("821000", "598000", "578000", "25700", "19000", "5650",
                           "3580", "2070", "1910", "1140", "484", "128",
                           "94.7", "92.0", "63.8", "54.2", "23.8", "18.6",
@@ -24,7 +25,7 @@ quantile(hak_areas,
          probs = c(0.25, 0.5, 0.75))
 hist(hak_areas, n = 80)
 
-# How related are true and proxy geometry metrics?
+# ---- How related are true and proxy geometry metrics? ----
 bp <- readRDS("data/00_bathy_depth/bathy_pnts.rds")
 dt <- read.csv("data/00_geometry/nearshore.csv", stringsAsFactors = FALSE) %>%
   mutate(llid = as.character(llid))
@@ -41,3 +42,22 @@ dt <- left_join(dt, lgus_pred, by = c("llid" = "lagoslakeid")) %>%
 
 broom::glance(lm(dist_viscenter~dist_deepest, data = dt))$r.squared # 0.80
 broom::glance(lm(inlake_slope ~ slope_mean, data = dt))$r.squared # 0.17
+
+# ---- the percentage of lakes in the study footprint with bathy maps ----
+
+# pull bathy llids + states
+bd <- read.csv("data/00_bathy_depth/00_bathy_depth.csv",
+               stringsAsFactors = FALSE)
+
+# pull list of llids > 4 ha in footprint
+lg_raw <- lagosus_load("locus")
+lg <- lg_raw$locus$locus_information %>%
+  dplyr::filter(lake_centroidstate %in% unique(bd$state)) %>%
+  left_join(lg_raw$locus$locus_characteristics) %>%
+  dplyr::filter(lake_waterarea_ha >= 4)
+
+(nrow(bd) / nrow(lg)) * 100 # 15%
+
+
+
+
