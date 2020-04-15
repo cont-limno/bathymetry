@@ -101,7 +101,7 @@ knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
 knitr::include_graphics("../figures/01_contrasts-1.pdf")
 ```
 
-```{r hypsography, fig.cap = "Hypsography classification by state.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+```{r hypsography, fig.cap = "Hypsography classification by state. Numbers on panel labels indicate the percentage of lakes in each state with a convex versus a concave cross-section shape.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 knitr::include_graphics("../figures/01_hypsography-1.pdf")
 ```
 
