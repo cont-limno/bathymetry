@@ -20,7 +20,7 @@ dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
     as.character(model) == "maxdepth_true_true" ~ NA_real_,
     TRUE ~ rsq)) %>%
   mutate(rmse = case_when(
-    as.character(model) == "maxdepth_true_true" ~ "-",
+    as.character(model) == "maxdepth_true_true" ~ " ",
     TRUE ~ rmse)) %>%
   mutate(model = gsub("maxdepth_", "", model)) %>%
   mutate(model = gsub("false", "proxy", model)) %>%
@@ -38,7 +38,8 @@ ggplot(data = dt_metrics,
   geom_text(aes(label = rmse), vjust = .5, fontface  = "bold", alpha = 1) +
   xlab("distance") + ylab("slope") +
   cowplot::theme_cowplot() +
-  theme(axis.line = element_blank())
+  theme(axis.line = element_blank(), 
+        axis.ticks = element_blank())
 ```
 
 ```{r 02_depth_model_importance, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.2, fig.width=5}
@@ -123,6 +124,7 @@ gg_shape <- lapply(unique(dt$maxdepth), function(x){
     theme_cowplot() +
     theme(legend.position = "bottom",
         strip.background = element_blank(), 
+        axis.text = element_text(size = 9.5),
         strip.text = element_blank(),
         plot.margin = unit(c(1.2,0.2,0.2,0.2), "cm"))  +
   guides(fill = guide_legend(nrow = 2))
@@ -171,6 +173,7 @@ gg_reservoir <- lapply(unique(dt$maxdepth), function(x){
     theme(legend.position = "bottom",
         strip.background = element_blank(), 
         strip.text = element_blank(),
+        axis.text = element_text(size = 9.5),
         plot.margin = unit(c(1.2,0.2,0.2,0.2), "cm"))  +
   guides(fill = guide_legend(nrow = 2))
   })
