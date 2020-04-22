@@ -3,7 +3,7 @@
 "state","abbreviation of the state used to search for a lake's depth","State"
 "max_depth_m","lake maximum depth in meters","Max depth (m)"
 "mean_depth_m","lake mean depth in meters","Mean depth (m)"
-"source","url link of the source of depth data",NA
+"source","url link to the source of depth data",NA
 "lake_waterarea_ha","surface area of lake waterbody polygon from NHD (excludes islands) by way of the LAGOS-US Locus module","Area (ha)"
 "lake_connectivity_permanent","connectivity of focal lake to upstream features (DrainageLK = drainage lake with an upstream lake, Drainage = drainage lake with upstream stream, Headwater = lake with outlet but no inlet, Isolated = lake with no inlets or outlets) by way of the LAGOS-US Locus module",NA
 "lake_lat_decdeg","the latitude of the lake center point (NAD83) from the LAGOS-US Locus module",NA

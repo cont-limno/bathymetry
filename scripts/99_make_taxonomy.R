@@ -21,7 +21,7 @@ taxonomy_key <- bind_rows(
     description = "lake mean depth in meters",
     pretty = "Mean depth (m)"),
   c(col_name = "source",
-    description = "url link of the source of depth data"),
+    description = "url link to the source of depth data"),
   c(col_name = "lake_waterarea_ha",
     description = "surface area of lake waterbody polygon from NHD (excludes islands) by way of the LAGOS-US Locus module",
     pretty = "Area (ha)"),
