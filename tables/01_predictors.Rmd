@@ -101,9 +101,11 @@ dt <- dt_combined %>%
 
 # remove sample size reporting for bathy specific variables
 dt[
-  dt$variable %in% c("dist_deepest", "dist_viscenter", "inlake_slope"), 2:5] <- 
+  dt$variable %in% c("dist_deepest", "dist_viscenter", 
+                     "inlake_slope", "buffer_slope"), 2:5] <- 
   dt[
-  dt$variable %in% c("dist_deepest", "dist_viscenter", "inlake_slope"), 2:5] %>%
+  dt$variable %in% c("dist_deepest", "dist_viscenter", 
+                     "inlake_slope", "buffer_slope"), 2:5] %>%
 apply(2, function(x) stringr::str_replace(x, "\\(([^\\)]+)\\)", "(-)"))
 
 taxonomy_key <- read.csv("../data/taxonomy.csv", stringsAsFactors = FALSE)
