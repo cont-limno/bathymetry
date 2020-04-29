@@ -96,7 +96,7 @@ dt <- dt_combined %>%
   dplyr::filter(str_detect(variable, 
                            "^lake_|^ws_lake_arearatio|^dist_|_slope")) %>%
   dplyr::filter(!str_detect(variable,
-                      "totalarea|islandperimeter|between|buffer100m")) # %>%
+                      "totalarea|islandperimeter|between|buffer100m|lake_meandepth_m")) # %>%
   # mutate(n = dt_bathy$n[which(dt_bathy$variable == "inlake_slope")])
 
 # remove sample size reporting for bathy specific variables
@@ -110,6 +110,14 @@ taxonomy_key <- read.csv("../data/taxonomy.csv", stringsAsFactors = FALSE)
 
 dt <- left_join(dt, taxonomy_key, by = c("variable" = "col_name")) %>%
   dplyr::mutate(variable = pretty) %>% select(-pretty, -description)
+
+dt <- dplyr::rename(dt, Variable = variable)
+
+# bold Eq 2 predictor variables
+dt$Variable[!stringr::str_detect(dt$Variable, "slope|distance|depth")] <- 
+  paste0("**", 
+         dt$Variable[!stringr::str_detect(dt$Variable, "slope|distance|depth")],
+         "**") 
 
 options(knitr.kable.NA = '-')
 knitr::kable(dt, digits = 0, format = "markdown") 

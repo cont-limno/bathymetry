@@ -26,7 +26,7 @@ knitr::include_graphics("../figures/lake_shape.pdf")
 
 \captionsetup[figure]{name=Table}
 \captionsetup[figure]{labelformat=empty}
-```{r 01_predictors, fig.cap = "Table 1: Summary of lake depth predictor variables for modelling efforts (and for lakes continent-wide).", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r 01_predictors, fig.cap = "Table 1: Summary of lake depth and predictor variables for modelling efforts (and for lakes in the contiguous United States from <LAGOSUS-Depth citation>). Predictor variables used in Eq 2 are printed in bold face. Dashes (-) indicate identical sample size among this study and that of the contiguous United States.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../tables/01_predictors.pdf")
 ```
 \captionsetup[figure]{name=Figure}
