@@ -21,7 +21,7 @@ dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
     TRUE ~ rsq)) %>%
   mutate(rmse = case_when(
     as.character(model) == "maxdepth_true_true" ~ " ",
-    TRUE ~ rmse)) %>%
+    TRUE ~ paste0(rmse, " m"))) %>%
   mutate(model = gsub("maxdepth_", "", model)) %>%
   mutate(model = gsub("false", "proxy", model)) %>%
   tidyr::separate(model, c("slope", "distance")) %>%
@@ -106,7 +106,7 @@ lgus <- read.csv("../data/lagosus_depth_predictors.csv",
   mutate(lagoslakeid = as.character(lagoslakeid)) %>%
   dplyr::select(-lake_maxdepth_m) %>%
   distinct(lagoslakeid, .keep_all = TRUE)
-dt   <- readRDS("../data/01_depth_model/depth_grid.rds") %>%
+dt   <- readRDS("../data/01_depth_model/depth_grid.rds") %>% # 05_depth_model.R
   mutate(lagoslakeid = as.character(lagoslakeid)) %>%
   mutate(resid = case_when(maxdepth == "maxdepth_true_true" ~ NA_real_, 
                            TRUE ~ resid)) %>%

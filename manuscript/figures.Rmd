@@ -46,7 +46,7 @@ knitr::include_graphics("../figures/depth_model_metrics-1.pdf")
 knitr::include_graphics("../figures/02_depth_model_importance-1.pdf")
 ```
 
-```{r depth_model_grid_resid, fig.cap = "Depth model residuals by cross-section shape and reservoir class.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+```{r depth_model_grid_resid, fig.cap = "Depth model residuals in meters by cross-section shape and reservoir class.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 # see 02_depth_model.Rmd
 knitr::include_graphics("../figures/02_depth_model_grid_resid-1.pdf")
 ```
