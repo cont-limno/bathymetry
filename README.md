@@ -5,7 +5,7 @@
 
 ### Products
 
-Figures: [manuscript/figures.pdf](manuscript/figures.pdf)
+Figures: [manuscript/figures.pdf](manuscript/combined.pdf)
 
 Data: [bathymetry derived depth
 predictors](data/depth_predictors.csv)
