@@ -18,7 +18,7 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 \pagebreak
 
-![Diagram showing the relations between true (black) and proxy (orange) metrics of lake geometry. Calculated depth from Equation 1 requires a distance and a slope metric.](../figures/slope_diagram_new.pdf){width=75%}
+![Diagram showing the relations between true (black) and proxy (orange) metrics of lake geometry. Geometric depth calculated via Equation 1 requires a single distance and slope metric.](../figures/slope_diagram_new.pdf){width=75%}
 
 ```{r lake_shape, echo=FALSE, out.extra='', fig.align='center', fig.cap="Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right). Dashed lines represent extrapolated nearshore slope while solid lines represent the lake bottom."}
 knitr::include_graphics("../figures/lake_shape.pdf")
