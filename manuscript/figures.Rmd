@@ -42,7 +42,7 @@ knitr::include_graphics("../figures/01_geometry_grid-1.pdf")
 knitr::include_graphics("../figures/depth_model_metrics-1.pdf")
 ```
 
-```{r 02_depth_model_importance, fig.cap = "Importance plot for random forest variables showing increase in mean square error. Higher values indicate greater importance to model predictions. See Equation 1 for a definition of geometric max depth.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+```{r 02_depth_model_importance, fig.cap = "Importance plot for random forest variables showing increase in mean square error. Higher values indicate greater importance to model predictions. See Equation 1 for a definition of geometric max depth. HUC4 ID is a 'dummy' variable of geographic (hydrologic subbasin) location.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 knitr::include_graphics("../figures/02_depth_model_importance-1.pdf")
 ```
 
