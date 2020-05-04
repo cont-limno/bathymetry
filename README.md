@@ -1,14 +1,24 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-## Bathymetry data from thousands of lakes show that lake depth prediction is confounded by difficulty modeling inlake slope
+[![Paper
+DOI](https://img.shields.io/badge/Paper-DOI-blue.svg)](https://doi.org)
+[![Code
+DOI](https://img.shields.io/badge/Code-DOI-blue.svg)](https://doi.org/)
+[![Docker
+Build](https://img.shields.io/badge/Docker%20Image-jsta/bathymetry-green.svg)](https://cloud.docker.com/repository/docker/jsta/bathymetry)
+
+Code and data for:
+
+**Stachelek et al. In prep**. Bathymetry data from thousands of lakes
+show that lake depth prediction is confounded by difficulty modeling
+inlake slope.
 
 ### Products
 
 Figures: [manuscript/combined.pdf](manuscript/combined.pdf)
 
-Data: [bathymetry derived depth
-predictors](data/depth_predictors.csv)
+Data: [bathymetry derived depth predictors](data/depth_predictors.csv)
 
 | column name                       | variable                   | description                                                                                                                                                                                                   |
 | :-------------------------------- | :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
