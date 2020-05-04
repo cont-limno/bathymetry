@@ -166,6 +166,15 @@ geom_pointrange(aes(x = cat, y = `50%`,
 
 ```
 
+```{r gg_shorelinedev_shape_class, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+# compare shoreline dev for each shapeclass
+gg_shorelinedev_shape_class <- dt %>%
+  dplyr::filter(shape_class != "neither") %>%  
+  contrast_plot(grp = "shape_class", varb = "lake_shorelinedevfactor_nounits", 
+                label = "Shoreline Dev.", plot_type = "pointrange")
+```
+
+
 ```{r 01_contrasts, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height = 3.5}
 theme_opts <- theme(axis.text.x = element_text(angle = 90), 
                     axis.title = element_blank(),
