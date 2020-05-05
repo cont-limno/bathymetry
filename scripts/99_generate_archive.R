@@ -56,4 +56,5 @@ sf::st_write(coverage_polys, "data/bathymetry.gpkg")
 # coverage_polys <- st_read("data/bathymetry.gpkg")
 
 # ---- zip files ----
-zip("data/bathymetry.zip", c("data/README.md", "data/bathymetry.gpkg", f_list, f_data))
+zip("data/bathymetry.zip", c("data/README.md", "data/bathymetry.gpkg", "data/00_hypso/hypso.csv",
+                             f_list, f_data))
