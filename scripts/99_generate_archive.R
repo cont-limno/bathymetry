@@ -3,10 +3,6 @@ library(raster)
 library(gdalUtilities)
 library(dplyr)
 
-# I'd geotiff them with lzw and tiling on (cog) and ship with a Geopackage
-# index, filename and coverage polygon. Store the foreign crs as string if the
-# rasters use different ones. This would be a breeze in and for R
-
 # ---- generate raster list ----
 depth_dirs <- dir("data",
     include.dirs = TRUE, pattern = "^\\w{2}_bathy$",
@@ -17,15 +13,18 @@ f_list <- dir(depth_dirs, pattern = "^\\d{1,6}.tif",
 # ---- setup source data by state, url, and raw data file ----
  (f_source <- dplyr::bind_rows(
    c("state" = "ct", data = "data/ct_bathy/ct_bathy.gpkg", url = "https://cteco.uconn.edu/ctmaps/rest/services/Elevation/Lake_Bathymetry/MapServer/"),
-   c("state" = "ia"),
-   c("state" = "ks"),
-   c("state" = "ma"),
-   c("state" = "me"),
-   c("state" = "mi"),
-   c("state" = "mn"),
-   c("state" = "ne"),
-   c("state" = "nh")
+   c("state" = "ia", data = "data/ia_bathy/lakes_bathymetry.shp", url = "http://iowageodata.s3.amazonaws.com/inlandWaters/lakes_bathymetry.zip"),
+   c("state" = "ks", data = "data/ks_bathy/ks_bathy.gpkg", url = "http://kars.ku.edu/arcgis/rest/services/WaterResources/BathymetryContour/MapServer/"),
+   c("state" = "ma", data = "data/ma_bathy/DFWBATHY_ARC.shp", url = "http://download.massgis.digital.mass.gov/shapefiles/state/dfwbathy.zip"),
+   c("state" = "me", data = "data/me_bathy/lakedpth.shp", url = "https://www.maine.gov/megis/catalog/shps/state/lakedpths.zip"),
+   c("state" = "mi", data = "data/mi_bathy/contours.geojson", url = "https://opendata.arcgis.com/datasets/d49160d2e5af4123b15d48c2e9c70160_4.geojson"),
+   c("state" = "mn", data = "data/mn_bathy/lake_bathymetric_elevation_model.tif", url = "https://gisdata.mn.gov/dataset/water-lake-bathymetry"),
+   c("state" = "ne", data = "data/ne_bathy/ne_bathy.gpkg", url = "https://maps.outdoornebraska.gov/arcgis/rest/services/Programs/LakeMapping/MapServer"),
+   c("state" = "nh", data = "data/nh_bathy/Bathymetry_Lakes_lines.shp", url = "http://www.granit.unh.edu/cgi-bin/nhsearch?dset=bathymetry_lakes_polygons/nh")
    ))
+
+f_data <- dplyr::filter(f_source, state != "mn") %>% # mn data is too large
+   pull(data)
 
 # ---- turn on cog (cloud optimized geotiff) ----
 # r_test_path <- "data/ct_bathy/101661.tif"
@@ -37,6 +36,7 @@ f_list <- dir(depth_dirs, pattern = "^\\d{1,6}.tif",
 
 ids            <- data.frame(llid = stringr::str_extract(f_list, "[0-9]+"),
                              stringsAsFactors = FALSE)
+states         <- stringr::str_extract(f_list, "(?<=data\\/).{2}")
 coverage_crs   <- as.character(do.call("rbind",
                         lapply(f_list, function(x) st_crs(raster(x))$input)))
 coverage_polys <- lapply(seq_along(coverage_crs),
@@ -45,12 +45,15 @@ coverage_polys <- lapply(seq_along(coverage_crs),
   Reduce(c, .) %>%
   st_as_sf(ids, geometry = .) %>%
   mutate(crs = coverage_crs,
-         file = f_list)
+         file = f_list,
+         state = states)
+
+coverage_polys <- left_join(coverage_polys, f_source, by = "state")
 
 # plot(coverage_polys$geometry)
-# unlink("bathymetry.gpkg")
+unlink("data/bathymetry.gpkg")
 sf::st_write(coverage_polys, "data/bathymetry.gpkg")
-# test <- st_read("data/bathymetry.gpkg")
+# coverage_polys <- st_read("data/bathymetry.gpkg")
 
 # ---- zip files ----
-zip("data/bathymetry.zip", c("data/README.md", "data/bathymetry.gpkg", f_list))
+zip("data/bathymetry.zip", c("data/README.md", "data/bathymetry.gpkg", f_list, f_data))
