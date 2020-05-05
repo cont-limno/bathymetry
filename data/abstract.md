@@ -1,0 +1,2 @@
+The primary goal of this project was to test the utility of bathymetric data
+for predicting lake depth. To this end, we gathered data on lake depth for approximately 5,000 lakes in the Northeastern and Midwestern US from nine state-level databases. We cleaned and interpolated this data to produce bathymetric raster surfaces and estimates of depth-area relationships (i.e. hypsographic curves) for each lake. 
