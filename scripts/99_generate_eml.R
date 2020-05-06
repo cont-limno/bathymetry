@@ -3,6 +3,9 @@
 
 library(EML)
 
+# LAGOSNE-GIS
+# test <- EML::read_eml("edi.98.4.xml")
+
 joe <- eml$creator(
   individualName = eml$individualName(
     givenName = "Joseph",
@@ -47,12 +50,23 @@ my_eml <- eml$eml(
     # keywordSet = keywordSet,
     coverage = coverage,
     contact = contact,
-    methods = methods#,
-    # dataTable = eml$dataTable(
-    #   entityName = "hf205-01-TPexp1.csv",
-    #   entityDescription = "tipping point experiment 1",
-    #   physical = physical,
-    #   attributeList = attributeList)
+    methods = methods,
+    spatialRaster = eml$spatialRaster(
+      entityName = "bathymetry.zip",
+      entityDescription = "bathymetry surfaces"
+    ),
+    spatialVector = eml$spatialVector(
+      entityName = "bathymetry_index.zip",
+      entityDescription = "vector layer with information on the filename, coverage polygon, projection, raw data source file, and raw data source url of each bathymetry surface."
+    ),
+    spatialVector = eml$spatialVector(
+      entityName = "depth_raw.zip",
+      entityDescription = "raw depth data"
+    ),
+    dataTable = eml$dataTable(
+      entityName = "hypsography.csv",
+      entityDescription = "normalized hypsography"
+    )
   ))
 
 eml_validate(my_eml)

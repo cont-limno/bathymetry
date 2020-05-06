@@ -80,8 +80,8 @@ data/lagosus_depth_predictors.csv
 data/gis.gpkg: scripts/00_get_gis.R data/lagosus_depth.csv
 	Rscript $<
 
-data/bathymetry.zip: scripts/99_generate_archive.zip
-	Rscript $<
+archive:
+	cd data && make archive
 
 data/lagosus_depth.csv: scripts/00_get_lagosus.R \
 ../lagos_depth/data/lagosus_depth.csv
