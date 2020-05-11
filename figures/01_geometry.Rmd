@@ -132,9 +132,8 @@ dt <- left_join(dt, st_drop_geometry(bp),
                 by = "llid") %>%
   dplyr::filter(!is.na(inlake_slope_mean))
 
-# jsta::jheatmap(dt)
-# jsta::jheatmap(dt, "inlake_slope.y")
-jsta::jheatmap(
+# jsta::jheatmap
+jheatmap(
   dplyr::select(dt, 
                 slope_online_mean,
                 inlake_slope_mean,
