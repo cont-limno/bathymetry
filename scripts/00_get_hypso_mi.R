@@ -11,7 +11,7 @@ download.file("https://opendata.arcgis.com/datasets/d49160d2e5af4123b15d48c2e9c7
 
 lg_poly <- LAGOSUSgis::query_gis_(query =
                                     "SELECT * FROM LAGOS_US_All_Lakes_1ha WHERE lake_centroidstate LIKE 'MI' AND lake_totalarea_ha > 4")
-lg_poly <- lwgeom::st_make_valid(lg_poly)
+lg_poly <- sf::st_make_valid(lg_poly)
 
 # remove problematic llids
 bad_llids <- c(107971, 4101, 1141, 2723)

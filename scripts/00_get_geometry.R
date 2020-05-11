@@ -28,7 +28,7 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
     r <- projectRaster(r, crs = proj_str$proj4string)
   }
   if(is.na(sf::st_is_valid(dt_poly))){
-    dt_poly <- lwgeom::st_make_valid(dt_poly)
+    dt_poly <- sf::st_make_valid(dt_poly)
   }
 
   if(!st_is_simple(dt_poly) | (
@@ -36,12 +36,12 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
      nrow(st_coordinates(dt_poly)) > 32)){
     dt_poly_raw <- dt_poly
     dt_poly     <- dt_poly_raw %>%
-      lwgeom::st_make_valid() %>%
+      sf::st_make_valid() %>%
       rmapshaper::ms_simplify(0.1)
     if(st_area(dt_poly_raw) > units::as_units(2700000, "m2") &
        nrow(st_coordinates(dt_poly_raw)) > 32){
       dt_poly     <- dt_poly_raw %>%
-        lwgeom::st_make_valid() %>%
+        sf::st_make_valid() %>%
         rmapshaper::ms_simplify(0.02)
     }
   }

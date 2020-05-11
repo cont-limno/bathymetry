@@ -30,7 +30,7 @@ get_slope <- function(ll_id){
   # ll_id <- ll_ids[1]
   # ll_id <- 7922
   ll_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha", "lagoslakeid", ll_id)
-  ll_poly <- lwgeom::st_make_valid(ll_poly)
+  ll_poly <- sf::st_make_valid(ll_poly)
   ll_iws  <- LAGOSUSgis::query_gis("ws", "lagoslakeid", ll_id)
   # hack together a one-sided buffer [sf doesn't offer this :(]
   ll_buff <- st_buffer(ll_poly, max_buffer_dist)
