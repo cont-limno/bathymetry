@@ -32,7 +32,7 @@ dt_notsf <- cbind(st_drop_geometry(dt), st_coordinates(dt))
 
 gg_states <- 
   ggplot() + 
-    geom_sf(data = study_bbox[2,], alpha = 1, size = 0.6, 
+    geom_sf(data = study_bbox[1,], alpha = 1, size = 0.6, 
           color = "black", fill = "#1D9DCF") +
     geom_sf(data = states_all, fill = "gray", color = "black", size = 0.3) +
   # geom_sf(data = outline, color = "black", alpha = 0, size = 0.8) +
