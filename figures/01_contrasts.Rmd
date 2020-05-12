@@ -213,7 +213,7 @@ gg_tally_profileshapeclass <- read.csv(
   geom_col(aes(x = shape_class, y = n))
 ```
 
-```{r gg_tally_programtype, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+```{r gg_tally_programtype, echo=FALSE, message=FALSE, eval=FALSE, warning=FALSE, results='hide'}
 # tally number of lakes with max depth by programtype_depth
 gg_tally_programtype <- read.csv(
   "../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>% 
@@ -284,12 +284,12 @@ gg_tally_hypsoclass <- read.csv(
 ```
 
 ```{r 01_contrasts_tally, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height = 7.6}
-cowplot::plot_grid(gg_tally_programtype, gg_tally_maxdepthclass, 
+cowplot::plot_grid(gg_tally_maxdepthclass, 
                    gg_tally_waterareaclass, gg_tally_hypsoclass, 
                    ncol = 1)
 ```
 
-```{r 01_programs_tally, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+```{r 01_programs_tally, echo=FALSE, message=FALSE, eval=FALSE, warning=FALSE, results='hide'}
 # number of programs in each type
 read.csv(
   "../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>% 
