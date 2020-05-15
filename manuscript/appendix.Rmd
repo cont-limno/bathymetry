@@ -92,6 +92,10 @@ J. Stachelek\textsuperscript{1}, P. Hanly\textsuperscript{1}, and P.A. Soranno\t
 knitr::include_graphics("../figures/01_geometry_grid-1.pdf")
 ```
 
+```{r 02_depth_model_importance, fig.cap = "Importance plot for random forest variables showing increase in mean square error. Higher values indicate greater importance to model predictions. See Equation 1 for a definition of geometric max depth. HUC4 ID is a 'dummy' variable of geographic (hydrologic subbasin) location.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+knitr::include_graphics("../figures/02_depth_model_importance-1.pdf")
+```
+
 ```{r maps_dot_bathy, fig.cap = "Map of study lakes showing A) lake maximum depth measurements, B) cross-section shape class, and C) reservoir classification.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 ```
