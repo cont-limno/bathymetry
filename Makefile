@@ -126,7 +126,7 @@ manuscript/tables.pdf \
 figures/00_map_bathy-1.pdf \
 figures/01_geometry_grid-1.pdf \
 figures/lgnemanual-vs-bathy-depth-1.pdf \
-tables/depth_model_metrics-1.pdf \
+tables/02_model_metrics.pdf \
 figures/01_hypsography-1.pdf \
 figures/02_depth_model_grid_resid-1.pdf \
 figures/02_depth_model_importance-1.pdf \
@@ -178,8 +178,8 @@ data/00_bathy_depth/bathy_pnts.rds
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
-tables/depth_model_metrics-1.pdf: figures/02_depth_model.Rmd \
-data/lagosus_depth.csv
+tables/02_model_metrics.pdf: tables/02_model_metrics.Rmd \
+data/01_depth_model/depth_grid_metrics.rds
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 

@@ -1,0 +1,36 @@
+---
+output:
+  pdf_document
+header-includes: 
+  - \pagenumbering{gobble}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.path = "../figures/", fig.width = 5, fig.height = 6)
+# setwd("figures")
+```
+
+```{r 02_model_metrics, eval=TRUE}
+library(kableExtra)
+suppressMessages(library(dplyr))
+library(magrittr)
+library(stringr)
+
+dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
+  mutate_if(is.numeric, function(x) as.character(round(x, 2))) %>%
+  mutate(rsq = as.numeric(rsq)) %>%
+  mutate(rsq = case_when(
+    as.character(model) == "maxdepth_true_true" ~ NA_real_,
+    TRUE ~ rsq)) %>%
+  mutate(rmse = case_when(
+    as.character(model) == "maxdepth_true_true" ~ NA_character_,
+    TRUE ~ paste0(rmse, " m"))) %>%
+  mutate(model = gsub("maxdepth_", "", model)) %>%
+  mutate(model = gsub("false", "proxy", model)) %>%
+  tidyr::separate(model, c("slope", "distance")) %>%
+  dplyr::select(slope, distance, everything(), -.estimator) %>%
+  dplyr::select(-mae)
+
+options(knitr.kable.NA = '-')
+knitr::kable(dt_metrics, digits = 2, format = "markdown") 
+```
