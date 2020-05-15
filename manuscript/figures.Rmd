@@ -20,7 +20,7 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 ![Diagram showing the relations between true (black) and proxy (orange) metrics of lake geometry. Geometric depth calculated via Equation 1 requires a single distance and slope metric.](../figures/slope_diagram_new.pdf){width=75%}
 
-```{r lake_shape, echo=FALSE, out.extra='', fig.align='center', fig.cap="Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right). Dashed lines represent extrapolated nearshore slope while solid lines represent the lake bottom."}
+```{r lake_shape, echo=FALSE, out.extra='', fig.align='center', out.width="4in",fig.cap="Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right). Dashed lines represent extrapolated nearshore slope while solid lines represent the lake bottom."}
 knitr::include_graphics("../figures/lake_shape.pdf")
 ```
 
@@ -33,8 +33,8 @@ knitr::include_graphics("../tables/01_predictors.pdf")
 \captionsetup[figure]{labelformat=default}
 \setcounter{figure}{2}
 
-```{r 01_geometry_grid, fig.cap = "Comparison among lake shape and reservoir classes for A-B) distance to deepest point versus distance to lake visual center and C-D) nearshore slope versus inlake slope. A dashed 1:1 line is shown for comparison. Cross-section shape and reservoir class plots are not identical because not all lakes had a reservoir classification exceeding a 0.75 probability confidence level.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
-knitr::include_graphics("../figures/01_geometry_grid-1.pdf")
+```{r 01_geometry_base, fig.cap = "Comparison among proxy and true values of lake geometry for A) distance to deepest point versus distance to lake visual center and B) nearshore slope versus inlake slope. A best-fit line and coefficient of determination is shown to illustrate representativeness.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+knitr::include_graphics("../figures/01_geometry_base-1.pdf")
 ```
 
 ```{r depth_model_metrics, fig.cap = "Model fit and predictive accuracy metrics for all combinations of true (inlake slope, deepest point distance) and proxy (nearshore slope, visual center distance) metrics. Tiles are colored by their $R^2$ values and labeled with their RMSE values.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}

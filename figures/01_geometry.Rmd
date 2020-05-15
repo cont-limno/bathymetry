@@ -209,6 +209,72 @@ gg_slope_reservoir <- ggplot(data = dplyr::filter(test, !is.na(reservoir_class))
   labs(color = "")
 ```
 
+```{r 01_geometry_base, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=4.8, fig.height=2.3}
+theme_opts <- cowplot::theme_cowplot() + 
+  theme(legend.position = "none", 
+        axis.text = element_text(size = 10), 
+        axis.title = element_text(size = 11))
+text_size <- 3
+
+# distance data
+dt         <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
+hypso_pred <- read.csv("../data/00_hypso/hypso_predictors.csv", 
+                       stringsAsFactors = FALSE) %>%
+  mutate(lagoslakeid = as.character(lagoslakeid))
+dt <- left_join(dt, dplyr::select(hypso_pred, lagoslakeid, reservoir_class, shape_class), 
+                                  by = c("llid" = "lagoslakeid"))
+
+gg_dist_base <- st_drop_geometry(dt) %>%
+  dplyr::filter(!is.na(shape_class)) %>%
+  dplyr::filter(dist_viscenter >= dist_deepest) %>%
+  dplyr::filter(dist_deepest < 3200) %>%
+  ggplot(aes(x = dist_deepest, y = dist_viscenter)) + 
+  geom_point(size = 1) +
+  geom_smooth(method = "lm", se = FALSE) +
+  annotate("text", x = 2550, y = 300, label = "R^2 == 0.80",
+                                parse = TRUE, size = text_size) +
+  labs(color = "") +
+  xlab("Deepest point distance (m)") +
+  ylab("Visual center\ndistance (m)") +
+  xlim(0, 3000) +
+  theme_opts
+
+# slope data
+bp <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
+dt <- read.csv("../data/00_geometry/nearshore.csv", stringsAsFactors = FALSE) %>%
+  mutate(llid = as.character(llid))
+dt <- left_join(dt, st_drop_geometry(bp), 
+                by = "llid") %>%
+  dplyr::filter(!is.na(inlake_slope_mean)) %>%
+  dplyr::filter(inlake_slope.y < 0.4)
+lgus_pred <- read.csv("../data/lagosus_depth_predictors.csv", stringsAsFactors = FALSE) %>%
+  mutate(lagoslakeid = as.character(lagoslakeid))
+test <- left_join(dt, lgus_pred, by = c("llid" = "lagoslakeid")) %>% 
+  dplyr::filter(!is.na(shape_class)) %>%
+  dplyr::arrange(desc(factor(shape_class, 
+                        levels = c("neither", "concave", "convex"))))
+
+gg_slope_base <- ggplot(data = test) + 
+  geom_point(aes(slope_mean, inlake_slope.y), size = 1) +
+  geom_smooth(aes(slope_mean, inlake_slope.y), method = "lm", se = FALSE) +
+  geom_rect(xmin = 0.28, xmax = 0.42, ymin = 0, ymax = 0.05,
+  alpha = 1, fill = "white") +
+  annotate("text", x = 0.34, y = 0.03, label = "R^2 == 0.17",
+                                parse = TRUE, size = text_size) +
+  # geom_abline(slope = 1, intercept = 0) +
+  xlab("Nearshore slope (mean)") +
+  ylab("Inlake slope") +
+  labs(color = "") +
+  theme_opts
+
+cowplot::plot_grid(
+  gg_dist_base, 
+  gg_slope_base, 
+  rel_widths = c(1, 0.9)
+)
+
+```
+
 ```{r 01_geometry_grid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=5.5, fig.height=4.2}
 theme_opts <- cowplot::theme_cowplot() + 
   theme(legend.position = "none", 

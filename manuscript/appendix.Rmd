@@ -88,6 +88,10 @@ J. Stachelek\textsuperscript{1}, P. Hanly\textsuperscript{1}, and P.A. Soranno\t
 \pagebreak
 \setcounter{figure}{0}
 
+```{r 01_geometry_grid, fig.cap = "Comparison among lake shape and reservoir classes for A-B) distance to deepest point versus distance to lake visual center and C-D) nearshore slope versus inlake slope. A dashed 1:1 line is shown for comparison. Cross-section shape and reservoir class plots are not identical because not all lakes had a reservoir classification exceeding a 0.75 probability confidence level.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+knitr::include_graphics("../figures/01_geometry_grid-1.pdf")
+```
+
 ```{r maps_dot_bathy, fig.cap = "Map of study lakes showing A) lake maximum depth measurements, B) cross-section shape class, and C) reservoir classification.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 ```
