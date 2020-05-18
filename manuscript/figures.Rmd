@@ -26,7 +26,7 @@ knitr::include_graphics("../figures/lake_shape.pdf")
 
 \captionsetup[figure]{name=Table}
 \captionsetup[figure]{labelformat=empty}
-```{r 01_predictors, fig.cap = "Table 1: Summary of lake depth and predictor variables for modelling efforts (and for lakes in the contiguous United States from <LAGOSUS-Depth citation>). Predictor variables used in Eq 2 are printed in bold face. Dashes (-) indicate identical sample size among this study and that of the contiguous United States.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r 01_predictors, fig.cap = "Table 1: Summary of lake depth and predictor variables for computing random forest offsets (and for lakes in the contiguous United States from <LAGOSUS-Depth citation>). Predictor variables used in Eq 2 are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../tables/01_predictors.pdf")
 ```
 \captionsetup[figure]{name=Figure}
@@ -37,10 +37,15 @@ knitr::include_graphics("../tables/01_predictors.pdf")
 knitr::include_graphics("../figures/01_geometry_base-1.pdf")
 ```
 
-```{r depth_model_metrics, fig.cap = "Model fit and predictive accuracy metrics for all combinations of true (inlake slope, deepest point distance) and proxy (nearshore slope, visual center distance) metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+\captionsetup[figure]{name=Table}
+\captionsetup[figure]{labelformat=empty}
+```{r depth_model_metrics, fig.cap = "Table 2: Model fit and predictive accuracy metrics for all combinations of true (inlake slope, deepest point distance) and proxy (nearshore slope, visual center distance) metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 # see tables/02_model_metrics.Rmd
 knitr::include_graphics("../tables/02_model_metrics.pdf")
 ```
+\captionsetup[figure]{name=Figure}
+\captionsetup[figure]{labelformat=default}
+\setcounter{figure}{3}
 
 ```{r depth_model_grid_resid, fig.cap = "Depth model residuals in meters by cross-section shape and reservoir class.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 # see 02_depth_model.Rmd
