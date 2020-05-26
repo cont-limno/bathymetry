@@ -7,7 +7,7 @@ header-includes:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.path = "../figures/", fig.width = 5, fig.height = 6)
-# setwd("figures")
+# setwd("tables")
 ```
 
 ```{r 02_model_metrics, eval=TRUE}
@@ -22,6 +22,7 @@ dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
   mutate(rsq = case_when(
     as.character(model) == "maxdepth_true_true" ~ NA_real_,
     TRUE ~ rsq)) %>%
+  mutate(rmse = round(as.numeric(rmse), 1)) %>%
   mutate(rmse = case_when(
     as.character(model) == "maxdepth_true_true" ~ NA_character_,
     TRUE ~ paste0(rmse, " m"))) %>%
