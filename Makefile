@@ -77,8 +77,9 @@ data/00_hypso/hypso_predictors.csv: scripts/04_hypso_predictors.R \
 data/lagosus_depth_predictors.csv
 	Rscript $<
 
-data/gis.gpkg: scripts/00_get_gis.R data/lagosus_depth.csv
+data/gis.gpkg: scripts/00_get_gis.R
 	Rscript $<
+# data/lagosus_depth.csv
 
 archive:
 	cd data && make archive
@@ -107,10 +108,10 @@ data/00_hypso/hypso.csv
 	Rscript $<
 
 data/00_geometry/nearshore.csv: scripts/00_get_nearshore.R \
-data/lagosus_depth.csv \
 data/00_bathy_depth/bathy_pnts.rds \
 data/lagosne_depth_predictors.csv
 	Rscript $<
+# data/lagosus_depth.csv \
 
 manuscript/combined.pdf: manuscript/figures.pdf manuscript/appendix.pdf
 	pdftk manuscript/figures.pdf manuscript/appendix.pdf output manuscript/combined.pdf
