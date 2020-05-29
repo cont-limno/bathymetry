@@ -47,7 +47,7 @@ knitr::include_graphics("../tables/02_model_metrics.pdf")
 \captionsetup[figure]{labelformat=default}
 \setcounter{figure}{3}
 
-```{r depth_model_grid_resid, fig.cap = "Depth model residuals in meters by cross-section shape and reservoir class.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+```{r depth_model_grid_resid, fig.cap = "Depth model residuals (residual  = observed - predicted) in meters by cross-section shape and reservoir class.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 # see 02_depth_model.Rmd
 knitr::include_graphics("../figures/02_depth_model_grid_resid-1.pdf")
 ```
