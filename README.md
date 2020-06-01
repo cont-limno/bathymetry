@@ -10,16 +10,14 @@ Build](https://img.shields.io/badge/Docker%20Image-jsta/bathymetry-green.svg)](h
 
 Code and data for:
 
-**Stachelek et al. In prep**. Bathymetry data from thousands of lakes
-show that lake depth prediction is confounded by difficulty modeling
-inlake slope.
+**Stachelek et al. In prep**. Geometric models to predict lake depth are
+sensitive to mis-measurement of in-lake slope
 
 ### Products
 
 Figures: [manuscript/combined.pdf](manuscript/combined.pdf)
 
-Data: [bathymetry derived depth
-predictors](data/depth_predictors.csv)
+Data: [bathymetry derived depth predictors](data/depth_predictors.csv)
 
 | column name                       | variable                      | description                                                                                                                                                                                                   |
 | :-------------------------------- | :---------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

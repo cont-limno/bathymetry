@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 Code and data
 for:
 
-**Stachelek et al. In prep**. Bathymetry data from thousands of lakes show that lake depth prediction is confounded by difficulty modeling inlake slope.
+**Stachelek et al. In prep**. Geometric models to predict lake depth are sensitive to mis-measurement of in-lake slope
 
 ### Products
 
