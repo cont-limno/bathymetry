@@ -117,7 +117,8 @@ manuscript/combined.pdf: manuscript/figures.pdf manuscript/appendix.pdf
 	pdftk manuscript/figures.pdf manuscript/appendix.pdf output manuscript/combined.pdf
 
 manuscript/appendix.pdf: manuscript/appendix.Rmd \
-figures/01_hypsography-1.pdf
+figures/01_hypsography-1.pdf \
+figures/01_contrasts-1.pdf
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	-pdftk manuscript/appendix.pdf cat 2-end output manuscript/appendix2.pdf
 	-mv manuscript/appendix2.pdf manuscript/appendix.pdf
@@ -133,7 +134,7 @@ figures/02_depth_model_grid_resid-1.pdf \
 figures/02_depth_model_importance-1.pdf \
 figures/01_contrasts_depth-1.pdf \
 figures/01_contrasts_tally-1.pdf \
-figures/slope_diagram.pdf \
+figures/slope_diagram_new.pdf \
 figures/lake_shape.pdf \
 figures/gg_distance-1.pdf
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"

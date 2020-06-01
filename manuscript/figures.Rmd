@@ -20,26 +20,26 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 ![Diagram showing the relations between true (black) and proxy (orange) metrics of lake geometry. Geometric depth calculated via Equation 1 requires a single distance and slope metric.](../figures/slope_diagram_new.pdf){width=75%}
 
-```{r lake_shape, echo=FALSE, out.extra='', fig.align='center', out.width="4in",fig.cap="Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right). Dashed lines represent extrapolated nearshore slope while solid lines represent the lake bottom."}
+```{r lake_shape, echo=FALSE, out.extra='', fig.align='center', out.width="4in",fig.cap="Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right). Dashed lines represent extrapolated nearshore land slope while solid lines represent the lake bottom."}
 knitr::include_graphics("../figures/lake_shape.pdf")
 ```
 
 \captionsetup[figure]{name=Table}
 \captionsetup[figure]{labelformat=empty}
-```{r 01_predictors, fig.cap = "Table 1: Summary of lake depth and predictor variables for computing random forest offsets (and for lakes in the contiguous United States from <LAGOSUS-Depth citation>). Predictor variables used in Eq 2 are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r 01_predictors, fig.cap = "Table 1: Summary of lake characteristics for the present study (and for lakes in the contiguous United States from <LAGOSUS-Depth citation>). Predictor variables for computing random forest offsets (Eq 2) are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../tables/01_predictors.pdf")
 ```
 \captionsetup[figure]{name=Figure}
 \captionsetup[figure]{labelformat=default}
 \setcounter{figure}{2}
 
-```{r 01_geometry_base, fig.cap = "Comparison among proxy and true values of lake geometry for A) distance to deepest point versus distance to lake visual center and B) nearshore slope versus inlake slope. A best-fit line and coefficient of determination is shown to illustrate representativeness.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r 01_geometry_base, fig.cap = "Comparison among proxy and true values of lake geometry for A) distance to deepest point versus distance distance to lake center and B) nearshore land slope versus in-lake slope. A best-fit line and coefficient of determination is shown to illustrate representativeness.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../figures/01_geometry_base-1.pdf")
 ```
 
 \captionsetup[figure]{name=Table}
 \captionsetup[figure]{labelformat=empty}
-```{r depth_model_metrics, fig.cap = "Table 2: Model fit and predictive accuracy metrics for all combinations of true (inlake slope, deepest point distance) and proxy (nearshore slope, visual center distance) metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r depth_model_metrics, fig.cap = "Table 2: Model fit and predictive accuracy metrics (RMSE = root mean square error, R2 = coefficient of determination) for all combinations of true (in-lake slope, distance to the deepest point of the lake) and proxy (nearshore land slope, distance to lake center) metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 # see tables/02_model_metrics.Rmd
 knitr::include_graphics("../tables/02_model_metrics.pdf")
 ```
@@ -47,7 +47,7 @@ knitr::include_graphics("../tables/02_model_metrics.pdf")
 \captionsetup[figure]{labelformat=default}
 \setcounter{figure}{3}
 
-```{r depth_model_grid_resid, fig.cap = "Depth model residuals (residual  = observed - predicted) in meters by cross-section shape and reservoir class.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+```{r depth_model_grid_resid, fig.cap = "Depth model residuals (residual  = observed - predicted) in meters by cross-section shape and reservoir class indicating overprediction of concave and reservoir lakes.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 # see 02_depth_model.Rmd
 knitr::include_graphics("../figures/02_depth_model_grid_resid-1.pdf")
 ```

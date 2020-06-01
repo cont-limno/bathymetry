@@ -32,7 +32,7 @@ Supporting information for
 
 \vspace{1em}
 
-\textbf{Bathymetry data from thousands of lakes show that lake depth prediction is confounded by difficulty modeling inlake slope}
+\textbf{Geometric models to predict lake depth are sensitive to mis-measurement of in-lake slope}
 
 \vspace{1em}
 
@@ -51,7 +51,7 @@ J. Stachelek\textsuperscript{1}, P. Hanly\textsuperscript{1}, and P.A. Soranno\t
 
 \textbf{Figure S1} Map of study lakes
 
-\textbf{Figure S2} Comparison between reported depth and depth estimated from bathymetry surfaces
+\textbf{Figure S2} Comparison between reported depth and depth extracted from bathymetry surfaces
 
 \textbf{Figure S3} Lake characteristics by categorical variables
 
@@ -98,7 +98,7 @@ J. Stachelek\textsuperscript{1}, P. Hanly\textsuperscript{1}, and P.A. Soranno\t
 knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 ```
 
-```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported depth and depth estimated from bathymetry surfaces by US State where reported depths come from the LAGOSUS-Depth product (citation). For this figure, no reported depth values originated from the same source as its corresponding bathymetry-derived value.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r lgnemanual-vs-bathy-depth, fig.cap="Comparison between reported depth and depth extracted from bathymetry surfaces by US State where reported depths come from the LAGOSUS-Depth product (citation). For this figure, no reported depth values originated from the same source as its corresponding bathymetry-derived value.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 # see 00_qa.Rmd
 knitr::include_graphics("../figures/lgnemanual-vs-bathy-depth-1.pdf")
 ```

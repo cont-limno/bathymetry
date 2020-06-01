@@ -116,9 +116,9 @@ dt <- left_join(dt, taxonomy_key, by = c("variable" = "col_name")) %>%
 dt <- dplyr::rename(dt, Variable = variable)
 
 # bold Eq 2 predictor variables
-dt$Variable[!stringr::str_detect(dt$Variable, "slope|distance|depth")] <- 
+dt$Variable[!stringr::str_detect(dt$Variable, "slope|Distance|depth")] <- 
   paste0("**", 
-         dt$Variable[!stringr::str_detect(dt$Variable, "slope|distance|depth")],
+         dt$Variable[!stringr::str_detect(dt$Variable, "slope|Distance|depth")],
          "**") 
 
 options(knitr.kable.NA = '-')

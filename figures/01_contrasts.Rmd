@@ -75,14 +75,14 @@ gg_area_shape_class <- dt %>%
 gg_slope_shape_class <- dt %>%
   dplyr::filter(shape_class != "neither") %>%  
   contrast_plot(grp = "shape_class", varb = "inlake_slope", 
-                label = "Inlake slope (m/m)", plot_type = "pointrange")
+                label = "In-lake slope (m/m)", plot_type = "pointrange")
 ```
 
 ```{r gg_dist_shape_class, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_dist_shape_class <- dt %>%
   dplyr::filter(shape_class != "neither") %>%  
   contrast_plot(grp = "shape_class", varb = "dist_deepest", 
-                label = "Deepest point distance (m)", plot_type = "pointrange")
+                label = "Distance to deepest point (m)", plot_type = "pointrange")
 ```
 
 ```{r gg_depth_connectivity, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
@@ -133,14 +133,14 @@ gg_area_reservoir <- dt %>%
 gg_slope_reservoir <- dt %>%
   dplyr::filter(!is.na(reservoir_class)) %>%  
   contrast_plot(grp = "reservoir_class", varb = "inlake_slope", 
-                label = "Inlake slope (m/m)", plot_type = "pointrange")
+                label = "In-lake slope (m/m)", plot_type = "pointrange")
 ```
 
 ```{r gg_dist_reservoir, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_dist_reservoir <- dt %>%
   dplyr::filter(!is.na(reservoir_class)) %>%  
   contrast_plot(grp = "reservoir_class", varb = "dist_deepest", 
-                label = "Deepest point distance (m)", plot_type = "pointrange")
+                label = "Distance to deepest point (m)", plot_type = "pointrange")
 ```
 
 ```{r gg_depth_xtabs, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
@@ -183,8 +183,8 @@ theme_opts <- theme(axis.text.x = element_text(angle = 90),
 gg_shape <- cowplot::plot_grid(
   gg_depth_shape_class + ggtitle("Depth (m)") + theme_opts,
   gg_area_shape_class + ggtitle("Area (ha)") + theme_opts, 
-  gg_slope_shape_class + ggtitle("Inlake slope (m/m)") + theme_opts, 
-  gg_dist_shape_class + ggtitle("Deepest point distance (m)") + theme_opts, 
+  gg_slope_shape_class + ggtitle("In-lake slope (m/m)") + theme_opts, 
+  gg_dist_shape_class + ggtitle("Dist. deepest pnt (m)") + theme_opts, 
   nrow = 1)
  
 gg_reservoir <- cowplot::plot_grid(gg_depth_reservoir + theme_opts, 
