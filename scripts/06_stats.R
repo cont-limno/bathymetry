@@ -43,8 +43,11 @@ dt <- left_join(dt, lgus_pred, by = c("llid" = "lagoslakeid")) %>%
 broom::glance(lm(dist_viscenter~dist_deepest, data = dt))$r.squared # 0.80
 broom::glance(lm(inlake_slope ~ slope_mean, data = dt))$r.squared # 0.17
 
-# ---- the percentage of lakes in the study footprint with bathy maps ----
+# percent obs where nearshore land slope > in-lake slope
+sum(dt$slope_mean > dt$inlake_slope, na.rm = TRUE) /
+  nrow(dt[complete.cases(dt[,c("inlake_slope", "slope_mean")]),]) * 100
 
+# ---- the percentage of lakes in the study footprint with bathy maps ----
 # pull bathy llids + states
 bd <- read.csv("data/00_bathy_depth/00_bathy_depth.csv",
                stringsAsFactors = FALSE)
