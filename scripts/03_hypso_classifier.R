@@ -22,13 +22,31 @@ hypso_classes <- dt_raw %>%
     dplyr::select(dt_raw, llid, state), llid, .keep_all = TRUE), by = "llid")
 
 # qa outliers
-if(interactive()){
+if (interactive()) {
   distinct(hypso_classes, llid, offset, .keep_all = TRUE) %>%
   dplyr::filter(state == "MN") %>%
-    arrange(offset) %>%
+    dplyr::filter(shape_class == "neither") %>%
+    # arrange(offset) %>%
+    # dplyr::filter(llid %in% c(2063, 3082))
     head()
+    # View()
   plot(raster("data/mn_bathy/2063.tif")) # convex
   plot(raster("data/mn_bathy/3082.tif")) # concave
+  plot(raster("data/ma_bathy/28.tif")) # neither
+
+  # verify hypsography
+  dplyr::filter(dt_raw, llid %in% c(2063, 3082, 28)) %>%
+    dplyr::mutate(llid = factor(llid)) %>%
+    ggplot() +
+    geom_point(aes(x = area_percent, y = depth_percent, color = llid))
+
+  # closer look at the neither shape_class
+  group_by(dt_raw, llid) %>%
+    add_count() %>%
+    distinct(llid, n) %>%
+    left_join(hypso_classes) %>%
+    dplyr::filter(shape_class == "neither") %>%
+    View()
 }
 
 res <- hypso_classes %>%
