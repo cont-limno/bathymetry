@@ -82,3 +82,7 @@ scripts/three-d_modelling.R
 manuscript/appendix.tex
 data/bathymetry.gpkg
 tables/02_model_metrics.tex
+*.log
+manuscript/manuscript.tex
+manuscript/lagos-depth_bathymetry_outline_line_numbered.pdf
+*.xml

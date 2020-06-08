@@ -1,0 +1,103 @@
+---
+title: Geometric models overestimate lake depth due to imperfect slope measurement
+
+# Use letters for affiliations
+author:
+  - name: Joseph Stachelek
+    affiliation: a
+  - name: Patrick Hanly
+    affiliation: a
+  - name: Patricia A. Soranno
+    affiliation: a
+  
+address:
+  - code: a
+    address: Department of Fisheries and Wildlife, Michigan State University, 480 Wilson Rd., East Lansing, MI 48824, USA
+  
+# Optional: line of arbitrary text with additional information.
+# Could be used, for example, to mention the bibliographic info in a post-print.
+# If not specified, defaults to "This version was compiled on \today"
+#date_subtitle: Published in *Journal of Statistical Software*, 2018
+# date_subtitle: > 
+# This is the accepted version of the following article: J. Stachelek et al., Ecological Applications. In Press, which has been published in final form at DOI:  [DOI](https://doi.org).  This article may be used for non-commercial purposes in accordance with Wiley Terms and Conditions for Use of Self-Archived Versions.
+
+# For footer text  TODO(fold into template, allow free form two-authors)
+lead_author_surname: Stachelek et al.
+
+# Place eg a DOI URL or CRAN Package URL here
+# doi_footer: "https://doi.org/10.5281/zenodo.3754916"
+
+# Abstract
+abstract: |
+  Lake depth is a critical characteristic that influences many important ecological processes in lakes. Unfortunately, lake depth measurements are labor-intensive to gather and are only available for a small fraction of lakes globally. Therefore, scientists have tried to predict lake depth from characteristics that are easily obtained for all lakes such as lake surface area or the slope of the land surrounding a lake. One approach for predicting lake depth simulates lake basins using a geometric model where nearshore land slope is assumed to be a representative proxy for in-lake slope and the distance to the center of the lake is assumed to be a representative proxy for the distance to the deepest point of the lake. However, these assumptions have rarely been tested in a broad range of lakes. We used bathymetry data from 5,000 lakes and reservoirs to test these assumptions and to examine whether differences in lake type or shape influences depth prediction error. We found that nearshore land slope was not a representative proxy of in-lake slope and using it for prediction increases prediction error substantially relative to models using true in-lake slope. We also found that models using nearshore land slope as a proxy systematically overpredicts lake depth in concave lakes (i.e. bowl-shaped; up to 18% of lakes in the study population) and reservoir lakes (up to 30% of lakes in the study population), suggesting caution in using geometric models for lake prediction in unsampled lakes.
+
+# Optional: Acknowledgements
+acknowledgements: |
+  Funding was provided by the US NSF Macrosystems Biology Program grants, DEB-1638679; DEB-1638550, DEB-1638539, DEB-1638554. PAS was also supported by USDA National Institute of Food and Agriculture Hatch Project, Grant Number: 176820. Author contributions: JS conceived of the study, built models, analyzed data, and wrote the paper. PH and PAS provided interpretation of results and edited the paper.
+
+# Optional: One or more keywords
+keywords:
+  - lake depth
+  - bathymetry
+  - hypsography
+  - geometry
+  - slope
+
+# Paper size for the document, values of letter and a4
+papersize: letter
+
+# Font size of the document, values of 9pt (default), 10pt, 11pt and 12pt
+fontsize: 9pt
+
+# Optional: Force one-column layout, default is two-column
+#one_column: true
+
+# Optional: Enables lineno mode, but only if one_column mode is also true
+#lineno: true
+
+# Optional: Enable one-sided layout, default is two-sided
+#one_sided: true
+
+# Optional: Enable section numbering, default is unnumbered
+#numbersections: true
+
+# Optional: Specify the depth of section number, default is 5
+#secnumdepth: 5
+
+# Optional: Skip inserting final break between acknowledgements, default is false
+skip_final_break: true
+
+# Optional: Bibliography 
+bibliography: lagosdepth
+biblio-style: jsta
+
+# Optional: Enable a 'Draft' watermark on the document
+#watermark: true
+
+# Customize footer, eg by referencing the vignette
+# footer_contents: "Agriculture-lake nutrient relationships"
+
+# Produce a pinp document
+output: pinp::pinp
+
+# Required: Vignette metadata for inclusion in a package.
+vignette: >
+  %\VignetteIndexEntry{YourPackage-vignetteentry}
+  %\VignetteKeywords{YourPackage, r, anotherkeyword}
+  %\VignettePackage{YourPackage}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+## Introduction 
+
+Lake depth is a major factor controlling lake physics, chemistry, and biota (Li et al. 2020, Fee 1996, Read et al. 2014). However, because measured depth data is only available for a small fraction of all lakes, our ability to understand and predict depth-dependent processes is limited. The importance of lake depth, coupled with its limited availability, has led to numerous attempts to predict depth using measures available for all lakes such as lake surface area or the nearshore slope of the land surrounding a lake (Heathcote 2015, Oliver 2016, Sobek 2011). The approaches taken in these studies have been varied. In addition, they have explored a variety of strategies to maximize prediction accuracy such as employing more diverse covariates (Oliver 2016), varying lake buffer sizes (Heathcote 2015), or estimating hidden groupings among lakes (Sobek 2011). 
+One approach for predicting lake depth involves a geometric model that assumes lake basins correspond to an idealized shape such as a cone, bowl, or an elliptic sinusoid (Hollister 2011, Neumann 1959, Yigsaw 2018). All such geometric models for lake depth prediction involve implicit assumptions about the terms of geometric formulae. In the simplest case, where lakes basins are treated as cones (Eq 1, Figure 1), two assumptions are required to make depth predictions for all lakes: 1) that nearshore land slope is a representative proxy for in-lake slope and 2) that the distance to the center of the lake is a representative proxy for the distance to the deepest point of the lake (Figure 1). This cone model imposes the following fixed (i.e. geometric) relationship between slope and horizontal distance:
+
+Geometric formula: depth_geometric = tan(slope) * distance             (Equation 1)
+
+where the product of slope and horizontal distance yields an exact geometric depth estimate (depth_geometric). 
+The assumptions of this model as well as other geometric models can be tested by comparing proxy measures of lake geometry against corresponding “true” (i.e. in-lake) values derived from bathymetric maps. However, due to the scarcity of bathymetric map data, few studies have tested these assumptions except in individual studies of very large lakes or for small numbers of lakes (< 100) (Johansson et al. 2007). As a result, it is unclear what effect proxies have on lake depth predictions using geometric models and whether depth predictions are more sensitive to errors in the horizontal dimension (i.e. distance to the deepest point of the lake) or errors in the vertical dimension (i.e. in-lake slope). Additionally it is unclear whether model prediction error is related to differences in lake type such those with different cross-section shapes or those classified as reservoirs versus natural lakes. This information could help direct future research efforts to focus on particular dimensions of lake geometry (i.e. horizontal versus vertical) or to stratify model predictions based on specific lake types and cross-section shapes. 
+Given the knowledge gaps identified above, we asked three research questions: 1) Is nearshore land slope representative of in-lake slope; and is the distance to the center of a lake representative of the distance to the deepest point of a lake? 2) How does the use of proxies for lake geometry affect lake depth prediction error? 3) How does lake shape (i.e. concave versus convex) and lake type (i.e. natural lake vs reservoir) affect depth prediction error? 
+To answer these questions, we extracted the maximum depth (hereafter referred to as “observed maximum depth”), in-lake slope, shape (i.e., concave versus convex), and distance to the deepest point, of approximately 5,000 lakes in the Northeastern and Midwestern US from bathymetric map data. First, we examined whether measures of lake geometry (in-lake slope and distance to the deepest point of lakes) were related to geometry proxies (nearshore land slope and distance to lake centers). Next, we computed geometric depth estimates (Equation 1) and offsets to these estimates using the random forest algorithm (Equation 2). Covariates used in offset modeling included a variety of lake, watershed, and hydrologic subbasin measures that are available for all lakes (Table 1). We examined differences in overall prediction error corresponding to different inputs to geometric depth as well as differences in the relative distribution of prediction error in lakes with different characteristics.
+Given that, by definition, the distance proxy (distance to the center of the lake) must always be greater or equal to the true distance value (distance to the deepest point of the lake), we expect that the use of this proxy will lead to overestimation of lake depth (Figure 1). Furthermore we expect to see greater overestimation error in reservoirs as compared to natural lakes because many reservoirs are known to be drowned river valleys where the deepest point is close to the edge at the end of the reservoir (i.e. next to the dam) rather than in the center of the reservoir (Lanza and Silvey 1985). Similar to distance proxies, we expect that the use of a nearshore land slope proxy will lead to prediction error according to differences in cross-section shape (Figure 2) such that the depth of U-shaped (i.e. concave) lakes will be overpredicted whereas the depth of V-shaped (i.e. convex) lakes will be underpredicted. Finally, we expect that offsets to geometric depth estimates will be most strongly related to lake area and hydrologic subbasin variables as these measures have been influential in prior studies (Oliver et al. 2016).
+
