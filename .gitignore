@@ -86,3 +86,9 @@ tables/02_model_metrics.tex
 manuscript/manuscript.tex
 manuscript/lagos-depth_bathymetry_outline_line_numbered.pdf
 *.xml
+*.fls
+*.bbl
+*.blg
+*.out
+*.fdb_latexmk
+*.aux
