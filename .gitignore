@@ -92,3 +92,4 @@ manuscript/lagos-depth_bathymetry_outline_line_numbered.pdf
 *.out
 *.fdb_latexmk
 *.aux
+*.synctex.gz

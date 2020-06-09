@@ -98,7 +98,7 @@ One approach for predicting lake depth involves a geometric model that assumes l
   depth_{geometric} = tan(slope) * distance \label{eq1}
 \end{align}
 
-where the product of slope and horizontal distance yields an exact geometric depth estimate (depth_geometric). 
+where the product of slope and horizontal distance yields an exact geometric depth estimate ($depth_{geometric}$). 
 
 \begin{figure}[H]
   \begin{center}
@@ -133,6 +133,7 @@ We used our generated bathymetry surfaces to find the location of the deepest po
 We categorized lakes based on their cross-section shape and reservoir class. For cross-section shape, we categorized lakes as either convex or concave following the method of \citet{hakansonLakeFormLake1977} by computing normalized lake depth-area relationships (i.e. hypsographic curves) and assigning class membership based on whether a lake’s curve falls above or below that of a simple straight-sided cone (Figure S4). We further classified lakes using data from \citet{polus2020}, which uses the output of a machine learning algorithm to assign a probability to each lake regarding whether it is a reservoir or a natural lake. For our purposes, we determined a lake to be a reservoir if the classification probability was 0.75 or greater. The \citet{polus2020} data product defines reservoirs as any permanent waterbody that has a water control structure likely to significantly impact flow or pool water, beyond simply controlling water level. It makes no distinction between different dam types or dam heights.
 
 \begin{table}
+\caption{Summary of lake characteristics for the present study (and for lakes in the contiguous United States from <LAGOSUS-Depth citation>). Predictor variables for computing random forest offsets (Eq \ref{eq2}) are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States.} \label{table1}
 \centering
 \setlength\tabcolsep{1.5pt} % default value: 6pt
 \begin{tabular}{lllll}
@@ -151,8 +152,7 @@ We categorized lakes based on their cross-section shape and reservoir class. For
   In-lake slope (m/m) & 0.046 (-) & 0.024 (-) & 0.079 (-) & 4850 (-)\\
   Nearshore land slope (m/m) & 0.077 (-) & 0.051 (-) & 0.11 (-) & 4850 (-)\\  
   \bottomrule
-  \end{tabular}
-  \caption{Summary of lake characteristics for the present study (and for lakes in the contiguous United States from <LAGOSUS-Depth citation>). Predictor variables for computing random forest offsets (Eq \ref{eq2}) are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States.} \label{table1}
+  \end{tabular}  
 \end{table}
 
 Covariates used in random forest modeling (Table \ref{table1}, Equation \ref{eq2}) for lake elevation, area, island area, perimeter, shoreline development, watershed to lake area ratio, and hydrologic subbasin (i.e. HUC4s), were obtained from the LAGOS-US LOCUS database (Smith et al. In Prep). Shoreline development is a measure of lake perimeter shape defined as:
@@ -164,14 +164,14 @@ shoreline_{devel} = perimeter / (2 * \sqrt{(\pi * waterarea * 10000)})
 where sinuous lakes have larger values of shoreline development and circular lakes have smaller values of shoreline development. Watershed to lake area ratio is an approximation of water residence time and is defined as watershed area divided by lake area. All of our data and data processing code are available at [Zenodo DOI].
 
 ### Proxy evaluation
-We conducted a qualitative assessment of whether or not proxy measures of lake geometry are representative of their true values by visual inspection (i.e. plotting each proxy measure against its corresponding true value) and by computing coefficients of determination ($R^2$). We further tested proxy measures by examining their effect on lake depth prediction error. Our approach involved several steps. In the first step, we computed a geometric estimate of lake depth using only geometry information (depth_geometric, Equation \ref{eq1}). In the second step, we fit a random forest model to predict observed (i.e. true) depth as a function of geometric depth along with several covariates available for all lakes (Table \ref{table1}). The purpose of this random forest “offset” modeling was to more rigorously test our expectations regarding prediction error among different formulations of depth_geometric and among different lake types. Each of these steps were executed iteratively for each combination of true and proxy values of slope and distance (Table \ref{table2}). 
+We conducted a qualitative assessment of whether or not proxy measures of lake geometry are representative of their true values by visual inspection (i.e. plotting each proxy measure against its corresponding true value) and by computing coefficients of determination ($R^2$). We further tested proxy measures by examining their effect on lake depth prediction error. Our approach involved several steps. In the first step, we computed a geometric estimate of lake depth using only geometry information ($depth_{geometric}$, Equation \ref{eq1}). In the second step, we fit a random forest model to predict observed (i.e. true) depth as a function of geometric depth along with several covariates available for all lakes (Table \ref{table1}). The purpose of this random forest “offset” modeling was to more rigorously test our expectations regarding prediction error among different formulations of $depth_{geometric}$ and among different lake types. Each of these steps were executed iteratively for each combination of true and proxy values of slope and distance (Table \ref{table2}). 
 
 ## Model description
 ### Geometric model 
 We used a geometric model of lakes where basins are treated as cones with a fixed relationship between slope and distance (Equation \ref{eq1}). Note that Equation \ref{eq1} is a geometric formula and has no intercept or “coefficients” and it produces a perfect depth estimate given true values of slope and distance. To use this model to predict the depth of all lakes, there is a necessary assumption that proxy slope and distance measures, which are available for all lakes, are representative of true slope and distance (Figure \ref{fig1}).
 
 ### Random forest models
-Nearly all prior studies predicting lake depth using geometric models include a statistical or machine learning model “layer” or “offset” to boost predictive accuracy. For our purposes, this offset modeling enabled us to test our expectations that prediction error would be different among different formulations of depth_geometric and among different lake types. It also facilitated direct comparison against prior models of lake depth including those that are non-geometric. We generated an “offset” to geometric depth \citep[sensu][]{hollisterPredictingMaximumLake2011} using the random forest algorithm and the \texttt{ranger} R package \citep{wrightRangerFastImplementation2017} to predict observed maximum depth as a function of covariates including geometric maximum depth (from Equation \ref{eq1}) along with the lake elevation, area, perimeter, and ratio/index measures listed in Table 1:
+Nearly all prior studies predicting lake depth using geometric models include a statistical or machine learning model “layer” or “offset” to boost predictive accuracy. For our purposes, this offset modeling enabled us to test our expectations that prediction error would be different among different formulations of $depth_{geometric}$ and among different lake types. It also facilitated direct comparison against prior models of lake depth including those that are non-geometric. We generated an “offset” to geometric depth \citep[sensu][]{hollisterPredictingMaximumLake2011} using the random forest algorithm and the \texttt{ranger} R package \citep{wrightRangerFastImplementation2017} to predict observed maximum depth as a function of covariates including geometric maximum depth (from Equation \ref{eq1}) along with the lake elevation, area, perimeter, and ratio/index measures listed in Table 1:
 
 \begin{align}
   depth_{observed} \sim depth_{geometric} + covariates         
@@ -200,6 +200,7 @@ Although proxy distance to lake center was often much larger in magnitude compar
 The use of proxy nearshore land slope had a larger effect on model fit and prediction error than the use of proxy distance to lake center (Table \ref{table2}). More specifically, the true slope - proxy distance model had a better fit ($R^2$ = 0.73) and lower prediction error (RMSE = 4.23m) compared to the proxy slope - true distance model ($R^2$ = 0.26, RMSE = 6.87m). Furthermore, analysis of model residuals showed overestimation of lake depth for concave lakes when models included a proxy slope measure (Figure \ref{fig4}). We observed similar but smaller overestimation depending on if a lake was classified as a reservoir rather than a natural lake (Figure \ref{fig4}). 
 
 \begin{table}
+  \caption{Model fit and predictive accuracy metrics (RMSE = root mean square error, $R^2$ = coefficient of determination) for all combinations of true (in-lake slope, distance to the deepest point of the lake) and proxy (nearshore land slope, distance to lake center) metrics.} \label{table2}
   \centering
   % \setlength\tabcolsep{1.5pt} % default value: 6pt
 \begin{tabular}{llll}
@@ -212,9 +213,7 @@ The use of proxy nearshore land slope had a larger effect on model fit and predi
   proxy & proxy & 6.6 m & 0.31\\
   \bottomrule
 \end{tabular}
-\caption{Model fit and predictive accuracy metrics (RMSE = root mean square error, $R^2$ = coefficient of determination) for all combinations of true (in-lake slope, distance to the deepest point of the lake) and proxy (nearshore land slope, distance to lake center) metrics.} \label{table2}
 \end{table}
-
 
 \begin{figure*}
   \begin{center}
