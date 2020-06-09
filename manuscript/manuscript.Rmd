@@ -132,6 +132,29 @@ We used our generated bathymetry surfaces to find the location of the deepest po
 
 We categorized lakes based on their cross-section shape and reservoir class. For cross-section shape, we categorized lakes as either convex or concave following the method of \citet{hakansonLakeFormLake1977} by computing normalized lake depth-area relationships (i.e. hypsographic curves) and assigning class membership based on whether a lake’s curve falls above or below that of a simple straight-sided cone (Figure S4). We further classified lakes using data from \citet{polus2020}, which uses the output of a machine learning algorithm to assign a probability to each lake regarding whether it is a reservoir or a natural lake. For our purposes, we determined a lake to be a reservoir if the classification probability was 0.75 or greater. The \citet{polus2020} data product defines reservoirs as any permanent waterbody that has a water control structure likely to significantly impact flow or pool water, beyond simply controlling water level. It makes no distinction between different dam types or dam heights.
 
+\begin{table}
+\centering
+\setlength\tabcolsep{1.5pt} % default value: 6pt
+\begin{tabular}{lllll}
+  \hline
+  Variable & Median & Q25 & Q75 & n\\
+  \hline
+  Max depth (m) & 8.2 (7) & 4.6 (3.7) & 14 (12) & 4850 (17700)\\
+  \textbf{Elevation (m)} & 300 (340) & 180 (210) & 400 (460) & 4850 (17700)\\
+  \textbf{Area (ha)} & 55 (33) & 21 (11) & 140 (100) & 4850 (17700)\\
+  \textbf{Island area (ha)} & 0 (0) & 0 (0) & 0.18 (0.076) & 4850 (17700)\\
+  \textbf{Perimeter (m)} & 4400 (3500) & 2500 (1800) & 8100 (7300) & 4850 (17700)\\
+  \textbf{Shoreline development} & 1.7 (1.7) & 1.4 (1.4) & 2.1 (2.2) & 4850 (17700)\\
+  \textbf{Watershed-lake ratio} & 7.8 (10) & 3.9 (4.4) & 17 (28) & 4850 (17700)\\
+  Distance to deepest point (m) & 180 (-) & 110 (-) & 290 (-) & 4850 (-)\\
+  Distance to lake center (m) & 240 (-) & 160 (-) & 380 (-) & 4850 (-)\\
+  In-lake slope (m/m) & 0.046 (-) & 0.024 (-) & 0.079 (-) & 4850 (-)\\
+  Nearshore land slope (m/m) & 0.077 (-) & 0.051 (-) & 0.11 (-) & 4850 (-)\\  
+  \bottomrule
+  \end{tabular}
+  \caption{Summary of lake characteristics for the present study (and for lakes in the contiguous United States from <LAGOSUS-Depth citation>). Predictor variables for computing random forest offsets (Eq 2) are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States.} \label{table1}
+\end{table}
+
 Covariates used in random forest modeling (Table 1, Equation 2) for lake elevation, area, island area, perimeter, shoreline development, watershed to lake area ratio, and hydrologic subbasin (i.e. HUC4s), were obtained from the LAGOS-US LOCUS database (Smith et al. In Prep). Shoreline development is a measure of lake perimeter shape defined as:
 
 \begin{align}
@@ -175,6 +198,23 @@ Although proxy distance to lake center was often much larger in magnitude compar
 \end{figure}
 
 The use of proxy nearshore land slope had a larger effect on model fit and prediction error than the use of proxy distance to lake center (Table 2). More specifically, the true slope - proxy distance model had a better fit ($R^2$ = 0.73) and lower prediction error (RMSE = 4.23m) compared to the proxy slope - true distance model ($R^2$ = 0.26, RMSE = 6.87m). Furthermore, analysis of model residuals showed overestimation of lake depth for concave lakes when models included a proxy slope measure (Figure 4). We observed similar but smaller overestimation depending on if a lake was classified as a reservoir rather than a natural lake (Figure 4). 
+
+\begin{table}
+  \centering
+  % \setlength\tabcolsep{1.5pt} % default value: 6pt
+\begin{tabular}{llll}
+  \hline
+  slope & distance & rmse & rsq\\
+  \hline
+  true & true & - & -\\
+  true & proxy & 4.2 m & 0.73\\
+  proxy & true & 6.9 m & 0.26\\
+  proxy & proxy & 6.6 m & 0.31\\
+  \bottomrule
+\end{tabular}
+\caption{Model fit and predictive accuracy metrics (RMSE = root mean square error, $R^2$ = coefficient of determination) for all combinations of true (in-lake slope, distance to the deepest point of the lake) and proxy (nearshore land slope, distance to lake center) metrics.} \label{table2}
+\end{table}
+
 
 \begin{figure*}
   \begin{center}
