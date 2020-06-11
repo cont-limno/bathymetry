@@ -223,6 +223,9 @@ data/00_geometry/nearshore.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
+figures/slope_diagram_new.png: figures/slope_diagram_new.pdf
+	convert -density 300 -trim $< -transparent white -quality 100 $@
+
 manuscript/tables.pdf: tables/00_data.pdf \
 tables/01_predictors.pdf
 	pdftk $^ cat output manuscript/tables.pdf
