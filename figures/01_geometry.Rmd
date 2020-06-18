@@ -41,7 +41,7 @@ gg_scatter_shape <- st_drop_geometry(dt) %>%
   # geom_abline(aes(intercept = 0, slope = 1)) +
   labs(color = "") +
   xlab("Deepest point distance (m)") +
-  ylab("Distance to lake center (m)")
+  ylab("Distance to \n lake center (m)")
 
 gg_scatter_reservoir <- st_drop_geometry(dt) %>%
   dplyr::filter(!is.na(reservoir_class)) %>%
@@ -52,7 +52,7 @@ gg_scatter_reservoir <- st_drop_geometry(dt) %>%
   scale_color_discrete(labels = c("NL     ", "Res")) + 
   # geom_abline(aes(intercept = 0, slope = 1)) +
   xlab("Deepest point distance (m)") +
-  ylab("Distance to lake center (m)")
+  ylab("Distance to \n lake center (m)")
 ```
 
 ```{r gg_distance, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3}
@@ -237,7 +237,7 @@ gg_dist_base <- st_drop_geometry(dt) %>%
                                 parse = TRUE, size = text_size) +
   labs(color = "") +
   xlab("Deepest point distance (m)") +
-  ylab("Distance to lake center (m)") +
+  ylab("Distance to \n lake center (m)") +
   xlim(0, 3000) +
   theme_opts
 
