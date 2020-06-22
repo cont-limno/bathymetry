@@ -117,8 +117,12 @@ manuscript/combined.pdf: manuscript/figures.pdf manuscript/appendix.pdf
 	pdftk manuscript/figures.pdf manuscript/appendix.pdf output manuscript/combined.pdf
 
 manuscript/appendix.pdf: manuscript/appendix.Rmd \
+figures/00_map_bathy-1.pdf \
+figures/lgnemanual-vs-bathy-depth-1.pdf \
+figures/01_contrasts-1.pdf \
 figures/01_hypsography-1.pdf \
-figures/01_contrasts-1.pdf
+figures/01_geometry_grid-1.pdf \
+figures/02_depth_model_importance-1.pdf
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	-pdftk manuscript/appendix.pdf cat 2-end output manuscript/appendix2.pdf
 	-mv manuscript/appendix2.pdf manuscript/appendix.pdf
