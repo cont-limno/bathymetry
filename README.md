@@ -10,8 +10,8 @@ Build](https://img.shields.io/badge/Docker%20Image-jsta/bathymetry-green.svg)](h
 
 Code and data for:
 
-**Stachelek et al. In prep**. Geometric models to predict lake depth are
-sensitive to mis-measurement of in-lake slope
+**Stachelek et al. In prep**. Geometric models overestimate lake depth
+due to imperfect slope measurement
 
 ### Products
 
