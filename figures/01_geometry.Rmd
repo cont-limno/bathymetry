@@ -195,7 +195,7 @@ gg_slope_shape <- ggplot(data = test) +
                linetype = "dashed", size = 0.4) +
   # geom_abline(slope = 1, intercept = 0) +
   xlab("Nearshore slope (mean)") +
-  ylab("Inlake slope") +
+  ylab("In-lake slope") +
   labs(color = "")
 
 gg_slope_reservoir <- ggplot(data = dplyr::filter(test, !is.na(reservoir_class))) +
@@ -207,7 +207,7 @@ gg_slope_reservoir <- ggplot(data = dplyr::filter(test, !is.na(reservoir_class))
   geom_segment(aes(x = 0, xend = 0.35, y = 0, yend = 0.35), 
                linetype = "dashed", size = 0.4) +
   xlab("Nearshore slope (mean)") +
-  ylab("Inlake slope") +
+  ylab("In-lake slope") +
   labs(color = "")
 ```
 
@@ -265,7 +265,7 @@ gg_slope_base <- ggplot(data = test) +
                                 parse = TRUE, size = text_size) +
   # geom_abline(slope = 1, intercept = 0) +
   xlab("Nearshore slope (mean)") +
-  ylab("Inlake slope") +
+  ylab("In-lake slope") +
   labs(color = "") +
   theme_opts
 

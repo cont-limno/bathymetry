@@ -111,7 +111,7 @@ knitr::include_graphics("../figures/01_contrasts-1.pdf")
 knitr::include_graphics("../figures/01_hypsography-1.pdf")
 ```
 
-```{r 01_geometry_grid, fig.cap = "Comparison among lake shape and reservoir classes for A-B) distance to deepest point versus distance to lake visual center and C-D) nearshore slope versus inlake slope. A dashed 1:1 line is shown for comparison. Cross-section shape and reservoir class plots are not identical because not all lakes had a reservoir classification exceeding a 0.75 probability confidence level.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r 01_geometry_grid, fig.cap = "Comparison among lake shape and reservoir classes for A-B) distance to deepest point versus distance to lake center and C-D) nearshore slope versus inlake slope. A dashed 1:1 line is shown for comparison. Cross-section shape and reservoir class plots are not identical because not all lakes had a reservoir classification exceeding a 0.75 probability confidence level.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../figures/01_geometry_grid-1.pdf")
 ```
 
@@ -119,7 +119,7 @@ knitr::include_graphics("../figures/01_geometry_grid-1.pdf")
 knitr::include_graphics("../figures/02_depth_model_importance-1.pdf")
 ```
 
-```{r metric_correlations, fig.cap = "Pearson correlation coefficients of GIS-derived metrics against inlake slope and deepest point distance metrics.", warning=FALSE, echo = FALSE, eval=FALSE, out.width="11cm", fig.align='center', out.extra=''}
+```{r metric_correlations, fig.cap = "Pearson correlation coefficients of proxy geometry metrics against in-lake slope and deepest point distance metrics.", warning=FALSE, echo = FALSE, eval=FALSE, out.width="11cm", fig.align='center', out.extra=''}
 knitr::include_graphics("../figures/metric_correlations-1.pdf")
 ```
 
