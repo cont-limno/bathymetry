@@ -85,7 +85,7 @@ archive:
 	cd data && make archive
 
 data/lagosus_depth.csv: scripts/00_get_lagosus.R \
-../lagos_depth/data/lagosus_depth.csv
+../lagos_depth/data/lake_depth.csv
 	Rscript $<
 
 data/00_lagosne/00_lagosne.csv: scripts/00_get_lagosne.R \
