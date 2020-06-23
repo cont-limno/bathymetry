@@ -282,12 +282,12 @@ theme_opts <- cowplot::theme_cowplot() +
   theme(legend.position = "none", 
         axis.text = element_text(size = 10), 
         axis.title = element_text(size = 11))
-gg_spacer <- ggplot() + geom_blank() + theme(panel.background = element_blank())
+gg_spacer <- ggplot() + geom_blank() + theme(panel.background = element_rect(fill = NA), plot.background = element_rect(fill = NA))
 
 legend_shape     <- cowplot::get_legend(gg_scatter_shape +
-                                          theme(legend.direction = "horizontal"))
+                                          theme(legend.direction = "horizontal", legend.background = element_rect(fill = NA)))
 legend_reservoir <- cowplot::get_legend(gg_scatter_reservoir + labs(color = "") +
-                                          theme(legend.direction = "horizontal"))
+                                          theme(legend.direction = "horizontal", legend.background = element_rect(fill = NA)))
 legend_panel     <- cowplot::plot_grid(gg_spacer, legend_shape, 
                                        gg_spacer, legend_reservoir, 
                                        nrow = 1, rel_widths = c(0.2, 1, 0.08, 1),
