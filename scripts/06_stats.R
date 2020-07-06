@@ -61,6 +61,16 @@ lg <- lg_raw$locus$locus_information %>%
 
 (nrow(bd) / nrow(lg)) * 100 # 15%
 
+# ---- the percentage of lakes in the study footprint with depth data ----
+# pull lagosus depth
+lg_depth <- lagosus_load(modules = "depth", versions = 0)$depth$depth %>%
+  dplyr::filter(lake_state %in% unique(bd$state))
 
+# pull list of llids > 4 ha in footprint
+lg_raw <- lagosus_load("locus")
+lg <- lg_raw$locus$locus_information %>%
+  dplyr::filter(lake_centroidstate %in% unique(bd$state)) %>%
+  left_join(lg_raw$locus$locus_characteristics) %>%
+  dplyr::filter(lake_waterarea_ha >= 4)
 
-
+(nrow(lg_depth) / nrow(lg)) * 100 # 25%
