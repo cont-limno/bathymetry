@@ -25,6 +25,14 @@ quantile(hak_areas,
          probs = c(0.25, 0.5, 0.75))
 hist(hak_areas, n = 80)
 
+# ---- What are the summary stats of the lakes used in Johansson et al. (2007)? ----
+# library(digitize)
+# digitize("~/Pictures/Screenshot from 2020-07-07 16-00-54.png")
+jhs <- data.frame(area = c(0.055, 0.55, 5.5, 55, 5500) * 10e6,
+                  count = c(12, 51, 38, 3, 2), stringsAsFactors = FALSE)
+jhs$area * 0.0001
+# most are > 500 ha
+
 # ---- How related are true and proxy geometry metrics? ----
 bp <- readRDS("data/00_bathy_depth/bathy_pnts.rds")
 dt <- read.csv("data/00_geometry/nearshore.csv", stringsAsFactors = FALSE) %>%
