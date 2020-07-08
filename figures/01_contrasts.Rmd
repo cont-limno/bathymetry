@@ -328,33 +328,6 @@ lg <- lg_raw %>%
                                  bathymetry = "bathymetry", 
                                  other = c("LAGOSNE", "manual", "NLA")))
 
-# jsta::gg_quantdot
-gg_quantdot <- function(dt, grp, var){
-  # dt <- mtcars; grp <- "cyl"; var <- "mpg"
-  
-  # https://tbradley1013.github.io/2018/10/01/calculating-quantiles-for-groups-with-dplyr-summarize-and-purrr-partial/
-  p       <- c(0.05, 0.5, 0.95)
-  p_names <- paste0(as.character(p*100), "%")
-  p_funs  <- lapply(seq_along(p), function(x){
-    function(...){quantile(probs = p[x], na.rm = TRUE, ...)}
-    })
-  p_funs <- setNames(p_funs, p_names)
-  
-  dt %>%
-    group_by({{grp}}) %>%
-    summarise_at({{var}}, p_funs) %>% 
-    ggplot() + 
-    geom_pointrange(aes(x = {{grp}}, y = .data$`50%`,
-                      ymin = .data$`5%`, ymax = .data$`95%`)) +
-    ylab(var)
-}
-
-cowplot::plot_grid(
-  gg_quantdot(lg, lagos_effort, "lake_maxdepth_m"), 
-  gg_quantdot(lg, lagos_effort, "lake_waterarea_ha") +
-    scale_y_log10(), 
-  ncol = 1)
-
 # library(tigris)
 # urbanareas <- tigris::urban_areas()
 # urbanareas <- st_as_sf(urbanareas)
@@ -362,9 +335,27 @@ cowplot::plot_grid(
 # urbanareas <- tidyr::separate(urbanareas, NAME10,
 #                               c("urban_name", "urban_state"), sep = ", ")
 # urbanareas <- dplyr::filter(urbanareas, !(urban_state %in% c("AK", "HI")))
+# urbanareas <- urbanareas[st_area(urbanareas) > 
+#                      units::as_units(9500000, "m2"),]
+# for(i in seq_len(nrow(urbanareas))){
+#   print(i)
+#   urbanareas[i,] <- rmapshaper::ms_simplify(urbanareas[1,])
+# }
 # saveRDS(urbanareas, "../data/urbanareas.rds")
 urbanareas <- readRDS("../data/urbanareas.rds")
 
-test <- apply(st_distance(LAGOSUS::coordinatize(lg, crs = LAGOSUSgis:::albers_conic()),
-            urbanareas), 1, function(x) x[which.min(x)])
+lg$urban_distance <- apply(
+  st_distance(
+    st_transform(
+      LAGOSUS::coordinatize(lg, crs = 4326), 
+      LAGOSUSgis:::albers_conic()),
+    urbanareas), 
+  1, function(x) x[which.min(x)])
+
+cowplot::plot_grid(
+  gg_quantdot(lg, lagos_effort, "lake_maxdepth_m"), 
+  gg_quantdot(lg, lagos_effort, "lake_waterarea_ha") +
+    scale_y_log10(), 
+  gg_quantdot(lg, lagos_effort, "urban_distance"),
+  ncol = 1)
 ```
