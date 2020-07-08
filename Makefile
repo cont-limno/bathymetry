@@ -122,7 +122,8 @@ figures/lgnemanual-vs-bathy-depth-1.pdf \
 figures/01_contrasts-1.pdf \
 figures/01_hypsography-1.pdf \
 figures/01_geometry_grid-1.pdf \
-figures/02_depth_model_importance-1.pdf
+figures/02_depth_model_importance-1.pdf \
+figures/gg_effort-1.pdf
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	-pdftk manuscript/appendix.pdf cat 2-end output manuscript/appendix2.pdf
 	-mv manuscript/appendix2.pdf manuscript/appendix.pdf
@@ -176,6 +177,10 @@ data/00_hypso/hypso_predictors.csv
 figures/01_contrasts_tally-1.pdf: figures/01_contrasts.Rmd \
 data/00_hypso/hypso_predictors.csv \
 data/lagosus_depth.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
+figures/gg_effort-1.pdf: figures/01_contrasts.Rmd
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 

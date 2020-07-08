@@ -317,7 +317,7 @@ as.data.frame(
   theme(legend.position = "none")
 ```
 
-```{r gg_effort, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height = 3.5}
+```{r gg_effort, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height = 3.7, fig.width=2.7}
 # compare characteristics of bathy lakes versus overall lakes
 
 # load LAGOSUS DEPTH
@@ -351,11 +351,22 @@ lg$urban_distance <- apply(
       LAGOSUSgis:::albers_conic()),
     urbanareas), 
   1, function(x) x[which.min(x)])
+lg$urban_distance <- lg$urban_distance * 0.001 # m to km
 
+theme_opts <- theme(axis.title.x = element_blank())
 cowplot::plot_grid(
-  gg_quantdot(lg, lagos_effort, "lake_maxdepth_m"), 
+  gg_quantdot(lg, lagos_effort, "lake_maxdepth_m") +
+    ylab("Max depth (m) \n") +
+    theme_opts +
+    theme(axis.text.x = element_blank()), 
   gg_quantdot(lg, lagos_effort, "lake_waterarea_ha") +
-    scale_y_log10(), 
-  gg_quantdot(lg, lagos_effort, "urban_distance"),
-  ncol = 1)
+    scale_y_log10() +
+    ylab("Area (ha)") +
+    theme_opts +
+    theme(axis.text.x = element_blank()), 
+  gg_quantdot(lg, lagos_effort, "urban_distance") +
+    scale_y_log10() +
+    ylab("Distance to urban (km)") +
+    theme_opts,
+  rel_heights = c(0.85, 0.85, 1),  ncol = 1)
 ```
