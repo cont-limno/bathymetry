@@ -3,8 +3,8 @@
 
 library(sf)
 library(raster)
-library(gdalUtilities)
-library(dplyr)
+suppressMessages(library(gdalUtilities))
+suppressMessages(library(dplyr))
 
 # ---- bathymetry.zip ----
 # each bathymetry surface is linked by name to a LAGOSUS ID based on NHD (USGS 2019) waterbodies.
@@ -45,35 +45,46 @@ f_source <- dplyr::bind_rows(
 # create geopackage index, filename, coverage polygon, and crs
 ids            <- data.frame(llid = stringr::str_extract(f_list, "[0-9]+"),
                              stringsAsFactors = FALSE)
-states         <- stringr::str_extract(f_list, "(?<=data\\/).{2}")
+states         <- stringr::str_extract(f_list, "(?<=\\/).{2}")
+
+get_projection <- function(x) projection(raster(x))
+# get_projection(f_list[[1]])
 coverage_crs   <- as.character(do.call("rbind",
-                                       lapply(f_list, function(x) st_crs(raster(x))$input)))
+           lapply(f_list, function(x) get_projection(x))
+           ))
+
+get_poly <- function(i){
+   st_transform(
+      st_as_sfc(st_bbox(raster(f_list[[i]]))),
+      crs = coverage_crs[[i]], 5071)
+}
+# mapview::mapview(get_poly(1))
 coverage_polys <- lapply(seq_along(coverage_crs),
-                         function(i) st_transform(st_as_sfc(st_bbox(raster(f_list[i])),
-                                                            crs = coverage_crs[i]), 5071)) %>%
+                         function(i) get_poly(i)) %>%
    Reduce(c, .) %>%
    st_as_sf(ids, geometry = .) %>%
    mutate(crs = coverage_crs,
           file = f_list,
           state = states)
-
 coverage_polys <- left_join(coverage_polys, f_source, by = "state")
 
-# plot(coverage_polys$geometry)
 # unlink("bathymetry.gpkg")
-# sf::st_write(coverage_polys, "bathymetry.gpkg")
-
+sf::st_write(coverage_polys, "bathymetry.gpkg")
 # coverage_polys <- st_read("bathymetry.gpkg")
 
-# zip files
-# zip("bathymetry_index.zip", "bathymetry.gpkg")
-
-# ---- depth_raw.zip ----
-
-f_data <- dplyr::filter(f_source, state != "mn") %>% # mn data is too large
-   pull(data)
-
-# zip("depth_raw.zip", f_data)
+# ---- collate raw data ----
+## pull paths for data in shp format
+shp_files <- as.character(unlist(sapply(
+   substring(f_source[grep(".shp", f_source$data),]$data, 0, 8),
+       function(x) dir(x, pattern = c(".shp|.dbf|.CPG|.cpg|.prj|.sbn|.sbx|.shx"),
+    include.dirs = TRUE, full.names = TRUE))))
+shp_files <- shp_files[!(shp_files %in% f_source$data)]
 
 # ---- hypsography.csv ----
-# file.copy("00_hypso/hypso.csv", "hypsography.csv")
+file.copy("00_hypso/hypso.csv", "hypsography.csv")
+
+# ---- zip files ----
+unlink("bathymetry.zip")
+zip("bathymetry.zip", c(f_list, f_source$data, shp_files, "bathymetry.gpkg", "hypsography.csv"))
+unlink("bathymetry.gpkg")
+# system("fsizemb bathymetry.zip")

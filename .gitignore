@@ -94,3 +94,6 @@ manuscript/lagos-depth_bathymetry_outline_line_numbered.pdf
 *.aux
 *.synctex.gz
 manuscript/lagos_depth.bib
+data/hypsography.csv
+manuscript/Latex_submission_guidelines_Sept52019.pdf
+validate_cloud_optimized_geotiff.py
