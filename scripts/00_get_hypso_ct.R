@@ -15,14 +15,17 @@ if(!file.exists("data/ct_bathy/ct_bathy.gpkg")){
   # loop through lake names to find malformed records
   ps <- list()
   for(i in seq_along(unique(contours$WBNAME))){
+    print(i)
     where <- paste0("WBNAME = '", unique(contours$WBNAME)[i], "'")
     ps[[i]] <- esri2sf(paste0(base_url, "1"), where = where)
   }
   names(ps) <- unique(contours$WBNAME)
   ps <- ps[which(unlist(lapply(ps, nrow)) > 1)]
-  ps <- dplyr::rbind_list(ps)
+
+  ps <- dplyr::bind_rows(ps)
   st_crs(ps) <- st_crs(4326)
 
+  # unlink("data/ct_bathy/ct_bathy.gpkg")
   sf::st_write(contours, "data/ct_bathy/ct_bathy.gpkg", "contours")
   sf::st_write(ps, "data/ct_bathy/ct_bathy.gpkg", "ps",
                update = TRUE, delete_layer = TRUE)
@@ -81,7 +84,7 @@ ps <- dplyr::filter(ps, lagoslakeid %in% unique(lg_xwalk$lagoslakeid))
 
 # polygons to raster
 get_rsub <- function(dt){
-  # dt <- dplyr::filter(ps, lagoslakeid == 113973)
+  # dt <- dplyr::filter(ps, lagoslakeid == 62251)
   dt <- st_transform(dt, 6433) # ct state plane
   dt <- dplyr::select(dt, DEPTH_FT)
 
@@ -89,7 +92,7 @@ get_rsub <- function(dt){
                           xmx = st_bbox(dt)[3], ymx = st_bbox(dt)[4])
   r[]           <- NA
   r             <- rasterize(as_Spatial(dt), r, field = "DEPTH_FT")
-  projection(r) <- as.character(st_crs(dt))[2]
+  projection(r) <- projection(as_Spatial(dt))
 
   # https://stackoverflow.com/a/45658609/3362993
   fill.na <- function(x) {
@@ -141,7 +144,7 @@ rsubs <- lapply(seq_len(length(unique(ps$lagoslakeid))), function(x){
   llid_current <- unique(ps$lagoslakeid)[x]
   pb$tick(tokens = list(llid = llid_current))
   fname <- paste0("data/ct_bathy/",
-                  snakecase::to_snake_case(llid_current), ".tif")
+                  snakecase::to_snake_case(as.character(llid_current)), ".tif")
   if(!file.exists(fname)){
     ps_sub <- dplyr::filter(ps, lagoslakeid == llid_current)
     # lg_sub <- dplyr::filter(lg_poly, lagoslakeid == llid_current)

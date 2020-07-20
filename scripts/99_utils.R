@@ -21,6 +21,7 @@ library(elevatr)
 suppressMessages(library(dplyr))
 library(progress)
 suppressMessages(library(LAGOSUS)) # install_github("cont-limno/LAGOSUS")
+Sys.setenv(LAGOSUS_DEPTH_VER = 0) # set module versions
 library(polylabelr)
 library(esri2sf) # install_github("yonghah/esri2sf")
 library(rnaturalearth)
@@ -125,7 +126,7 @@ poly_to_filled_raster <- function(dt_raw, depth_attr, wh, proj){
                           xmx = st_bbox(dt)[3], ymx = st_bbox(dt)[4])
   r[]           <- NA
   r             <- rasterize(as_Spatial(dt), r, field = depth_attr)
-  projection(r) <- as.character(st_crs(dt))[2]
+  projection(r) <- projection(as_Spatial(dt))
 
   r2 <- r
   # r2[which.max(r2[])] <- NaN # dont remember why I did this...

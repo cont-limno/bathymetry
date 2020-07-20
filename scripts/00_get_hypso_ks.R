@@ -15,6 +15,7 @@ if(!file.exists("data/ks_bathy/ks_bathy.gpkg")){
 
   # contours <- st_read("data/ks_bathy/ks_bathy.gpkg", layer = "contours")
   contours <- esri2sf(paste0(base_url, "0"))
+  # unlink("data/ks_bathy/ks_bathy.gpkg")
   sf::st_write(contours, "data/ks_bathy/ks_bathy.gpkg", "contours")
 }
 # contours <- st_read("data/ks_bathy/ks_bathy.gpkg", layer = "contours")
