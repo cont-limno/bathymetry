@@ -88,3 +88,13 @@ unlink("bathymetry.zip")
 zip("bathymetry.zip", c(f_list, f_source$data, shp_files, "bathymetry.gpkg", "hypsography.csv"))
 unlink("bathymetry.gpkg")
 # system("fsizemb bathymetry.zip")
+
+# ---- figshare upload ----
+
+# library(rfigshare)
+# id <- fs_create(title = "Bathymetry data for 5,000 lakes",
+#                 description = "Data supporting the publication: 'Geometric models overestimate lake depth due to imperfect slope
+# measurement'")
+## cat_list <- as.data.frame(rbind(rfigshare::fs_category_list()))
+# fs_add_categories(id, c(35, 39, 251), debug = TRUE)
+# fs_upload(id, "bathymetry.zip")
