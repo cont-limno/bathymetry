@@ -117,7 +117,7 @@ data/lagosne_depth_predictors.csv
 manuscript/combined.pdf: manuscript/figures.pdf manuscript/appendix.pdf
 	pdftk manuscript/figures.pdf manuscript/appendix.pdf output manuscript/combined.pdf
 
-manuscript/appendix.pdf: manuscript/appendix.Rmd \
+manuscript/appendix.pdf: manuscript/si_template_2019.tex \
 figures/00_map_bathy-1.pdf \
 figures/lgnemanual-vs-bathy-depth-1.pdf \
 figures/01_contrasts-1.pdf \
@@ -125,9 +125,7 @@ figures/01_hypsography-1.pdf \
 figures/01_geometry_grid-1.pdf \
 figures/02_depth_model_importance-1.pdf \
 figures/gg_effort-1.pdf
-	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
-	-pdftk manuscript/appendix.pdf cat 2-end output manuscript/appendix2.pdf
-	-mv manuscript/appendix2.pdf manuscript/appendix.pdf
+	cd manuscript && make appendix.pdf
 
 manuscript/figures.pdf: manuscript/figures.Rmd \
 manuscript/tables.pdf \
@@ -152,6 +150,10 @@ figures/gg_distance-1.pdf
 manuscript/manuscript.pdf: manuscript/agujournaltemplate.tex \
 manuscript/lagosdepth.bib
 	cd manuscript && make manuscript.pdf
+
+wordcountms:
+	@echo wordcount:
+	@~/.TinyTeX/bin/x86_64-linux/texcount manuscript/agujournaltemplate.tex -sum -sub=section
 
 # data/gis.gpkg
 figures/00_map-1.pdf: figures/00_maps.Rmd
