@@ -2,6 +2,7 @@ all: datasets \
 manuscript/figures.pdf \
 manuscript/appendix.pdf \
 manuscript/combined.pdf \
+manuscript/manuscript.pdf \
 README.md
 
 datasets: data/lagosus_depth.csv \
@@ -146,7 +147,11 @@ figures/gg_distance-1.pdf
 	-pdftk manuscript/figures.pdf cat 2-end output manuscript/figures2.pdf
 	-mv manuscript/figures2.pdf manuscript/figures.pdf
 #	cd figures && make pnglatest
-# figures/01_heatmap-1.pdf \
+# figures/01_heatmap-1.pdf
+
+manuscript/manuscript.pdf: manuscript/agujournaltemplate.tex \
+manuscript/lagosdepth.bib
+	cd manuscript && make manuscript.pdf
 
 # data/gis.gpkg
 figures/00_map-1.pdf: figures/00_maps.Rmd

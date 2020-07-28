@@ -1,10 +1,7 @@
-manuscript.pdf: manuscript.Rmd \
-pinp.cls \
-lagosdepth.bib \
-jsta.bst
-	Rscript -e "rmarkdown::render('manuscript.Rmd')"
-	pdftk manuscript.pdf appendix.pdf cat output manuscript2.pdf
-	mv manuscript2.pdf manuscript.pdf
+manuscript.pdf: agujournaltemplate.pdf
+	cp agujournaltemplate.pdf manuscript.pdf
+	@echo wordcount:
+	@~/.TinyTeX/bin/x86_64-linux/texcount agujournaltemplate.tex -sum -sub=section -1
 
 agujournaltemplate.pdf: agujournaltemplate.tex lagosdepth.bib
 	pdflatex agujournaltemplate
