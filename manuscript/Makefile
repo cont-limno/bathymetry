@@ -3,7 +3,7 @@ manuscript.pdf: agujournaltemplate.pdf wrr_submission.pdf
 	@echo wordcount:
 	@~/.TinyTeX/bin/x86_64-linux/texcount agujournaltemplate.tex -sum -sub=section
 
-appendix.pdf: si_template_2019.pdf
+appendix.pdf: si_template_2019.pdf si_template_2019.tex
 	cp si_template_2019.pdf appendix.pdf
 
 agujournaltemplate.pdf: agujournaltemplate.tex lagosdepth.bib
