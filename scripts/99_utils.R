@@ -35,6 +35,7 @@ suppressMessages(library(rgdal))
 library(rnaturalearthhires) # install.packages("rnaturalearthhires", repos = "http://packages.ropensci.org", type = "source")
 suppressMessages(library(GGally))
 library(ranger)
+library(yardstick)
 
 # ---- misc fxn ----
 # jsta::get_if_not_exists
