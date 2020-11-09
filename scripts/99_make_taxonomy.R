@@ -6,7 +6,7 @@
 #                stringsAsFactors = FALSE)
 # cat(unique(c(names(dt), names(dt2))))
 
-library(dplyr)
+suppressMessages(library(dplyr))
 
 taxonomy_key <- bind_rows(
   c(col_name = "llid",
@@ -50,18 +50,42 @@ taxonomy_key <- bind_rows(
     description = "lake maximum depth calculated from slope_mean and dist_deepest in meters"),
   c(col_name = "maxdepth_false_false",
     description = "lake maximum depth calculated from slope_mean and dist_viscenter in meters"),
+
   c(col_name = "inlake_slope",
     description = "slope of the lake bottom assuming a straight line from the shore to the deepest point of the lake in units of depth change in meters per meter distance",
     pretty = "Inlake slope (m/m)"),
+
+  c(col_name = "inlake_slopes",
+    description = "slope of the lake bottom assuming a straight line from the shore to the deepest point(s) of the lake in units of depth change in meters per meter distance",
+    pretty = "Mean inlake slope (m/m)"),
+
+  c(col_name = "inlake_slope_mean",
+    description = "the mean slope of the lake bottom in units of depth change in meters per meter distance",
+    pretty = "Mean lake slope (m/m)"),
+
   c(col_name = "slope_mean",
     description = "average slope of the land surrounding a lake in a 100m buffer",
     pretty = "Mean slope (m/m)"),
   c(col_name = "buffer_slope",
     description = "average slope of the land surrounding a lake in a 100m buffer",
     pretty = "Nearshore slope (m/m)"),
+
+  c(col_name = "slope_online_mean",
+    description = "average slope of the land surrounding a lake in a straight-line  extending from the deepest point of a lake and buffered on either side by 20m",
+    pretty = "Nearshore slope online (m/m)"),
+
+  c(col_name = "slopes_online_mean",
+    description = "average slope of the land surrounding a lake in a straight-line  extending from the deepest point(s) of a lake and buffered on either side by 20m",
+    pretty = "Nearshore slopes online (m/m)"),
+
   c(col_name = "dist_deepest",
     description = "distance from the lake shoreline to the deepest point of the lake in meters",
     pretty = "Deepest point distance (m)"),
+
+  c(col_name = "dists_deepest",
+    description = "distance from the lake shoreline to the deepest point(s) of the lake in meters",
+    pretty = "Mean deepest point distance (m)"),
+
   c(col_name = "dist_viscenter",
     description = "distance from the lake shoreline to the point furthest from the lake shoreline in meters",
     pretty = "Visual center distance (m)"),
