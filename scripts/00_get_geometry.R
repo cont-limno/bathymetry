@@ -10,15 +10,13 @@ lg <- lagosus_load("locus")
 #   the distance from each point to land
 #   the distance between these points
 #   the true in-lake "slope"
-get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
+get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1, dt_poly){
   # llid <- 2119
   # r <- raster(paste0("data/mi_bathy/", llid, ".tif"))
   # deep_positive = TRUE
   # ft <- 3.281
   # ft = 1
 
-  dt_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha",
-                                   "lagoslakeid", llid)
   proj_str_init <- st_crs(r)$proj4string
   proj_str <- proj_str_init
   if(nrow(st_coordinates(st_transform(dt_poly, proj_str))) >= 1){
@@ -73,14 +71,15 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
     maxdepth  <- abs(r[which.max(r)][1]) / ft
     meandepth <- cellStats(r, mean) / ft
   }
-  pnt_deepest <- st_cast(
+  pnts_deepest <- st_cast(
     st_sfc(st_multipoint(xy), crs = proj_str), "POINT")
-  st_crs(pnt_deepest) <- proj_str
-  pnt_deepest <- pnt_deepest[
-    st_distance(st_cast(dt_poly, "MULTILINESTRING"), pnt_deepest) <=
+  st_crs(pnts_deepest) <- proj_str
+  pnts_deepest <- pnts_deepest[
+    st_distance(st_cast(dt_poly, "MULTILINESTRING"), pnts_deepest) <=
       units::as_units(as.numeric(dist_viscenter), "m")]
-  pnt_deepest <- pnt_deepest[
-    which.max(st_distance(st_cast(dt_poly, "MULTILINESTRING"), pnt_deepest))]
+
+  pnt_deepest <- pnts_deepest[
+    which.max(st_distance(st_cast(dt_poly, "MULTILINESTRING"), pnts_deepest))]
   if(nrow(st_coordinates(pnt_deepest)) == 0){
     pnt_deepest <- st_cast(
       st_sfc(st_multipoint(xy), crs = proj_str), "POINT")
@@ -98,20 +97,24 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
   # mapview(st_nearest_points(pnt_deepest, st_cast(dt_poly, "MULTILINESTRING")))
   # mapview(st_nearest_points(pnt_viscenter, st_cast(dt_poly, "MULTILINESTRING")))
 
-  dist_deepest   <- st_distance(pnt_deepest,
-                              st_cast(dt_poly, "MULTILINESTRING"))
-  # dist_viscenter > dist_deepest
   dist_between   <- st_distance(pnt_deepest, pnt_viscenter)
 
-  inlake_slope   <- maxdepth / as.numeric(dist_deepest)
+  dist_deepest   <- st_distance(pnt_deepest,
+                              st_cast(dt_poly, "MULTILINESTRING"))
+  dists_deepest <- mean(
+    st_distance(pnts_deepest, st_cast(dt_poly, "MULTILINESTRING")))
+  # dist_viscenter > dist_deepest
+
+  inlake_slope      <- maxdepth / as.numeric(dist_deepest)
+  inlake_slopes <- maxdepth / as.numeric(dists_deepest)
 
   pnt_shore  <- sf::st_nearest_points(pnt_deepest, st_transform(
     st_cast(dt_poly, "MULTILINESTRING"), proj_str))
 
   r_slope    <- terrain(r, "slope")
   r_slope    <- mask(r_slope, as_Spatial(pnt_shore))
-  inlake_slope_mean   <- mean(r_slope@data@values, na.rm = TRUE) * res(r)[1]
-  inlake_slope_median <- median(r_slope@data@values, na.rm = TRUE) * res(r)[1]
+  inlake_slope_mean   <- mean(r_slope@data@values, na.rm = TRUE) # * res(r)[1]
+  inlake_slope_median <- median(r_slope@data@values, na.rm = TRUE) # * res(r)[1]
 
   # make sure pnt deepest and pnt_viscenter match
   # the projection of the on disk raster
@@ -119,8 +122,10 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1){
   # if empty project raster to `proj_str`
 
   list(pnt_deepest = pnt_deepest, pnt_viscenter = pnt_viscenter,
-       dist_deepest = dist_deepest, dist_viscenter = dist_viscenter,
+       dist_deepest = dist_deepest, dists_deepest = dists_deepest,
+       dist_viscenter = dist_viscenter,
        dist_between = dist_between, inlake_slope = inlake_slope,
+       inlake_slopes = inlake_slopes,
        inlake_slope_mean = inlake_slope_mean, inlake_slope_median =
          inlake_slope_median,
        maxdepth = maxdepth, meandepth = meandepth, llid = llid)
@@ -150,11 +155,16 @@ loop_state <- function(fpath, outname, deep_positive, ft = 1){
       total = length(rsubs),
       clear = FALSE, width = 80)
 
+    dt_polys <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha",
+                       "lagoslakeid",
+                       gsub("X", "", unlist(lapply(rsubs, function(x) names(x)))))
+
     res <- lapply(rsubs, function(x){
       # x <- rsubs[[1]]
       pb$tick(tokens = list(llid = gsub("X", "", names(x))))
       get_geometry(x, deep_positive = deep_positive,
-                   llid = gsub("X", "", names(x)), ft = ft)
+                   llid = gsub("X", "", names(x)), ft = ft,
+                   dt_poly = dt_polys[dt_polys$lagoslakeid == gsub("X", "", names(x)),])
     })
 
     saveRDS(res, outname)
@@ -249,13 +259,14 @@ res_all <- rbind(res_all, mutate(bind_rows(
 
 # ME
 message("Calculating ME geometries...")
-res_all <- rbind(res_all, mutate(bind_rows(
-  loop_state("data/me_bathy/",
-             "data/00_bathy_depth/00_bathy_depth_me.rds",
-             deep_positive = TRUE,
-             ft = 1)
-), state = "ME",
-source = "https://www.maine.gov/megis/catalog/shps/state/lakedpths.zip"))
+res_me <- mutate(
+  bind_rows(loop_state("data/me_bathy/",
+                       "data/00_bathy_depth/00_bathy_depth_me.rds",
+                       deep_positive = TRUE,
+                       ft = 1)),
+  state = "ME",
+  source = "https://www.maine.gov/megis/catalog/shps/state/lakedpths.zip")
+res_all <- rbind(res_all, res_me)
 # unlink("data/00_bathy_depth/00_bathy_depth_me.rds")
 
 # write geometry to an rds file containing an sf object with two geometries
@@ -267,7 +278,6 @@ saveRDS(st_as_sf(res_all),
 # write geometry stats without pnt geometry
 write.csv(select(res_all, -contains("pnt")),
           "data/00_bathy_depth/bathy_geometry.csv", row.names = FALSE)
-# res_all <- read.csv("data/00_bathy_depth/bathy_geometry.csv", stringsAsFactors = FALSE)
 
 # write max depth formatted like other max depth sources
 res_final <- res_all %>%
@@ -275,12 +285,12 @@ res_final <- res_all %>%
   dplyr::select(llid, state, max_depth_m = maxdepth,
                 mean_depth_m = meandepth, source,
                 effort, -contains("pnt"), -contains("dist")) %>%
-  left_join(mutate(dplyr::select(lg$locus$locus_characteristics,
+  left_join(mutate(dplyr::select(lg$locus$lake_characteristics,
                           lagoslakeid, lake_waterarea_ha,
                           lake_connectivity_permanent),
                    lagoslakeid = as.character(lagoslakeid)),
             by = c("llid" = "lagoslakeid")) %>%
-  left_join(mutate(dplyr::select(lg$locus$locus_information, lagoslakeid,
+  left_join(mutate(dplyr::select(lg$locus$lake_information, lagoslakeid,
                           lake_lat_decdeg, lake_lon_decdeg),
                    lagoslakeid = as.character(lagoslakeid)),
             by = c("llid" = "lagoslakeid")) %>%
