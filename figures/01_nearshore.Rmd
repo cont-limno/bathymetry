@@ -1,0 +1,106 @@
+---
+output: pdf_document
+header-includes: 
+  - \pagenumbering{gobble}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fig.height = 4.5)
+# setwd("figures")
+source("../scripts/99_utils.R")
+```
+
+```{r 01_nearshore, echo=FALSE, message=FALSE, eval=FALSE, warning=FALSE, results='hide', fig.height=3.5}
+# set llid
+flist <- list.files("../data/elevatr", pattern = "\\d*.tif",
+                    full.names = TRUE, include.dirs = TRUE)
+ll_id           <- 2294
+max_buffer_dist <- 100 # to match Hollister (2011)
+
+bathy_pnts <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
+ll_poly    <- query_gis("LAGOS_NE_All_Lakes_4ha", "lagoslakeid", ll_id)
+ll_iws     <- query_gis("IWS", "lagoslakeid", ll_id)
+elev       <- raster(flist[grep(ll_id, flist)])
+
+deepest_pnt         <- dplyr::filter(bathy_pnts, llid == ll_id)
+r                   <- raster(paste0("../data/", 
+                                     tolower(deepest_pnt$state), "_bathy/", ll_id, ".tif"))
+st_crs(deepest_pnt) <- st_crs(r)
+
+elev    <- projectRaster(elev, crs = st_crs(r)$proj4string)
+ll_poly <- st_transform(ll_poly, st_crs(r))
+ll_iws  <- st_transform(ll_iws, st_crs(r))
+
+# approximates functions in lakemorpho package
+elev      <- mask(elev, as_Spatial(ll_iws))
+elev      <- mask(elev, as_Spatial(st_buffer(ll_poly, max_buffer_dist)))
+elev <- crop(elev, as_Spatial(st_as_sfc(st_bbox(st_buffer(ll_poly, 100)))))
+slope     <- terrain(elev, "slope")
+
+slope_mean <- mean(slope@data@values, na.rm = TRUE) * res(elev)[1]
+slope_max  <- max(slope@data@values, na.rm = TRUE) * res(elev)[1]
+
+# pull slope on-line from deepest point
+shore_pnt <- sf::st_nearest_points(deepest_pnt, st_transform(
+  st_cast(ll_poly, "MULTILINESTRING"), st_crs(r)))
+ll_buf <- st_buffer(ll_poly, 100)
+
+buffer_line <- sf::st_nearest_points(shore_pnt,
+                               st_transform(st_cast(ll_buf, "MULTILINESTRING"), st_crs(r)))
+slope_online <- raster::extract(slope, as_Spatial(buffer_line))
+slope_online <- mean(slope_online[[1]], na.rm = TRUE) * res(slope)[2]
+
+res <- list(slope_mean = slope_mean, slope_max = slope_max,
+     slope_online = slope_online) %>%
+  bind_rows()
+
+ggplot() + 
+  geom_sf(data = st_transform(ll_buf, st_crs(r)), size = 1.5) +
+  geom_sf(data = ll_poly, size = 1.5) +
+  geom_raster(data = as.data.frame(terrain(r, "slope"), xy = TRUE),
+              aes(x = x, y = y, fill = slope)) +
+  geom_raster(data = as.data.frame(slope, xy = TRUE),
+              aes(x = x, y = y, fill = slope)) +
+  scale_fill_gradient(na.value = NA) +
+  geom_sf(data = deepest_pnt) +
+  geom_sf(data = shore_pnt) +
+  geom_sf(data = buffer_line, color = "red") +
+  theme_void()
+```
+
+```{r slope_compare, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.5}
+
+# load csv file from 00_get_nearshore
+dt <- read.csv("data/00_geometry/nearshore.csv", 
+               stringsAsFactors = FALSE) %>%
+    dplyr::filter(inlake_slope < 0.25) %>%
+  dplyr::filter(slope_online_mean < 0.6)
+
+cowplot::plot_grid(
+  ggplot(data = dt) + 
+    geom_point(aes(x = slope_mean, y = slope_online_mean)) +
+    geom_abline(aes(slope = 1, intercept = 0)), 
+   ggplot(data = dt) + 
+    geom_point(aes(x = slope_mean, y = inlake_slope)) +
+    geom_abline(aes(slope = 1, intercept = 0)), 
+   ggplot(data = dt) + 
+    geom_point(aes(x = slope_online_mean, y = inlake_slope)) +
+    geom_abline(aes(slope = 1, intercept = 0))
+)
+
+plot(dt$inlake_slope, dt$slope_mean,
+     xlim = c(0, 2), ylim = c(0, 2))
+plot(dt$inlake_slope, dt$slope_online,
+     xlim = c(0, 2), ylim = c(0, 2))
+
+
+
+# plot(dt$slope_mean, dt$slope_online)
+abline(0, 1)
+
+cor.test(dt$slope_mean, dt$inlake_slope)
+cor.test(dt$slope_online, dt$inlake_slope)
+
+hist(dt$inlake_slope / dt$slope_online)
+
+```
