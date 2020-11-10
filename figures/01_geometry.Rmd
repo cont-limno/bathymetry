@@ -328,3 +328,69 @@ cowplot::plot_grid(
  legend_panel, rel_heights = c(1, 0.12), ncol = 1
 )
 ```
+
+```{r slope_by_area_depth, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=5.5, fig.height=4.2}
+
+nearshore     <- read.csv("../data/00_geometry/nearshore.csv",
+                      stringsAsFactors = FALSE) %>%
+                  dplyr::select(-inlake_slope)
+dt_raw        <- read.csv("../data/lagosus_depth_predictors.csv", 
+                      stringsAsFactors = FALSE) %>%
+                  left_join(nearshore, b = c("lagoslakeid" = "llid")) %>% 
+                  dplyr::filter(shape_class %in% c("concave", "convex")) %>% 
+                  dplyr::filter(inlake_slope < 0.6)
+
+breaks_dt <- classInt::classIntervals(dt_raw$lake_waterarea_ha, n = 4)$brks
+dt        <- dt_raw %>%
+  dplyr::mutate(x_bins = cut(dt_raw$lake_waterarea_ha,
+      breaks = breaks_dt)) %>%
+  dplyr::filter(!is.na(x_bins))
+dt <- dt %>%
+  dplyr::mutate(x_bins = forcats::fct_recode(x_bins, 
+        !!!setNames(levels(dt$x_bins), 
+                    paste0("< ", as.character(round(breaks_dt[-1], 1))))
+      )
+    )
+
+gg_area <- ggplot(data = dt) +
+   geom_point(aes(x = slope_mean, y = inlake_slope, color = x_bins)) +
+   geom_smooth(aes(slope_mean, inlake_slope, color = x_bins),
+               method = "lm", se = FALSE) + 
+  facet_wrap(~shape_class) +
+    ggtitle("Area (ha)")
+  
+breaks_dt <- classInt::classIntervals(dt_raw$lake_maxdepth_m, n = 4)$brks
+dt        <- dt_raw %>%
+  dplyr::mutate(x_bins = cut(dt_raw$lake_maxdepth_m,
+      breaks = breaks_dt)) %>%
+  dplyr::filter(!is.na(x_bins))
+dt <- dt %>%
+  dplyr::mutate(x_bins = forcats::fct_recode(x_bins, 
+        !!!setNames(levels(dt$x_bins), 
+                    paste0("< ", as.character(round(breaks_dt[-1], 1))))
+      )
+    ) 
+
+gg_depth <- ggplot(data = dt) +
+   geom_point(aes(x = slope_mean, y = inlake_slope, color = x_bins)) +
+   geom_smooth(aes(slope_mean, inlake_slope, color = x_bins),
+               method = "lm", se = FALSE) +
+    facet_wrap(~shape_class) +
+    ggtitle("Max Depth (m)")
+
+theme_opts <- cowplot::theme_cowplot() +
+  theme(legend.position = "bottom", 
+        legend.title = element_blank(), 
+        panel.spacing = unit(1, "lines")) 
+cowplot::plot_grid(
+  gg_area + theme_opts +
+    guides(color = guide_legend(nrow = 2, byrow = TRUE)),
+  gg_depth + theme_opts + 
+    theme(axis.title.y = element_blank(), 
+          axis.text.y = element_blank(), 
+          axis.line.y = element_blank(),
+          axis.ticks.y = element_blank()) +
+    guides(color = guide_legend(nrow = 2, byrow = TRUE)),
+  rel_widths = c(1, 0.87))
+
+```
