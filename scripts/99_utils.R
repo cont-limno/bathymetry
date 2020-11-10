@@ -359,3 +359,14 @@ gg_quantdot <- function(dt, grp, var){
                         ymin = .data$`5%`, ymax = .data$`95%`)) +
     ylab(var)
 }
+
+# https://stackoverflow.com/a/64376355/3362993
+# get_formula(lm(dist ~ speed, data = cars))
+get_formula <- function(model) {
+  broom::tidy(model)[, 1:2] %>%
+    mutate(sign = ifelse(sign(estimate) == 1, ' + ', ' - ')) %>% #coeff signs
+    mutate_if(is.numeric, ~ abs(round(., 2))) %>% #for improving formatting
+    mutate(a = ifelse(term == '(Intercept)', paste0('y ~ ', estimate), paste0(sign, estimate, ' * ', term))) %>%
+    summarise(formula = paste(a, collapse = '')) %>%
+    as.character
+}
