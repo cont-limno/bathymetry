@@ -1,3 +1,5 @@
+all: manuscript.pdf diff.pdf
+
 manuscript.pdf: agujournaltemplate.pdf wrr_submission.pdf
 	cp agujournaltemplate.pdf manuscript.pdf
 	@echo wordcount:
