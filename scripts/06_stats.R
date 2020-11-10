@@ -82,3 +82,10 @@ lg <- lg_raw$locus$locus_information %>%
   dplyr::filter(lake_waterarea_ha >= 4)
 
 (nrow(lg_depth) / nrow(lg)) * 100 # 25%
+
+# ---- the area range of our lakes ----
+dt <- read.csv("data/lagosus_depth_predictors.csv", stringsAsFactors = FALSE) %>%
+  dplyr::filter(lagos_effort == "bathymetry")
+
+range(dt$lake_waterarea_ha)
+# 4 - 18500 ha
