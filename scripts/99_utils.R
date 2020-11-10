@@ -36,6 +36,9 @@ library(rnaturalearthhires) # install.packages("rnaturalearthhires", repos = "ht
 suppressMessages(library(GGally))
 library(ranger)
 suppressMessages(library(yardstick))
+suppressMessages(library(recipes))
+library(rsample)
+library(parsnip)
 
 # ---- misc fxn ----
 # jsta::get_if_not_exists
