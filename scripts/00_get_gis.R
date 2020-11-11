@@ -9,6 +9,11 @@ dt         <- read.csv("data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
   dplyr::filter(!is.na(lake_maxdepth_m)) %>%
   st_as_sf(coords = c("lake_lon_decdeg", "lake_lat_decdeg"), crs = 4326)
 
+dt_polys <- LAGOSUSgis::query_gis("lake", "lagoslakeid",
+          pull(dplyr::filter(dt, lagos_effort == "bathymetry"), "lagoslakeid"),
+          gis_path = path.expand("~/.local/share/LAGOS-GIS/gis_locus_v1.0.gpkg")
+          )
+
 states_all <- ne_states(country = c("united states of america", "canada", "mexico"),
                         returnclass = "sf")
 state_codes <- unique(dt$lake_state)
@@ -73,6 +78,8 @@ st_write(hu4s_focal_simple, gpkg_path, layer = "hu4s_focal_simple", update = TRU
 #          layer_options = c("OVERWRITE=yes"))
 st_write(study_bbox, gpkg_path, layer = "study_bbox", update = TRUE,
          delete_layer = TRUE,
+         layer_options = c("OVERWRITE=yes"))
+st_write(dt_polys, gpkg_path, layer = "dt_polys", update = TRUE, delete_layer = TRUE,
          layer_options = c("OVERWRITE=yes"))
 st_write(dt, gpkg_path, layer = "dt", update = TRUE, delete_layer = TRUE,
          layer_options = c("OVERWRITE=yes"))
