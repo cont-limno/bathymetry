@@ -10,15 +10,20 @@ lg <- lagosus_load("locus")
 #   the distance from each point to land
 #   the distance between these points
 #   the true in-lake "slope"
+# get_geometry(raster(paste0("data/mi_bathy/", 2119, ".tif")), 2119, ft = 3.281,
+#  dt_poly = LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha", "lagoslakeid", 2119))
+#
+# get_geometry(raster(paste0("data/ct_bathy/", 7324, ".tif")), 7324, ft = 3.281,
+#  dt_poly = LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha", "lagoslakeid", 7324))
 get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1, dt_poly){
-  # llid <- 2119
+  # llid <- 1006
   # r <- raster(paste0("data/mi_bathy/", llid, ".tif"))
   # deep_positive = TRUE
   # ft <- 3.281
-  # ft = 1
+  # dt_poly <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha", "lagoslakeid", llid)
 
   proj_str_init <- st_crs(r)$proj4string
-  proj_str <- proj_str_init
+  proj_str      <- proj_str_init
   if(nrow(st_coordinates(st_transform(dt_poly, proj_str))) >= 1){
     dt_poly <- st_transform(dt_poly, proj_str)
   }else{
@@ -81,11 +86,11 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1, dt_poly){
   pnt_deepest <- pnts_deepest[
     which.max(st_distance(st_cast(dt_poly, "MULTILINESTRING"), pnts_deepest))]
   if(nrow(st_coordinates(pnt_deepest)) == 0){
-    pnt_deepest <- st_cast(
+    pnts_deepest <- st_cast(
       st_sfc(st_multipoint(xy), crs = proj_str), "POINT")
-    st_crs(pnt_deepest) <- proj_str
-    pnt_deepest <- pnt_deepest[
-      which.min(st_distance(pnt_viscenter, pnt_deepest))]
+    st_crs(pnts_deepest) <- proj_str
+    pnt_deepest <- pnts_deepest[
+      which.min(st_distance(pnt_viscenter, pnts_deepest))]
   }
 
   # mapview(dt_poly) + mapview(r) + mapview(pnt_viscenter) + mapview(pnt_deepest, color = "red")
@@ -98,34 +103,67 @@ get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1, dt_poly){
   # mapview(st_nearest_points(pnt_viscenter, st_cast(dt_poly, "MULTILINESTRING")))
 
   dist_between   <- st_distance(pnt_deepest, pnt_viscenter)
-
   dist_deepest   <- st_distance(pnt_deepest,
                               st_cast(dt_poly, "MULTILINESTRING"))
-  dists_deepest <- mean(
-    st_distance(pnts_deepest, st_cast(dt_poly, "MULTILINESTRING")))
+  dists_deepest  <- mean(
+                    st_distance(pnts_deepest,
+                                st_cast(dt_poly, "MULTILINESTRING"))
+                    )
   # dist_viscenter > dist_deepest
 
-  inlake_slope      <- maxdepth / as.numeric(dist_deepest)
-  inlake_slopes <- maxdepth / as.numeric(dists_deepest)
+  inlake_slope_pnt  <- maxdepth / as.numeric(dist_deepest)
+  inlake_slope_pnts <- maxdepth / as.numeric(dists_deepest)
 
   pnt_shore  <- sf::st_nearest_points(pnt_deepest, st_transform(
     st_cast(dt_poly, "MULTILINESTRING"), proj_str))
+  pnts_shore <- sf::st_nearest_points(pnts_deepest, st_transform(
+    st_cast(dt_poly, "MULTILINESTRING"), proj_str))
 
-  r_slope    <- terrain(r, "slope")
-  r_slope    <- mask(r_slope, as_Spatial(pnt_shore))
-  inlake_slope_mean   <- mean(r_slope@data@values, na.rm = TRUE) # * res(r)[1]
-  inlake_slope_median <- median(r_slope@data@values, na.rm = TRUE) # * res(r)[1]
+  r_slope                     <- terrain(r, "slope")
+
+  inlake_slope_mean           <- mean(r_slope@data@values, na.rm = TRUE)
+  inlake_slope_median         <- median(r_slope@data@values, na.rm = TRUE)
+
+  r_slope_pnt_values <- extract(r_slope, as_Spatial(pnt_shore))[[1]]
+  # View(bench::mark(
+  #   unique(as.numeric(na.omit(extract(r_slope, as_Spatial(pnt_shore))[[1]]))),
+  #   unique(as.numeric(na.omit(mask(r_slope, as_Spatial(pnt_shore))@data@values))),
+  #   min_iterations = 10
+  # ))
+  # profvis::profvis({
+  #   extract(r_slope, as_Spatial(pnt_shore))
+  #   mask(r_slope, as_Spatial(pnt_shore))@data@values
+  #   })
+
+  inlake_slope_online_mean    <- mean(r_slope_pnt_values, na.rm = TRUE) # * res(r)[1]
+  inlake_slope_online_median  <- median(r_slope_pnt_values, na.rm = TRUE) # * res(r)[1]
+
+  # View(bench::mark(
+  #   sort(unique(as.numeric(na.omit(unlist(extract(r_slope, as_Spatial(pnts_shore))))))),
+  #   sort(unique(as.numeric(na.omit(mask(r_slope, as_Spatial(pnts_shore))@data@values)))), min_iterations = 10
+  # ))
+  # profvis::profvis({
+  #   extract(r_slope, as_Spatial(pnts_shore))
+  #   mask(r_slope, as_Spatial(pnts_shore))@data@values
+  #   })
+
+  r_slope_pnts_values         <- unlist(extract(r_slope, as_Spatial(pnts_shore)))
+  inlake_slopes_online_mean   <- mean(r_slope_pnts_values, na.rm = TRUE) # * res(r)[1]
+  inlake_slopes_online_median <- median(r_slope_pnts_values, na.rm = TRUE) # * res(r)[1]
 
   # make sure pnt deepest and pnt_viscenter match
   # the projection of the on disk raster
   # attempt to project pnts to `proj_str_init`
   # if empty project raster to `proj_str`
 
-  list(pnt_deepest = pnt_deepest, pnt_viscenter = pnt_viscenter,
+  list(pnt_deepest = pnt_deepest, pnts_deepest = st_as_sf(st_combine(pnts_deepest)),
+       pnt_viscenter = pnt_viscenter,
        dist_deepest = dist_deepest, dists_deepest = dists_deepest,
        dist_viscenter = dist_viscenter,
-       dist_between = dist_between, inlake_slope = inlake_slope,
-       inlake_slopes = inlake_slopes,
+       dist_between = dist_between, inlake_slope_pnt = inlake_slope_pnt,
+       inlake_slope_pnts = inlake_slope_pnts,
+       inlake_slope_online_mean = inlake_slope_online_mean,
+       inlake_slopes_online_mean = inlake_slopes_online_mean,
        inlake_slope_mean = inlake_slope_mean, inlake_slope_median =
          inlake_slope_median,
        maxdepth = maxdepth, meandepth = meandepth, llid = llid)
@@ -155,9 +193,13 @@ loop_state <- function(fpath, outname, deep_positive, ft = 1){
       total = length(rsubs),
       clear = FALSE, width = 80)
 
-    dt_polys <- LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha",
-                       "lagoslakeid",
-                       gsub("X", "", unlist(lapply(rsubs, function(x) names(x)))))
+    dt_polys <- st_read("data/gis.gpkg", layer = "dt_polys",
+        query = paste0(
+          "SELECT * FROM dt_polys WHERE ",
+          paste0("lagoslakeid LIKE '",
+                 gsub("X", "", unlist(lapply(rsubs, function(x) names(x)))),
+                 "'", collapse = " OR ")
+          ))
 
     res <- lapply(rsubs, function(x){
       # x <- rsubs[[1]]
@@ -174,15 +216,16 @@ loop_state <- function(fpath, outname, deep_positive, ft = 1){
   }
 }
 
-res_all         <- list()
-
+res_all      <- list()
+fpath_stem   <- "data"
+outname_stem <- "data"
 # MN
-message("Calculating MN geometries...")
-res_all <- rbind(res_all, mutate(bind_rows(
-  loop_state("data/mn_bathy/",
-             "data/00_bathy_depth/00_bathy_depth_mn.rds",
-             deep_positive = FALSE)
-), state = "MN", source = "https://gisdata.mn.gov/dataset/water-lake-bathymetry"))
+# message("Calculating MN geometries...")
+# res_all <- rbind(res_all, mutate(bind_rows(
+#   loop_state(paste0(fpath_stem, "/mn_bathy/"),
+#              paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_mn.rds"),
+#              deep_positive = FALSE)
+# ), state = "MN", source = "https://gisdata.mn.gov/dataset/water-lake-bathymetry"))
 # unlink("data/00_bathy_depth/00_bathy_depth_mn.rds")
 
 # CT
@@ -192,7 +235,8 @@ res_all <- rbind(res_all, mutate(
   loop_state("data/ct_bathy/",
              "data/00_bathy_depth/00_bathy_depth_ct.rds",
              deep_positive = TRUE,
-             ft = 3.281)),
+             ft = 3.281)
+  ),
   state = "CT", source = "https://cteco.uconn.edu/ctmaps/rest/services/Elevation/Lake_Bathymetry/MapServer/"))
 # unlink("data/00_bathy_depth/00_bathy_depth_ct.rds")
 
