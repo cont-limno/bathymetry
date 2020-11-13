@@ -226,7 +226,7 @@ res_all <- rbind(res_all, mutate(bind_rows(
              paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_mn.rds"),
              deep_positive = FALSE)
 ), state = "MN", source = "https://gisdata.mn.gov/dataset/water-lake-bathymetry"))
-unlink("data/00_bathy_depth/00_bathy_depth_mn.rds")
+# unlink("data/00_bathy_depth/00_bathy_depth_mn.rds")
 
 # CT
 message("Calculating CT geometries...")
