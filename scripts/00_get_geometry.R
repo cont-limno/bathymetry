@@ -16,7 +16,7 @@ lg <- lagosus_load("locus")
 # get_geometry(raster(paste0("data/ct_bathy/", 7324, ".tif")), 7324, ft = 3.281,
 #  dt_poly = LAGOSUSgis::query_gis("LAGOS_US_All_Lakes_1ha", "lagoslakeid", 7324))
 get_geometry <- function(r, llid, deep_positive = TRUE, ft = 1, dt_poly){
-  # llid <- 1006
+  # llid <- 2645
   # r <- raster(paste0("data/mi_bathy/", llid, ".tif"))
   # deep_positive = TRUE
   # ft <- 3.281
@@ -193,13 +193,13 @@ loop_state <- function(fpath, outname, deep_positive, ft = 1){
       total = length(rsubs),
       clear = FALSE, width = 80)
 
-    dt_polys <- st_read("data/gis.gpkg", layer = "dt_polys",
+    llids_loop <- gsub("X", "", unlist(lapply(rsubs, function(x) names(x))))
+    dt_polys   <- st_read("data/gis.gpkg", layer = "dt_polys",
         query = paste0(
           "SELECT * FROM dt_polys WHERE ",
-          paste0("lagoslakeid LIKE '",
-                 gsub("X", "", unlist(lapply(rsubs, function(x) names(x)))),
-                 "'", collapse = " OR ")
+          paste0("lagoslakeid LIKE '", llids_loop, "'", collapse = " OR ")
           ))
+    rsubs <- rsubs[llids_loop %in% dt_polys$lagoslakeid]
 
     res <- lapply(rsubs, function(x){
       # x <- rsubs[[1]]
@@ -221,12 +221,12 @@ fpath_stem   <- "data"
 outname_stem <- "data"
 # MN
 # message("Calculating MN geometries...")
-# res_all <- rbind(res_all, mutate(bind_rows(
-#   loop_state(paste0(fpath_stem, "/mn_bathy/"),
-#              paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_mn.rds"),
-#              deep_positive = FALSE)
-# ), state = "MN", source = "https://gisdata.mn.gov/dataset/water-lake-bathymetry"))
-# unlink("data/00_bathy_depth/00_bathy_depth_mn.rds")
+res_all <- rbind(res_all, mutate(bind_rows(
+  loop_state(paste0(fpath_stem, "/mn_bathy/"),
+             paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_mn.rds"),
+             deep_positive = FALSE)
+), state = "MN", source = "https://gisdata.mn.gov/dataset/water-lake-bathymetry"))
+unlink("data/00_bathy_depth/00_bathy_depth_mn.rds")
 
 # CT
 message("Calculating CT geometries...")
