@@ -216,100 +216,144 @@ loop_state <- function(fpath, outname, deep_positive, ft = 1){
   }
 }
 
-res_all      <- list()
+res_all <- data.frame()
 fpath_stem   <- "data"
 outname_stem <- "data"
+
+flatten_multipoint <- function(x) list(as.data.frame(st_coordinates(x)))
+
 # MN
-# message("Calculating MN geometries...")
-res_all <- rbind(res_all, mutate(bind_rows(
-  loop_state(paste0(fpath_stem, "/mn_bathy/"),
-             paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_mn.rds"),
-             deep_positive = FALSE)
-), state = "MN", source = "https://gisdata.mn.gov/dataset/water-lake-bathymetry"))
+message("Calculating MN geometries...")
+res_mn <- mutate(
+  bind_rows(loop_state(paste0(fpath_stem, "/mn_bathy/"),
+           paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_mn.rds"),
+           deep_positive = FALSE,
+           ft = 1) %>%
+          lapply(function(x){
+            x[["pnts_deepest"]] = flatten_multipoint(x[["pnts_deepest"]])
+            x
+          })),
+  state = "MN", source = "https://gisdata.mn.gov/dataset/water-lake-bathymetry")
+res_all <- rbind(res_all, res_mn)
 # unlink("data/00_bathy_depth/00_bathy_depth_mn.rds")
 
 # CT
 message("Calculating CT geometries...")
-res_all <- rbind(res_all, mutate(
-  bind_rows(
-  loop_state("data/ct_bathy/",
-             "data/00_bathy_depth/00_bathy_depth_ct.rds",
-             deep_positive = TRUE,
-             ft = 3.281)
-  ),
-  state = "CT", source = "https://cteco.uconn.edu/ctmaps/rest/services/Elevation/Lake_Bathymetry/MapServer/"))
+res_ct <- mutate(
+  bind_rows(loop_state(paste0(fpath_stem, "/ct_bathy/"),
+                       paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_ct.rds"),
+                       deep_positive = TRUE,
+                       ft = 3.281) %>%
+              lapply(function(x){
+                x[["pnts_deepest"]] = flatten_multipoint(x[["pnts_deepest"]])
+                x
+              })),
+  state = "CT", source = "https://cteco.uconn.edu/ctmaps/rest/services/Elevation/Lake_Bathymetry/MapServer/")
+res_all <- rbind(res_all, res_ct)
 # unlink("data/00_bathy_depth/00_bathy_depth_ct.rds")
 
 # KS
 message("Calculating KS geometries...")
-res_all <- rbind(res_all, mutate(bind_rows(
-  loop_state("data/ks_bathy/",
-             "data/00_bathy_depth/00_bathy_depth_ks.rds",
-             deep_positive = TRUE,
-             ft = 3.281)
-), state = "KS", source = "http://kars.ku.edu/arcgis/rest/services/WaterResources/BathymetryContour/MapServer/"))
+res_ks <- mutate(
+  bind_rows(loop_state(paste0(fpath_stem, "/ks_bathy/"),
+                       paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_ks.rds"),
+                       deep_positive = TRUE,
+                       ft = 3.281) %>%
+              lapply(function(x){
+                x[["pnts_deepest"]] = flatten_multipoint(x[["pnts_deepest"]])
+                x
+              })),
+  state = "KS", source = "http://kars.ku.edu/arcgis/rest/services/WaterResources/BathymetryContour/MapServer/")
+res_all <- rbind(res_all, res_ks)
 # unlink("data/00_bathy_depth/00_bathy_depth_ks.rds")
 
 # MA
 message("Calculating MA geometries...")
-res_all <- rbind(res_all, mutate(bind_rows(
-  loop_state("data/ma_bathy/",
-             "data/00_bathy_depth/00_bathy_depth_ma.rds",
-             deep_positive = TRUE,
-             ft = 3.281)
-), state = "MA", source = "http://download.massgis.digital.mass.gov/shapefiles/state/dfwbathy.zip"))
+res_ma <- mutate(
+  bind_rows(loop_state(paste0(fpath_stem, "/ma_bathy/"),
+                       paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_ma.rds"),
+                       deep_positive = TRUE,
+                       ft = 3.281) %>%
+              lapply(function(x){
+                x[["pnts_deepest"]] = flatten_multipoint(x[["pnts_deepest"]])
+                x
+              })),
+  state = "MA", source = "http://download.massgis.digital.mass.gov/shapefiles/state/dfwbathy.zip")
+res_all <- rbind(res_all, res_ma)
 # unlink("data/00_bathy_depth/00_bathy_depth_ma.rds")
 
 # MI
 message("Calculating MI geometries...")
-res_all <- rbind(res_all, mutate(
-  bind_rows(
-  loop_state("data/mi_bathy/",
-             "data/00_bathy_depth/00_bathy_depth_mi.rds",
-             deep_positive = TRUE,
-             ft = 3.281)), # 300 throws an error
-  state = "MI", source = "https://opendata.arcgis.com/datasets/d49160d2e5af4123b15d48c2e9c70160_4"))
+res_mi <- mutate(
+  bind_rows(loop_state(paste0(fpath_stem, "/mi_bathy/"),
+                       paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_mi.rds"),
+                       deep_positive = TRUE,
+                       ft = 3.281) %>%
+              lapply(function(x){
+                x[["pnts_deepest"]] = flatten_multipoint(x[["pnts_deepest"]])
+                x
+              })),
+  state = "MI", source = "https://opendata.arcgis.com/datasets/d49160d2e5af4123b15d48c2e9c70160_4")
+res_all <- rbind(res_all, res_mi)
 # unlink("data/00_bathy_depth/00_bathy_depth_mi.rds")
 
 # NE
 message("Calculating NE geometries...")
-res_all <- rbind(res_all, mutate(bind_rows(
-  loop_state("data/ne_bathy/",
-             "data/00_bathy_depth/00_bathy_depth_ne.rds",
-             deep_positive = TRUE,
-             ft = 3.281)
-), state = "NE", source = "https://maps.outdoornebraska.gov/arcgis/rest/services/Programs/LakeMapping/MapServer/"))
+res_ne <- mutate(
+  bind_rows(loop_state(paste0(fpath_stem, "/ne_bathy/"),
+                       paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_ne.rds"),
+                       deep_positive = TRUE,
+                       ft = 3.281) %>%
+              lapply(function(x){
+                x[["pnts_deepest"]] = flatten_multipoint(x[["pnts_deepest"]])
+                x
+              })),
+  state = "NE", source = "https://maps.outdoornebraska.gov/arcgis/rest/services/Programs/LakeMapping/MapServer/")
+res_all <- rbind(res_all, res_ne)
 # unlink("data/00_bathy_depth/00_bathy_depth_ne.rds")
 
 # NH
 message("Calculating NH geometries...")
-res_all <- rbind(res_all, mutate(bind_rows(
-  loop_state("data/nh_bathy/",
-             "data/00_bathy_depth/00_bathy_depth_nh.rds",
-             deep_positive = TRUE,
-             ft = 3.281)
-), state = "NH", source = "http://www.granit.unh.edu/cgi-bin/nhsearch?dset=bathymetry_lakes_polygons/nh"))
+res_nh <- mutate(
+  bind_rows(loop_state(paste0(fpath_stem, "/nh_bathy/"),
+                       paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_nh.rds"),
+                       deep_positive = TRUE,
+                       ft = 3.281) %>%
+              lapply(function(x){
+                x[["pnts_deepest"]] = flatten_multipoint(x[["pnts_deepest"]])
+                x
+              })),
+  state = "NH", source = "http://www.granit.unh.edu/cgi-bin/nhsearch?dset=bathymetry_lakes_polygons/nh")
+res_all <- rbind(res_all, res_nh)
 # unlink("data/00_bathy_depth/00_bathy_depth_nh.rds")
 
 # IA
 message("Calculating IA geometries...")
-res_all <- rbind(res_all, mutate(bind_rows(
-  loop_state("data/ia_bathy/",
-             "data/00_bathy_depth/00_bathy_depth_ia.rds",
-             deep_positive = TRUE,
-             ft = 3.281)
-), state = "IA", source = "http://iowageodata.s3.amazonaws.com/inlandWaters/lakes_bathymetry.zip"))
+res_ia <- mutate(
+  bind_rows(loop_state(paste0(fpath_stem, "/ia_bathy/"),
+                       paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_ia.rds"),
+                       deep_positive = TRUE,
+                       ft = 3.281) %>%
+              lapply(function(x){
+                x[["pnts_deepest"]] = flatten_multipoint(x[["pnts_deepest"]])
+                x
+              })),
+  state = "IA", source = "http://iowageodata.s3.amazonaws.com/inlandWaters/lakes_bathymetry.zip")
+res_all <- rbind(res_all, res_ia)
 # unlink("data/00_bathy_depth/00_bathy_depth_ia.rds")
 
 # ME
 message("Calculating ME geometries...")
 res_me <- mutate(
-  bind_rows(loop_state("data/me_bathy/",
-                       "data/00_bathy_depth/00_bathy_depth_me.rds",
+  bind_rows(loop_state(paste0(fpath_stem, "/me_bathy/"),
+                       paste0(outname_stem, "/00_bathy_depth/00_bathy_depth_me.rds"),
                        deep_positive = TRUE,
-                       ft = 1)),
-  state = "ME",
-  source = "https://www.maine.gov/megis/catalog/shps/state/lakedpths.zip")
+                       ft = 1) %>%
+              lapply(function(x){
+                x[["pnts_deepest"]] = flatten_multipoint(x[["pnts_deepest"]])
+                x
+              })),
+  state = "ME", source = "https://www.maine.gov/megis/catalog/shps/state/lakedpths.zip")
 res_all <- rbind(res_all, res_me)
 # unlink("data/00_bathy_depth/00_bathy_depth_me.rds")
 
