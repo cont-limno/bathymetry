@@ -220,8 +220,6 @@ res_all <- data.frame()
 fpath_stem   <- "data"
 outname_stem <- "data"
 
-flatten_multipoint <- function(x) list(as.data.frame(st_coordinates(x)))
-
 # MN
 message("Calculating MN geometries...")
 res_mn <- mutate(
@@ -363,9 +361,10 @@ res_all <- dplyr::filter(res_all, dist_deepest > 0.1)
 saveRDS(st_as_sf(res_all),
         "data/00_bathy_depth/bathy_pnts.rds")
 
-# write geometry stats without pnt geometry
-write.csv(select(res_all, -contains("pnt")),
+# write geometry stats without multipoint geometry
+write.csv(dplyr::select(res_all, -matches("pnts_|pnt_")),
           "data/00_bathy_depth/bathy_geometry.csv", row.names = FALSE)
+# test <- read.csv("data/00_bathy_depth/bathy_geometry.csv", stringsAsFactors = FALSE)
 
 # write max depth formatted like other max depth sources
 res_final <- res_all %>%

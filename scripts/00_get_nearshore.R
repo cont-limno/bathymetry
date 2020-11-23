@@ -183,9 +183,10 @@ res <- lapply(ll_ids, function(x) {
 res <- res %>%
   bind_rows() %>%
   dplyr::mutate(llid = as.character(llid)) %>%
-  left_join(dplyr::select(sf::st_drop_geometry(bathy_pnts),
-                          llid, starts_with("inlake_slope")))
-
+  left_join(mutate(
+    dplyr::select(sf::st_drop_geometry(bathy_pnts),
+                          llid, starts_with("inlake_slope")),
+    llid = as.character(llid)))
 
 # write to csv
 write.csv(res, "data/00_geometry/nearshore.csv", row.names = FALSE)

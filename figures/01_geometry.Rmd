@@ -129,27 +129,25 @@ get_pnt_map <- function(x){
 # setwd("figures") 
 bp <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
 dt <- read.csv("../data/00_geometry/nearshore.csv", stringsAsFactors = FALSE) %>%
-  mutate(llid = as.character(llid))
+  mutate(llid = as.character(llid)) %>%
+  dplyr::select(-contains("inlake_slope"))
 dt <- left_join(dt, st_drop_geometry(bp), 
                 by = "llid") %>%
   dplyr::filter(!is.na(inlake_slope_mean))
 
+slope_dist_str <- "online_mean|slope_pnt|inlake_slope|dist_v|dist_d|dists_|slope_mean"
 # jsta::jheatmap
 jheatmap(
   dplyr::select(dt, 
-                slope_online_mean,
-                inlake_slope_mean,
-                slope_mean, 
-                slope_mean_ne,
-                dist_deepest, 
-                dist_viscenter, 
-                maxdepth,
-                meandepth))
+   matches(slope_dist_str))
+   # maxdepth,
+   # meandepth)
+  )
 
 GGally::ggpairs(dplyr::select(dt, 
-                inlake_slope_mean, inlake_slope.y,
-                slope_online_mean,
-                slope_mean, 
+                inlake_slope_mean, inlake_slope_pnt,
+                nearshore_slope_online_mean,
+                nearshore_slope_mean, 
                 # dist_deepest, 
                 # dist_viscenter, 
                 maxdepth), 
@@ -166,18 +164,20 @@ gg_scatter_slope <- function(x, y, dt){
 # dt[22,]
 # which(dt$inlake_slope.y > 0.4)
 # which(dt$inlake_slope.x > 0.4)
-dt <- dplyr::filter(dt, inlake_slope.y < 0.4)
+dt <- dplyr::filter(dt, inlake_slope_pnt < 0.4)
 
 cowplot::plot_grid(
-  gg_scatter_slope("slope_mean", "maxdepth", dt),
-  gg_scatter_slope("inlake_slope.y", "maxdepth", dt), 
-  gg_scatter_slope("slope_mean", "inlake_slope.y", dt)
+  gg_scatter_slope("nearshore_slope_mean", "maxdepth", dt),
+  gg_scatter_slope("inlake_slope_pnt", "maxdepth", dt), 
+  gg_scatter_slope("nearshore_slope_mean", "inlake_slope_pnt", dt)
   )
 ```
 
 ```{r buffer-vs-inlake_slope, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=4}
 lgus_pred <- read.csv("../data/lagosus_depth_predictors.csv", stringsAsFactors = FALSE) %>%
-  mutate(lagoslakeid = as.character(lagoslakeid))
+  mutate(lagoslakeid = as.character(lagoslakeid)) %>%
+  dplyr::select(-matches("inlake_slope"), 
+                -matches("dist_|dists_"))
 test <- left_join(dt, lgus_pred, by = c("llid" = "lagoslakeid")) %>% 
   dplyr::filter(!is.na(shape_class)) %>%
   dplyr::arrange(desc(factor(shape_class, 
@@ -186,9 +186,9 @@ test <- left_join(dt, lgus_pred, by = c("llid" = "lagoslakeid")) %>%
 # GGally::ggpairs(dplyr::select(test, matches("class"))) 
                               
 gg_slope_shape <- ggplot(data = test) + 
-  geom_point(aes(slope_mean, inlake_slope.y, 
+  geom_point(aes(nearshore_slope_mean, inlake_slope_pnt, 
                              color = shape_class), size = 1) +
-  geom_smooth(aes(slope_mean, inlake_slope.y, 
+  geom_smooth(aes(nearshore_slope_mean, inlake_slope_pnt, 
                              color = shape_class), data = dplyr::filter(test, shape_class != "neither"), 
               method = "lm", se = FALSE) +
   geom_segment(aes(x = 0, xend = 0.35, y = 0, yend = 0.35), 
@@ -199,9 +199,9 @@ gg_slope_shape <- ggplot(data = test) +
   labs(color = "")
 
 gg_slope_reservoir <- ggplot(data = dplyr::filter(test, !is.na(reservoir_class))) +
-  geom_point(aes(slope_mean, inlake_slope.y, 
+  geom_point(aes(nearshore_slope_mean, inlake_slope_pnt, 
                                  color = reservoir_class), size = 1) +
-  geom_smooth(aes(slope_mean, inlake_slope.y, 
+  geom_smooth(aes(nearshore_slope_mean, inlake_slope_pnt, 
                                  color = reservoir_class), 
               method = "lm", se = FALSE) +
   geom_segment(aes(x = 0, xend = 0.35, y = 0, yend = 0.35), 
@@ -248,28 +248,30 @@ gg_dist_base <- st_drop_geometry(dt) %>%
 # slope data
 bp <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
 dt <- read.csv("../data/00_geometry/nearshore.csv", stringsAsFactors = FALSE) %>%
-  mutate(llid = as.character(llid))
+  mutate(llid = as.character(llid)) %>%
+  dplyr::select(-matches("inlake_slope")) # prevent name conflict with bp
 dt <- left_join(dt, st_drop_geometry(bp), 
                 by = "llid") %>%
   dplyr::filter(!is.na(inlake_slope_mean)) %>%
-  dplyr::filter(inlake_slope.y < 0.4)
+  dplyr::filter(inlake_slope_pnt < 0.4)
 lgus_pred <- read.csv("../data/lagosus_depth_predictors.csv", stringsAsFactors = FALSE) %>%
-  mutate(lagoslakeid = as.character(lagoslakeid))
+  mutate(lagoslakeid = as.character(lagoslakeid)) %>%
+  dplyr::select(-matches("inlake_slope"))
 test <- left_join(dt, lgus_pred, by = c("llid" = "lagoslakeid")) %>% 
   dplyr::filter(!is.na(shape_class)) %>%
   dplyr::arrange(desc(factor(shape_class, 
                         levels = c("neither", "concave", "convex"))))
 
 gg_slope_base <- ggplot(data = test) + 
-  geom_point(aes(slope_mean, inlake_slope.y), size = 1) +
-  geom_smooth(aes(slope_mean, inlake_slope.y), method = "lm", se = FALSE) +
+  geom_point(aes(nearshore_slope_mean, inlake_slope_pnt), size = 1) +
+  geom_smooth(aes(nearshore_slope_mean, inlake_slope_pnt), method = "lm", se = FALSE) +
   geom_rect(xmin = 0.28, xmax = 0.42, ymin = 0, ymax = 0.05,
   alpha = 1, fill = "white") +
   annotate("text", x = 0.34, y = 0.03, label = "R^2 == 0.17",
                                 parse = TRUE, size = text_size) +
   annotate("text", x = 0.34, y = 0.01, 
            label = get_formula(
-             lm(inlake_slope.y ~ slope_mean, data = test)), 
+             lm(inlake_slope_pnt ~ nearshore_slope_mean, data = test)), 
            size = text_size) +
   # geom_abline(slope = 1, intercept = 0) +
   xlab("Nearshore slope (mean)") +
@@ -341,12 +343,12 @@ cowplot::plot_grid(
 
 nearshore     <- read.csv("../data/00_geometry/nearshore.csv",
                       stringsAsFactors = FALSE) %>%
-                  dplyr::select(-inlake_slope)
+                  dplyr::select(-matches("inlake_slope")) 
 dt_raw        <- read.csv("../data/lagosus_depth_predictors.csv", 
                       stringsAsFactors = FALSE) %>%
                   left_join(nearshore, b = c("lagoslakeid" = "llid")) %>% 
                   dplyr::filter(shape_class %in% c("concave", "convex")) %>% 
-                  dplyr::filter(inlake_slope < 0.6)
+                  dplyr::filter(inlake_slope_pnt < 0.6)
 
 breaks_dt <- classInt::classIntervals(dt_raw$lake_waterarea_ha, n = 4)$brks
 dt        <- dt_raw %>%
@@ -361,8 +363,8 @@ dt <- dt %>%
     )
 
 gg_area <- ggplot(data = dt) +
-   geom_point(aes(x = slope_mean, y = inlake_slope, color = x_bins)) +
-   geom_smooth(aes(slope_mean, inlake_slope, color = x_bins),
+   geom_point(aes(x = nearshore_slope_mean, y = inlake_slope_pnt, color = x_bins)) +
+   geom_smooth(aes(nearshore_slope_mean, inlake_slope_pnt, color = x_bins),
                method = "lm", se = FALSE) + 
   facet_wrap(~shape_class) +
     ggtitle("Area (ha)")
@@ -380,8 +382,8 @@ dt <- dt %>%
     ) 
 
 gg_depth <- ggplot(data = dt) +
-   geom_point(aes(x = slope_mean, y = inlake_slope, color = x_bins)) +
-   geom_smooth(aes(slope_mean, inlake_slope, color = x_bins),
+   geom_point(aes(x = nearshore_slope_mean, y = inlake_slope_pnt, color = x_bins)) +
+   geom_smooth(aes(nearshore_slope_mean, inlake_slope_pnt, color = x_bins),
                method = "lm", se = FALSE) +
     facet_wrap(~shape_class) +
     ggtitle("Max Depth (m)")

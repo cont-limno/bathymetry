@@ -370,3 +370,5 @@ get_formula <- function(model) {
     summarise(formula = paste(a, collapse = '')) %>%
     as.character
 }
+
+flatten_multipoint <- function(x) list(as.data.frame(st_coordinates(x)))

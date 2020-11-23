@@ -1,16 +1,27 @@
 # setwd("../")
 source("scripts/99_utils.R")
 
+dt_raw <- read.csv("data/lagosne_depth_predictors.csv",
+                   stringsAsFactors = FALSE) %>%
+  # test3 <- test2 %>%
+  dplyr::filter(lagos_effort == "bathymetry") %>%
+  dplyr::filter(!is.na(shape_class)) %>%
+  dplyr::filter(!(shape_class %in% c("neither"))) %>%
+  dplyr::filter(inlake_slope_pnt < 0.25) %>%
+  dplyr::filter(!is.na(reservoir_class))
+# TODO: assert - any(is.na(dt_raw$ws_lake_arearatio))
+
 data_prep <- function(dt_raw,
-                      inlake_slope_var = "inlake_slope",
-                      nearshore_slope_var = "slope_mean",
+                      inlake_slope_var = "inlake_slope_pnt",
+                      nearshore_slope_var = "nearshore_slope_mean",
                       inlake_dist_var = "dist_deepest",
                       out_path = "data/depth_predictors.csv"){
 
   nearshore <- read.csv("data/00_geometry/nearshore.csv",
                         stringsAsFactors = FALSE) %>%
-    dplyr::select(lagoslakeid = llid, slope_mean = all_of(nearshore_slope_var))
-  dt_raw <- left_join(dt_raw, nearshore) %>%
+    dplyr::select(lagoslakeid = llid, slope_mean = all_of(nearshore_slope_var),
+                  inlake_slope = all_of(inlake_slope_var))
+  dt_raw <- left_join(dt_raw, nearshore, by = "lagoslakeid") %>%
     dplyr::filter(!is.na(slope_mean))
 
   # calculate the trig products as covariates
@@ -114,15 +125,13 @@ fit_model <- function(maxdepth, dt_train, dt_test){
   list(res = res, fit = fit1)
 }
 
-dt_raw <- read.csv("data/lagosne_depth_predictors.csv",
-               stringsAsFactors = FALSE) %>%
-  # test3 <- test2 %>%
-  dplyr::filter(lagos_effort == "bathymetry") %>%
-  dplyr::filter(!is.na(shape_class)) %>%
-  dplyr::filter(!(shape_class %in% c("neither"))) %>%
-  dplyr::filter(inlake_slope < 0.25) %>%
-  dplyr::filter(!is.na(reservoir_class))
-# TODO: assert - any(is.na(dt_raw$ws_lake_arearatio))
+get_metrics <- function(x){
+  # x <- dt_fits[[1]]
+  fit_metrics <- yardstick::metric_set(rmse, rsq, mape)
+  res <- fit_metrics(x$res, truth = lake_maxdepth_m, estimate = .pred)
+  res <- tidyr::pivot_wider(res, names_from = .metric, values_from = .estimate)
+  res
+}
 
 # TODO: define data_prep alternatives
 # inlake_slope_alternatives     <- c("inlake_slope", "inlakes_slopes", "inlake_slope_mean")
@@ -158,14 +167,6 @@ importance(dt_fits[[4]]$fit$fit)[
 plot(dt_fits[[1]]$res$lake_maxdepth_m, dt_fits[[1]]$res$.pred)
 abline(0, 1)
 
-# TODO: define metric set (yardstick::metric_set)
-get_metrics <- function(x){
-  # x <- dt_fits[[1]]
-  fit_metrics <- yardstick::metric_set(rmse, rsq, mape)
-  res <- fit_metrics(x$res, truth = lake_maxdepth_m, estimate = .pred)
-  res <- tidyr::pivot_wider(res, names_from = .metric, values_from = .estimate)
-  res
-}
 (dt_metrics <-
     lapply(dt_fits, function(x) get_metrics(x)) %>%
   bind_rows() %>%

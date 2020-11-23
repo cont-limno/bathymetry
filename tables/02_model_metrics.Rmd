@@ -31,8 +31,7 @@ dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
   mutate(model = gsub("maxdepth_", "", model)) %>%
   mutate(model = gsub("false", "proxy", model)) %>%
   tidyr::separate(model, c("slope", "distance")) %>%
-  dplyr::select(slope, distance, everything(), -.estimator) %>%
-  dplyr::select(-mae)
+  dplyr::select(slope, distance, everything(), -.estimator) 
 
 options(knitr.kable.NA = '-')
 knitr::kable(dt_metrics, digits = 2, format = "markdown") 
