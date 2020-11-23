@@ -18,20 +18,17 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 \pagebreak
 
+<!-- \captionsetup[figure]{name=Table} -->
+<!-- \captionsetup[figure]{labelformat=empty} -->
+<!-- ```{r 01_predictors, fig.cap = "Table 1: Summary of lake characteristics for the present study (and for lakes in the contiguous United States from <LAGOSUS-Depth citation>). Predictor variables for computing random forest offsets (Eq 2) are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'} -->
+<!-- knitr::include_graphics("../tables/01_predictors.pdf") -->
+<!-- ``` -->
+
+<!-- \captionsetup[figure]{name=Figure} -->
+<!-- \captionsetup[figure]{labelformat=default} -->
+<!-- \setcounter{figure}{0} -->
+
 ![Diagram showing the relations between true (black) and proxy (orange) metrics of lake geometry. Geometric depth calculated via Equation 1 requires a single distance and slope metric.](../figures/slope_diagram_new.pdf){width=75%}
-
-```{r lake_shape, echo=FALSE, out.extra='', fig.align='center', out.width="4in",fig.cap="Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right). Dashed lines represent extrapolated nearshore land slope while solid lines represent the lake bottom."}
-knitr::include_graphics("../figures/lake_shape.pdf")
-```
-
-\captionsetup[figure]{name=Table}
-\captionsetup[figure]{labelformat=empty}
-```{r 01_predictors, fig.cap = "Table 1: Summary of lake characteristics for the present study (and for lakes in the contiguous United States from <LAGOSUS-Depth citation>). Predictor variables for computing random forest offsets (Eq 2) are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
-knitr::include_graphics("../tables/01_predictors.pdf")
-```
-\captionsetup[figure]{name=Figure}
-\captionsetup[figure]{labelformat=default}
-\setcounter{figure}{2}
 
 ```{r 01_geometry_base, fig.cap = "Comparison among proxy and true values of lake geometry for A) distance to deepest point versus distance distance to lake center and B) nearshore land slope versus in-lake slope. A best-fit line and coefficient of determination is shown to illustrate representativeness.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../figures/01_geometry_base-1.pdf")
