@@ -76,7 +76,7 @@ gg_area_shape_class <- dt %>%
 ```{r gg_slope_shape_class, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_slope_shape_class <- dt %>%
   dplyr::filter(shape_class != "neither") %>%  
-  contrast_plot(grp = "shape_class", varb = "inlake_slope", 
+  contrast_plot(grp = "shape_class", varb = "inlake_slope_pnt", 
                 label = "In-lake slope (m/m)", plot_type = "pointrange")
 ```
 
@@ -134,7 +134,7 @@ gg_area_reservoir <- dt %>%
 ```{r gg_slope_reservoir, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_slope_reservoir <- dt %>%
   dplyr::filter(!is.na(reservoir_class)) %>%  
-  contrast_plot(grp = "reservoir_class", varb = "inlake_slope", 
+  contrast_plot(grp = "reservoir_class", varb = "inlake_slope_pnt", 
                 label = "In-lake slope (m/m)", plot_type = "pointrange")
 ```
 
@@ -172,7 +172,7 @@ geom_pointrange(aes(x = cat, y = `50%`,
 # compare shoreline dev for each shapeclass
 gg_shorelinedev_shape_class <- dt %>%
   dplyr::filter(shape_class != "neither") %>%  
-  contrast_plot(grp = "shape_class", varb = "lake_shorelinedevfactor_nounits", 
+  contrast_plot(grp = "shape_class", varb = "lake_shorelinedevfactor", 
                 label = "Shoreline Dev.", plot_type = "pointrange")
 ```
 
@@ -347,7 +347,7 @@ urbanareas <- readRDS("../data/urbanareas.rds")
 lg$urban_distance <- apply(
   st_distance(
     st_transform(
-      LAGOSUS::coordinatize(lg, crs = 4326), 
+      LAGOSUS::coordinatize(dt = lg, crs_in = 4326), 
       LAGOSUSgis:::albers_conic()),
     urbanareas), 
   1, function(x) x[which.min(x)])
