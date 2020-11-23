@@ -104,3 +104,6 @@ joedepthcomments.docx
 manuscript/agujournaltemplate_0.1.tex
 manuscript/diff.*
 manuscript/trackchanges-0.7.0/
+manuscript/agujournaltemplate_0.1.pdf
+data/urbanareas.rds
+data/stash_depth_predictors.csv
