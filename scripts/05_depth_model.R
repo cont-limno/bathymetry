@@ -1,5 +1,6 @@
 # setwd("../")
 source("scripts/99_utils.R")
+set.seed(1234)
 
 dt_raw <- read.csv("data/lagosne_depth_predictors.csv",
                    stringsAsFactors = FALSE) %>%
@@ -29,8 +30,8 @@ data_prep <- function(dt_raw,
   #   slope = c("inlake_slope", "slope_mean"),
   #   dist = c("dist_deepest", "dist_viscenter"))
   dt_raw$slope_mean_norm <- scales::rescale(dt_raw$slope_mean,
-                                            c(min(dt_raw$inlake_slope),
-                                              max(dt_raw$inlake_slope)))
+                                            c(min(dt_raw$inlake_slope, na.rm = TRUE),
+                                              max(dt_raw$inlake_slope, na.rm = TRUE)))
   # plot(dt_raw$slope_mean_norm, dt_raw$inlake_slope)
   # abline(0, 1)
   # fit <- lm(inlake_slope ~ slope_mean_norm, data = dt_raw)
@@ -74,7 +75,8 @@ data_prep <- function(dt_raw,
                   ws_lake_arearatio,
                   hu4_zoneid) %>%
     mutate(lagoslakeid = factor(lagoslakeid)) %>%
-    mutate_if(is.character, factor)
+    mutate_if(is.character, factor) %>%
+    dplyr::filter(!is.na(maxdepth_true_true))
 
   write.csv(dt, "data/depth_predictors.csv",
             row.names = FALSE)
@@ -83,6 +85,7 @@ data_prep <- function(dt_raw,
 }
 
 fit_model <- function(maxdepth, dt_train, dt_test){
+  # browser()
   # maxdepth <- maxdepth_vec[3]
   # dt_train <- data_train
   # dt_test  <- data_test
@@ -127,56 +130,98 @@ fit_model <- function(maxdepth, dt_train, dt_test){
 
 get_metrics <- function(x){
   # x <- dt_fits[[1]]
-  fit_metrics <- yardstick::metric_set(rmse, rsq, mape)
+  fit_metrics <- yardstick::metric_set(yardstick::rmse, yardstick::rsq, yardstick::mape)
   res <- fit_metrics(x$res, truth = lake_maxdepth_m, estimate = .pred)
   res <- tidyr::pivot_wider(res, names_from = .metric, values_from = .estimate)
   res
 }
 
-# TODO: define data_prep alternatives
-# inlake_slope_alternatives     <- c("inlake_slope", "inlakes_slopes", "inlake_slope_mean")
-# nearshore_slope_alternatives  <- c("slope_mean", "slope_online_mean")
-# deepest_distance_alternatives <- c("dist_deepest", "dists_deepest")
-# slope_distance_alternatives   <- expand.grid(
-#   inlake_slope_alternatives,
-#   nearshore_slope_alternatives,
-#   deepest_distance_alternatives
-#   )
+# define data_prep alternatives
+inlake_slope_alternatives     <- c("inlake_slope_pnt", "inlake_slope_pnts",
+                                   "inlake_slope_mean",
+                                   "inlake_slope_online_mean",
+                                   "inlake_slopes_online_mean")
+nearshore_slope_alternatives  <- c("nearshore_slope_mean",
+                                   "nearshore_slope_online_mean",
+                                   "nearshore_slopes_online_mean")
+deepest_distance_alternatives <- c("dist_deepest", "dists_deepest")
+slope_distance_alternatives   <- setNames(data.frame(expand.grid(
+  inlake_slope_alternatives,
+  nearshore_slope_alternatives,
+  deepest_distance_alternatives,
+  stringsAsFactors = FALSE
+  )), c("inlake_slope", "nearshore_slope", "inlake_dist"))
 
-dt <- data_prep(dt_raw)
+data_splitting <- function(dt){
+  data_split <- initial_split(dt)
+  data_train <- training(data_split)
+  data_test  <- testing(data_split)
 
-set.seed(1234)
-data_split <- initial_split(dt)
-data_train <- training(data_split)
-data_test  <- testing(data_split)
+  list(data_train = data_train,
+       data_test = data_test)
+}
 
-# ---- all-predictors model using grid of real and proxy predictors ----
-maxdepth_vec <-  c("maxdepth_true_true", "maxdepth_true_false",
-                "maxdepth_false_true", "maxdepth_false_false")
+model_stash_path <- "data/01_depth_model/stash.rds"
+if(!file.exists(model_stash_path)){
+  res <- lapply(seq_len(nrow(slope_distance_alternatives)),
+         function(i){
+           # all-predictors model using grid of real and proxy predictors
+           # i <- 9
+           print(i)
+           dt <- data_prep(dt_raw,
+                           slope_distance_alternatives$inlake_slope[i],
+                           slope_distance_alternatives$nearshore_slope[i],
+                           slope_distance_alternatives$inlake_dist[i])
 
-dt_fits <- lapply(1:4, function(i)
-  fit_model(maxdepth = maxdepth_vec[i], data_train, data_test))
+           any(is.na(dt$maxdepth_true_true))
 
-importance(dt_fits[[2]]$fit$fit)[
-  rev(order(importance(dt_fits[[2]]$fit$fit)))]
-importance(dt_fits[[3]]$fit$fit)[
-  rev(order(importance(dt_fits[[3]]$fit$fit)))]
-importance(dt_fits[[4]]$fit$fit)[
-  rev(order(importance(dt_fits[[4]]$fit$fit)))]
+           dt_train_test <- data_splitting(dt)
+           data_train    <- dt_train_test[["data_train"]]
+           data_test     <- dt_train_test[["data_test"]]
 
-plot(dt_fits[[1]]$res$lake_maxdepth_m, dt_fits[[1]]$res$.pred)
-abline(0, 1)
+           maxdepth_vec <-  c("maxdepth_true_true", "maxdepth_true_false",
+                              "maxdepth_false_true", "maxdepth_false_false")
 
-(dt_metrics <-
-    lapply(dt_fits, function(x) get_metrics(x)) %>%
-  bind_rows() %>%
-  bind_cols(data.frame(model = maxdepth_vec)))
+           dt_fits <- lapply(1:4, function(k)
+             fit_model(maxdepth = maxdepth_vec[k], data_train, data_test))
 
-# saveRDS(dt_train, "data/01_depth_model/depth_training.rds")
-saveRDS(dt_fits, "data/01_depth_model/depth_fits.rds")
-saveRDS(bind_rows(lapply(dt_fits, function(x) x$res)),
+           # importance(dt_fits[[2]]$fit$fit)[
+           #   rev(order(importance(dt_fits[[2]]$fit$fit)))]
+           # importance(dt_fits[[3]]$fit$fit)[
+           #   rev(order(importance(dt_fits[[3]]$fit$fit)))]
+           # importance(dt_fits[[4]]$fit$fit)[
+           #   rev(order(importance(dt_fits[[4]]$fit$fit)))]
+           #
+           # plot(dt_fits[[1]]$res$lake_maxdepth_m, dt_fits[[1]]$res$.pred)
+           # abline(0, 1)
+
+           dt_grid <- bind_rows(lapply(dt_fits, function(x) x$res))
+
+           dt_metrics <-
+             lapply(dt_fits, function(x) get_metrics(x)) %>%
+             bind_rows() %>%
+             bind_cols(data.frame(model = maxdepth_vec))
+
+           list(dt_fits = dt_fits, dt_grid = dt_grid, dt_metrics = dt_metrics)
+         })
+
+  saveRDS(res, model_stash_path)
+}
+
+# lapply res extract proxy_proxy stats and add to slope_distance_alternatives
+slope_distance_alternatives$proxy_proxy_rmse <- unlist(
+  lapply(res, function(x) x$dt_metrics$rmse[4]))
+slope_distance_alternatives$proxy_proxy_rsq <- unlist(
+  lapply(res, function(x) x$dt_metrics$rsq[4]))
+slope_distance_alternatives$proxy_proxy_mape <- unlist(
+  lapply(res, function(x) x$dt_metrics$mape[4]))
+# View(slope_distance_alternatives)
+
+## saveRDS(dt_train, "data/01_depth_model/depth_training.rds")
+saveRDS(res[[1]]$dt_fits, "data/01_depth_model/depth_fits.rds")
+saveRDS(res[[1]]$dt_grid,
         "data/01_depth_model/depth_grid.rds")
-saveRDS(dt_metrics,
+saveRDS(res[[1]]$dt_metrics,
         "data/01_depth_model/depth_grid_metrics.rds")
 
 # if(interactive()){
@@ -251,7 +296,7 @@ saveRDS(dt_metrics,
 #          -dist_between, -shape_offset
 #          )
 #
-# ####
+# ###
 # inlake_slope_rec <- recipe(inlake_slope ~ ., data = lgus_predictors) %>%
 #   step_normalize(all_numeric(), -all_outcomes()) %>%
 #   step_log(all_outcomes()) %>%
@@ -268,7 +313,7 @@ saveRDS(dt_metrics,
 #
 # # slope is dependent on the arrangement of hydro features
 #
-# ####
+# ###
 #
 # dist_deepest_rec <- recipe(dist_deepest ~ ., data = lgus_predictors) %>%
 #   step_normalize(all_numeric(), -all_outcomes()) %>%
