@@ -212,6 +212,7 @@ gg_slope_reservoir <- ggplot(data = dplyr::filter(test, !is.na(reservoir_class))
 ```
 
 ```{r 01_geometry_base, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=4.8, fig.height=2.3}
+# setwd("figures")
 theme_opts <- cowplot::theme_cowplot() + 
   theme(legend.position = "none", 
         axis.text = element_text(size = 10), 
@@ -226,6 +227,7 @@ hypso_pred <- read.csv("../data/00_hypso/hypso_predictors.csv",
 dt <- left_join(dt, dplyr::select(hypso_pred, lagoslakeid, reservoir_class, shape_class), 
                                   by = c("llid" = "lagoslakeid"))
 
+rsq <- round(broom::glance(lm(dist_viscenter ~ dist_deepest, data = dt))$r.squared, 2)
 gg_dist_base <- st_drop_geometry(dt) %>%
   dplyr::filter(!is.na(shape_class)) %>%
   dplyr::filter(dist_viscenter >= dist_deepest) %>%
@@ -233,7 +235,7 @@ gg_dist_base <- st_drop_geometry(dt) %>%
   ggplot(aes(x = dist_deepest, y = dist_viscenter)) + 
   geom_point(size = 1) +
   geom_smooth(method = "lm", se = FALSE) +
-  annotate("text", x = 2550, y = 400, label = "R^2 == 0.80",
+  annotate("text", x = 2550, y = 400, label = paste0("R^2 == ", rsq),
                                 parse = TRUE, size = text_size-0.7) +
   annotate("label", x = 1800, y = 150, 
            label = get_formula(
@@ -262,12 +264,13 @@ test <- left_join(dt, lgus_pred, by = c("llid" = "lagoslakeid")) %>%
   dplyr::arrange(desc(factor(shape_class, 
                         levels = c("neither", "concave", "convex"))))
 
+rsq <- round(broom::glance(lm(nearshore_slope_mean ~ inlake_slope_pnt, data = test))$r.squared, 2)
 gg_slope_base <- ggplot(data = test) + 
   geom_point(aes(nearshore_slope_mean, inlake_slope_pnt), size = 1) +
   geom_smooth(aes(nearshore_slope_mean, inlake_slope_pnt), method = "lm", se = FALSE) +
   geom_rect(xmin = 0.28, xmax = 0.42, ymin = 0, ymax = 0.05,
   alpha = 1, fill = "white") +
-  annotate("text", x = 0.34, y = 0.05, label = "R^2 == 0.17",
+  annotate("text", x = 0.34, y = 0.05, label = paste0("R^2 == ", rsq),
                                 parse = TRUE, size = text_size-0.7) +
   annotate("label", x = 0.27, y = 0.01, 
            label = get_formula(
@@ -285,6 +288,103 @@ cowplot::plot_grid(
   rel_widths = c(1, 0.9)
 )
 
+```
+
+```{r 01_dist_compare, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=4.8, fig.height=2.3}
+# fig 2A (dist) alternatives
+#   gg_dist_base <- dist_viscenter ~ dist_deepest
+#   gg_dists_base <- dist_viscenter ~ dists_deepest
+dt$dists_deepest <- sapply(dt$dists_deepest, as.numeric)
+rsq <- round(broom::glance(lm(dist_viscenter ~ dists_deepest, data = dt))$r.squared, 2)
+
+gg_dists_base <- dt %>%
+  # dplyr::filter(!is.na(shape_class)) %>%
+  dplyr::filter(dist_viscenter >= dist_deepest) %>%
+  dplyr::filter(dist_deepest < 3200) %>%
+  ggplot(aes(x = dists_deepest, y = dist_viscenter)) + 
+  geom_point(size = 1) +
+  geom_smooth(method = "lm", se = FALSE) +
+  annotate("text", x = 1800, y = 400, label = paste0("R^2 == ", rsq),
+                                parse = TRUE, size = text_size-0.7) +
+  annotate("label", x = 1200, y = 150, 
+           label = get_formula(
+             lm(dist_viscenter ~ dists_deepest, data = dt)), 
+           size = text_size-0.85, fill = "white", label.size = NA) +
+  labs(color = "") +
+  xlab("Deepest point distance (m)") +
+  ylab("Distance to \n lake center (m)") +
+  xlim(0, 2000) +
+  theme_opts
+
+cowplot::plot_grid(gg_dist_base, gg_dists_base)
+```
+
+```{r 01_slope_compare, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=4.8, fig.height=2.3}
+# fig 2B (slope) alternatives
+#   gg_slope_base <- nearshore_slope_mean ~ inlake_slope_pnt
+#   gg_slope_* <- nearshore_slope* ~ inlake_slope*
+
+inlake_slope_alternatives     <- c("inlake_slope_pnt", "inlake_slope_pnts",
+                                   "inlake_slope_mean",
+                                   "inlake_slope_online_mean",
+                                   "inlake_slopes_online_mean")
+nearshore_slope_alternatives  <- c("nearshore_slope_mean",
+                                   "nearshore_slope_online_mean",
+                                   "nearshore_slopes_online_mean")
+slope_alternatives   <- setNames(data.frame(expand.grid(
+  inlake_slope_alternatives,
+  nearshore_slope_alternatives,
+  stringsAsFactors = FALSE
+  )), c("inlake_slope", "nearshore_slope"))
+
+gg_slope_alternative <- function(nearshore_var, inlake_var, dt){
+  # dt <- test
+  # nearshore_var <- "nearshore_slope_mean"
+  # inlake_var <- "inlake_slope_pnt"
+  rsq <- round(broom::glance(
+    lm(as.formula(paste0(nearshore_var, " ~ ", inlake_var)), data = dt)
+    )$r.squared, 2)
+  res <-  ggplot(data = dt) + 
+    geom_point(aes(.data[[nearshore_var]], .data[[inlake_var]]), size = 1) +
+    geom_smooth(aes(.data[[nearshore_var]], .data[[inlake_var]]), 
+                method = "lm", se = FALSE) +
+    geom_rect(xmin = 0.28, xmax = 0.42, ymin = 0, ymax = 0.05,
+    alpha = 1, fill = "white") +
+    annotate("text", x = 0.34, y = 0.05, label = paste0("R^2 == ", rsq),
+                                  parse = TRUE, size = text_size-0.7) +
+    # annotate("label", x = 0.27, y = 0.01, 
+    #          label = get_formula(
+    #            lm(inlake_slope_pnt ~ nearshore_slope_mean, data = test)), 
+    #          size = text_size-0.85, fill = "white", label.size = NA) +
+    # geom_abline(slope = 1, intercept = 0) +
+    xlab(nearshore_var) +
+    ylab(inlake_var) +
+    labs(color = "") +
+    theme_opts
+  
+  res
+}
+
+gg_slope_list <- lapply(seq_len(nrow(slope_alternatives)), function(i)
+  gg_slope_alternative(slope_alternatives$nearshore_slope[i],
+                     slope_alternatives$inlake_slope[i], test)
+)
+
+gg_slope_list[c(1:4, 6:9, 11:14)] <- lapply(
+  gg_slope_list[c(1:4, 6:9, 11:14)], function(x) x +
+     theme(axis.title.x = element_blank(), 
+           axis.text.x = element_blank()))
+
+gg_slope_list[c(6:15)] <- lapply(
+  gg_slope_list[c(6:15)], function(x) x +
+     theme(axis.title.y = element_blank(), 
+           axis.text.y = element_blank()))
+   
+cowplot::plot_grid(plotlist = gg_slope_list, 
+                   nrow = 5, byrow = FALSE, 
+                   rel_heights = c(rep(0.6, 4), 1,
+                                   rep(0.6, 4), 1,
+                                   rep(0.6, 4), 1))
 ```
 
 ```{r 01_geometry_grid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=5.5, fig.height=4.2}
