@@ -233,12 +233,12 @@ gg_dist_base <- st_drop_geometry(dt) %>%
   ggplot(aes(x = dist_deepest, y = dist_viscenter)) + 
   geom_point(size = 1) +
   geom_smooth(method = "lm", se = FALSE) +
-  annotate("text", x = 2550, y = 300, label = "R^2 == 0.80",
-                                parse = TRUE, size = text_size) +
-  annotate("text", x = 2100, y = 150, 
+  annotate("text", x = 2550, y = 400, label = "R^2 == 0.80",
+                                parse = TRUE, size = text_size-0.7) +
+  annotate("label", x = 1800, y = 150, 
            label = get_formula(
              lm(dist_viscenter ~ dist_deepest, data = st_drop_geometry(dt))), 
-           size = text_size) +
+           size = text_size-0.85, fill = "white", label.size = NA) +
   labs(color = "") +
   xlab("Deepest point distance (m)") +
   ylab("Distance to \n lake center (m)") +
@@ -267,12 +267,12 @@ gg_slope_base <- ggplot(data = test) +
   geom_smooth(aes(nearshore_slope_mean, inlake_slope_pnt), method = "lm", se = FALSE) +
   geom_rect(xmin = 0.28, xmax = 0.42, ymin = 0, ymax = 0.05,
   alpha = 1, fill = "white") +
-  annotate("text", x = 0.34, y = 0.03, label = "R^2 == 0.17",
-                                parse = TRUE, size = text_size) +
-  annotate("text", x = 0.34, y = 0.01, 
+  annotate("text", x = 0.34, y = 0.05, label = "R^2 == 0.17",
+                                parse = TRUE, size = text_size-0.7) +
+  annotate("label", x = 0.27, y = 0.01, 
            label = get_formula(
              lm(inlake_slope_pnt ~ nearshore_slope_mean, data = test)), 
-           size = text_size) +
+           size = text_size-0.85, fill = "white", label.size = NA) +
   # geom_abline(slope = 1, intercept = 0) +
   xlab("Nearshore slope (mean)") +
   ylab("In-lake slope") +
