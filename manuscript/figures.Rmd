@@ -30,7 +30,7 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 ![Diagram showing the relations between true (black) and proxy (orange) metrics of lake geometry. Geometric depth calculated via Equation 1 requires a single distance and slope metric.](../figures/slope_diagram_new.pdf){width=75%}
 
-```{r 01_geometry_base, fig.cap = "Comparison among proxy and true values of lake geometry for A) distance to deepest point versus distance distance to lake center and B) nearshore land slope versus in-lake slope. A best-fit line and coefficient of determination is shown to illustrate representativeness.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r 01_geometry_base, fig.cap = "Comparison among proxy and true values of lake geometry for A) distance to deepest point versus distance distance to lake center and B) nearshore land slope versus in-lake slope. A best-fit line and equation is shown to shown to facilitate computation of correction factors for proxy values of lake geometry. Coefficients of determination are shown to illustrate representativeness.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 knitr::include_graphics("../figures/01_geometry_base-1.pdf")
 ```
 
