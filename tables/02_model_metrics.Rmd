@@ -28,9 +28,10 @@ dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
   mutate(rmse = case_when(
     as.character(model) == "maxdepth_true_true" ~ NA_character_,
     TRUE ~ paste0(rmse, " m"))) %>%
+  mutate(mape = as.numeric(mape)) %>%
   mutate(mape = case_when(
     as.character(model) == "maxdepth_true_true" ~ NA_character_,
-    TRUE ~ paste0(mape, " %"))) %>%
+    TRUE ~ paste0(round(mape, 0), " %"))) %>%
   mutate(model = gsub("maxdepth_", "", model)) %>%
   mutate(model = gsub("false", "proxy", model)) %>%
   tidyr::separate(model, c("slope", "distance")) %>%
