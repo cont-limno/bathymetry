@@ -84,7 +84,7 @@ data_prep <- function(dt_raw,
   dt
 }
 
-fit_model <- function(maxdepth, dt_train, dt_test){
+fit_model <- function(maxdepth, dt_train, dt_test, maxdepth_vec){
   # browser()
   # maxdepth <- maxdepth_vec[3]
   # dt_train <- data_train
@@ -161,8 +161,8 @@ data_splitting <- function(dt){
        data_test = data_test)
 }
 
-model_stash_path <- "data/01_depth_model/stash.rds"
-if(!file.exists(model_stash_path)){
+# model_stash_path <- "data/01_depth_model/stash.rds"
+# if(!file.exists(model_stash_path)){
   res <- lapply(seq_len(nrow(slope_distance_alternatives)),
          function(i){
            # all-predictors model using grid of real and proxy predictors
@@ -183,7 +183,7 @@ if(!file.exists(model_stash_path)){
                               "maxdepth_false_true", "maxdepth_false_false")
 
            dt_fits <- lapply(1:4, function(k)
-             fit_model(maxdepth = maxdepth_vec[k], data_train, data_test))
+             fit_model(maxdepth = maxdepth_vec[k], data_train, data_test, maxdepth_vec))
 
            # importance(dt_fits[[2]]$fit$fit)[
            #   rev(order(importance(dt_fits[[2]]$fit$fit)))]
@@ -202,11 +202,14 @@ if(!file.exists(model_stash_path)){
              bind_rows() %>%
              bind_cols(data.frame(model = maxdepth_vec))
 
-           list(dt_fits = dt_fits, dt_grid = dt_grid, dt_metrics = dt_metrics)
+           list(dt_fits = dt_fits, dt_grid = dt_grid,
+                dt_metrics = dt_metrics)
          })
 
-  saveRDS(res, model_stash_path)
-}
+#   saveRDS(res, model_stash_path)
+# }else{
+#   res <- readRDS(model_stash_path)
+# }
 
 # lapply res extract proxy_proxy stats and add to slope_distance_alternatives
 slope_distance_alternatives$proxy_proxy_rmse <- unlist(
@@ -216,6 +219,8 @@ slope_distance_alternatives$proxy_proxy_rsq <- unlist(
 slope_distance_alternatives$proxy_proxy_mape <- unlist(
   lapply(res, function(x) x$dt_metrics$mape[4]))
 # View(slope_distance_alternatives)
+write.csv(slope_distance_alternatives, "data/01_depth_model/alternatives_metrics.csv",
+          row.names = FALSE)
 
 ## saveRDS(dt_train, "data/01_depth_model/depth_training.rds")
 saveRDS(res[[1]]$dt_fits, "data/01_depth_model/depth_fits.rds")
@@ -223,6 +228,8 @@ saveRDS(res[[1]]$dt_grid,
         "data/01_depth_model/depth_grid.rds")
 saveRDS(res[[1]]$dt_metrics,
         "data/01_depth_model/depth_grid_metrics.rds")
+saveRDS(res[[17]]$dt_metrics,
+        "data/01_depth_model/runner_up_metrics.rds")
 
 # if(interactive()){
 #
