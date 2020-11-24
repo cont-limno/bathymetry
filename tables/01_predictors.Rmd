@@ -98,12 +98,12 @@ dt_combined <- bind_cols(
 
 ```{r predictors_table}
 # setwd("figures")
-(slope_distance_vars <- unique(dt_combined$variable)[
+slope_distance_vars <- unique(dt_combined$variable)[
   stringr::str_detect(unique(dt_combined$variable), 
-                     "dist_|e_slope_|dists_|e_slopes")])
-(exclude_vars <- unique(dt_combined$variable)[
+                     "dist_|e_slope_|dists_|e_slopes")]
+exclude_vars <- unique(dt_combined$variable)[
   stringr::str_detect(unique(dt_combined$variable), 
-                     "totalarea|islandperimeter|between|buffer100m|lake_meandepth_m")])
+                     "totalarea|islandperimeter|between|buffer100m|lake_meandepth_m")]
 
 dt <- dt_combined %>%
   dplyr::filter(str_detect(variable, 
