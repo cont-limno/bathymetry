@@ -308,6 +308,14 @@ Wilson Rd., East Lansing, MI 48824, USA}
 
 \begin{figure}
       \begin{center}
+        \includegraphics[width=\textwidth,keepaspectratio]{../figures/01_slope_compare-1}
+      \end{center}
+      \caption{Sensitivity analysis regarding different slope calculation methods.}\label{figS1}
+    \end{figure}
+\clearpage
+
+\begin{figure}
+      \begin{center}
         \includegraphics[width=0.75\textwidth,keepaspectratio]{../figures/lake_shape}
       \end{center}
       \caption{Diagram showing our expectation that slope-based models of lake depth will under predict true depth in convex lakes (left) and over predict true depth in concave lakes (right). Dashed lines represent extrapolated nearshore land slope while solid lines represent the lake bottom.}\label{figS1}
@@ -349,33 +357,68 @@ Wilson Rd., East Lansing, MI 48824, USA}
 \clearpage
 
 \begin{figure}
+      \begin{center}
+        \includegraphics[width=0.75\textwidth,keepaspectratio]{../figures/slope_by_area_depth-1}
+      \end{center}
+      \caption{Compare the mean lake slopes in concave and convex lakes of the same size and max depth.}\label{figS1}
+    \end{figure}
+\clearpage
+
+
+\begin{figure}
       \begin{center}\includegraphics[width=0.73\textwidth]{../figures/lgnemanual-vs-bathy-depth-1}\end{center}
       \caption{Comparison between reported depth and depth extracted from bathymetry surfaces by US State where reported depths come from the LAGOSUS-Depth product. For this figure, no reported depth values originated from the same source as its corresponding bathymetry-derived value.}\label{figS8}
       \end{figure}
 
 \clearpage
 
+% source at tables/01_predictors.Rmd
 \begin{table}
 \caption{Summary of lake characteristics for the present study (and for lakes in the contiguous United States). Predictor variables for computing random forest offsets (Equation 2) are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States.} \label{tableS1}
 \centering
 \setlength\tabcolsep{1.5pt} % default value: 6pt
+
 \begin{tabular}{lllll}
-  \hline
-  Variable & Median & Q25 & Q75 & n\\
-  \hline
-  Max depth (m) & 8.2 (7) & 4.6 (3.7) & 14 (12) & 4850 (17700)\\
-  \textbf{Elevation (m)} & 300 (340) & 180 (210) & 400 (460) & 4850 (17700)\\
-  \textbf{Area (ha)} & 55 (33) & 21 (11) & 140 (100) & 4850 (17700)\\
-  \textbf{Island area (ha)} & 0 (0) & 0 (0) & 0.18 (0.076) & 4850 (17700)\\
-  \textbf{Perimeter (m)} & 4400 (3500) & 2500 (1800) & 8100 (7300) & 4850 (17700)\\
-  \textbf{Shoreline development} & 1.7 (1.7) & 1.4 (1.4) & 2.1 (2.2) & 4850 (17700)\\
-  \textbf{Watershed-lake ratio} & 7.8 (10) & 3.9 (4.4) & 17 (28) & 4850 (17700)\\
-  Distance to deepest point (m) & 180 (-) & 110 (-) & 290 (-) & 4850 (-)\\
-  Distance to lake center (m) & 240 (-) & 160 (-) & 380 (-) & 4850 (-)\\
-  In-lake slope (m/m) & 0.046 (-) & 0.024 (-) & 0.079 (-) & 4850 (-)\\
-  Nearshore land slope (m/m) & 0.077 (-) & 0.051 (-) & 0.11 (-) & 4850 (-)\\
-  \hline
-  \end{tabular}
+\hline
+Variable & Median & Q25 & Q75 & n\\
+\hline
+\textbf{Area (ha)} & 55 (33) & 21 (11) & 140 (100) & 4820 (17700)\\
+\textbf{Island area (ha)} & 0 (0) & 0 (0) & 0.18 (0.076) & 4820 (17700)\\
+- & 1500 (1100) & 880 (640) & 2500 (2200) & 4820 (17700)\\
+- & 91 (88) & 41 (40) & 140 (140) & 4820 (17700)\\
+- & 710 (560) & 430 (320) & 1200 (1000) & 4820 (17700)\\
+- & 380 (290) & 230 (170) & 610 (500) & 4820 (17700)\\
+- & 0 (0) & 0 (0) & 58 (25) & 4820 (17700)\\
+- & 0 (0) & 0 (0) & 3 (3) & 4820 (17700)\\
+- & 0 (0) & 0 (0) & 1 (1) & 4820 (17700)\\
+- & 26000 (27000) & 23000 (23000) & 27000 (38000) & 4820 (17700)\\
+\textbf{Deepest point distance (m)} & 180 (-) & 110 (-) & 290 (-) & 4820 (-)\\
+\textbf{Visual center distance (m)} & 240 (-) & 160 (-) & 390 (-) & 4820 (-)\\
+- & 0.046 (-) & 0.024 (-) & 0.079 (-) & 4820 (-)\\
+
+- & 0.062 (-) & 0.029 (-) & 0.14 (-) & 4800 (-)\\
+
+- & 0.077 (-) & 0.051 (-) & 0.11 (-) & 4820 (-)\\
+
+- & 0.077 (-) & 0.038 (-) & 0.13 (-) & 4590 (-)\\
+
+- & 0.077 (-) & 0.037 (-) & 0.13 (-) & 4540 (-)\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}
+\caption{Show model metrics for sensitivity analysis. Describe how each different metric was calculated.} \label{tableS2}
+\centering
+\setlength\tabcolsep{1.5pt} % default value: 6pt
+
+\begin{tabular}{lllll}
+\hline
+Variable & Median & Q25 & Q75 & n\\
+\hline
+- & 0.077 (-) & 0.037 (-) & 0.13 (-) & 4540 (-)\\
+\hline
+\end{tabular}
 \end{table}
 
 % Copy/paste for multiples of each file type as needed.
