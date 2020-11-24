@@ -319,7 +319,7 @@ gg_dists_base <- dt %>%
 cowplot::plot_grid(gg_dist_base, gg_dists_base)
 ```
 
-```{r 01_slope_compare, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=4.8, fig.height=2.3}
+```{r 01_slope_compare, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=6.2, fig.height=5.3}
 # fig 2B (slope) alternatives
 #   gg_slope_base <- nearshore_slope_mean ~ inlake_slope_pnt
 #   gg_slope_* <- nearshore_slope* ~ inlake_slope*
