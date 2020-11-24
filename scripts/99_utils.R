@@ -371,4 +371,21 @@ get_formula <- function(model) {
     as.character
 }
 
-flatten_multipoint <- function(x) list(as.data.frame(st_coordinates(x)))
+flatten_multipoint <- function(x){
+  list(as.data.frame(st_coordinates(x)))
+}
+
+# pad_str("a", 3)
+# pad_str(c("a", "b"), 3)[1]
+pad_str <- function(x, n){
+
+  .pad_str <- function(x, n){
+    if(nchar(x) < n){
+      paste0(x, paste0(rep(" ", abs(nchar(x) - n)), collapse = ""))
+    }else{
+      x
+    }
+  }
+  as.character(sapply(x, function(x) .pad_str(x, n)))
+}
+
