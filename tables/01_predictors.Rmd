@@ -26,7 +26,11 @@ nearshore <- read.csv("../data/00_geometry/nearshore.csv",
 dt_all <- read.csv("../data/lagosus_depth_predictors.csv", 
                stringsAsFactors = FALSE) %>%
   distinct(lagoslakeid, .keep_all = TRUE) %>%
-  dplyr::select(-inlake_slope_mean)
+  dplyr::select(-matches("inlake_slopes_online"), 
+                -matches("inlake_slope_online"), 
+                -matches("inlake_slope_mean"),
+                -lake_centroidstate.y, 
+                -lake_centroidstate.x)
 dt_bathy <- dt_all %>%
   right_join(nearshore, by = c("lagoslakeid" = "llid")) %>%
   dplyr::select(-contains("lagoslakeid"), 
@@ -98,19 +102,21 @@ dt_combined <- bind_cols(
 
 ```{r predictors_table}
 # setwd("figures")
+# dt_combined$variable
+exclude_vars <- unique(dt_combined$variable)[
+  stringr::str_detect(unique(dt_combined$variable), 
+                     "totalarea|islandperimeter|between|buffer100m|lake_meandepth_m|countyfips|upstream|length_m|width_m|orientation_deg|nws_")]
 slope_distance_vars <- unique(dt_combined$variable)[
   stringr::str_detect(unique(dt_combined$variable), 
                      "dist_|e_slope_|dists_|e_slopes")]
-exclude_vars <- unique(dt_combined$variable)[
-  stringr::str_detect(unique(dt_combined$variable), 
-                     "totalarea|islandperimeter|between|buffer100m|lake_meandepth_m")]
+slope_distance_vars <- slope_distance_vars[!slope_distance_vars %in% exclude_vars]
 
 dt <- dt_combined %>%
-  dplyr::filter(str_detect(variable, 
-                c(paste0(slope_distance_vars, collapse = "|"),
-                  "^lake_|^ws_lake_arearatio"))) %>%
-  dplyr::filter(!str_detect(variable,
-                            paste0(exclude_vars, collapse = "|")))
+  dplyr::filter(variable %in% c(slope_distance_vars, 
+                           "lake_maxdepth_m", "lake_elevation_m",
+                           "lake_perimeter_m", "lake_shorelinedevfactor",
+                           "ws_lake_arearatio"))
+dt$variable
                        # %>%
   # mutate(n = dt_bathy$n[which(dt_bathy$variable == "inlake_slope")])
 
@@ -122,6 +128,10 @@ dt[
 apply(2, function(x) stringr::str_replace(x, "\\(([^\\)]+)\\)", "(-)"))
 
 taxonomy_key <- read.csv("../data/taxonomy.csv", stringsAsFactors = FALSE)
+
+# dt$variable[!dt$variable %in% taxonomy_key$col_name]
+
+dt[9:16,] <- dplyr::arrange(dt[9:16,], variable)
 
 dt <- left_join(dt, taxonomy_key, by = c("variable" = "col_name")) %>%
   dplyr::mutate(variable = pretty) %>% select(-pretty, -description)
@@ -136,7 +146,7 @@ dt_md$Variable[!stringr::str_detect(dt_md$Variable, "slope|Distance|depth") & !i
          "**") 
 
 options(knitr.kable.NA = '-')
-knitr::kable(dt_md, digits = 0, format = "markdown") 
+knitr::kable(dt_md, digits = 0, format = "markdown")
 
 # ---- latex output ----
 
@@ -144,8 +154,16 @@ knitr::kable(dt_md, digits = 0, format = "markdown")
 dt$Variable[!stringr::str_detect(dt$Variable, "slope|Distance|depth") & !is.na(dt_md$Variable)] <- 
   paste0("\\textbf{", 
          dt$Variable[!stringr::str_detect(dt$Variable, "slope|Distance|depth") & !is.na(dt_md$Variable)],
-         "}") 
+         "}")
 
 # clipr::write_clip(
-#   knitr::kable(dt, format = 'latex', align = c("lllll"), escape = FALSE))
+#   gsub("%\\*\\*", "\\\\%\\*\\*",
+#   gsub("_", "\\\\_",
+#   gsub("%\\\\", "\\\\%\\\\",
+#   sub("\\\\midrule", "\\\\hline",
+#   sub("\\\\bottomrule", "\\\\hline",
+#   sub("\\\\toprule", "\\\\hline",
+#       knitr::kable(dt, digits = 2, format = "latex",
+#      booktabs = TRUE, linesep = "", align = c("l"), escape = FALSE)))))))
+#    )
 ```

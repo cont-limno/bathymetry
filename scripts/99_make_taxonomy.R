@@ -51,30 +51,38 @@ taxonomy_key <- bind_rows(
   c(col_name = "maxdepth_false_false",
     description = "lake maximum depth calculated from slope_mean and dist_viscenter in meters"),
 
-  c(col_name = "inlake_slope",
+  c(col_name = "inlake_slope_pnt",
     description = "slope of the lake bottom assuming a straight line from the shore to the deepest point of the lake in units of depth change in meters per meter distance",
     pretty = "Inlake slope (m/m)"),
 
-  c(col_name = "inlake_slopes",
+  c(col_name = "inlake_slope_pnts",
     description = "slope of the lake bottom assuming a straight line from the shore to the deepest point(s) of the lake in units of depth change in meters per meter distance",
-    pretty = "Mean inlake slope (m/m)"),
+    pretty = "Inlake slopes (m/m)"),
 
   c(col_name = "inlake_slope_mean",
     description = "the mean slope of the lake bottom in units of depth change in meters per meter distance",
-    pretty = "Mean lake slope (m/m)"),
+    pretty = "Mean inlake slope (m/m)"),
 
-  c(col_name = "slope_mean",
+  c(col_name = "inlake_slope_online_mean",
+    description = "average slope of a line extending from the deepest point of a lake to the shoreline",
+    pretty = "Inlake slope online (m/m)"),
+
+  c(col_name = "inlake_slopes_online_mean",
+    description = "average slope of a line (or lines) extending from the deepest point(s) of a lake to the shoreline",
+    pretty = "Inlake slopes online (m/m)"),
+
+  c(col_name = "nearshore_slope_mean",
     description = "average slope of the land surrounding a lake in a 100m buffer",
-    pretty = "Mean slope (m/m)"),
+    pretty = "Nearshore mean slope (m/m)"),
   c(col_name = "buffer_slope",
     description = "average slope of the land surrounding a lake in a 100m buffer",
     pretty = "Nearshore slope (m/m)"),
 
-  c(col_name = "slope_online_mean",
+  c(col_name = "nearshore_slope_online_mean",
     description = "average slope of the land surrounding a lake in a straight-line  extending from the deepest point of a lake and buffered on either side by 20m",
     pretty = "Nearshore slope online (m/m)"),
 
-  c(col_name = "slopes_online_mean",
+  c(col_name = "nearshore_slopes_online_mean",
     description = "average slope of the land surrounding a lake in a straight-line  extending from the deepest point(s) of a lake and buffered on either side by 20m",
     pretty = "Nearshore slopes online (m/m)"),
 
@@ -103,7 +111,7 @@ taxonomy_key <- bind_rows(
   c(col_name = "lake_elevation_m",
     description = "the elevation of the lake polygon centroid, in meters (referenced to the North American Vertical Datum of 1988 (NAVD88)) and obtained from the National Elevation Dataset by way of the LAGOS-US Locus module",
     pretty = "Elevation (m)"),
-  c(col_name = "lake_shorelinedevfactor_nounits", description = "shoreline development factor calculated as the lake_perimeter_m / (2*sqrt(pi*lake_waterarea_ha*10000)) by way of the LAGOS-US Locus module",
+  c(col_name = "lake_shorelinedevfactor", description = "shoreline development factor calculated as the lake_perimeter_m / (2*sqrt(pi*lake_waterarea_ha*10000)) by way of the LAGOS-US Locus module",
     pretty = "Shoreline development"),
   c(col_name = "ws_lake_arearatio",
     description = "ratio between interlake watershed area and lake water area by way of the LAGOS-US Locus module",
