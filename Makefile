@@ -108,14 +108,18 @@ data/00_bathy_depth/bathy_geometry.csv: scripts/00_get_geometry.R \
 data/00_hypso/hypso.csv
 	Rscript $<
 
+# data/lagosus_depth.csv
 data/00_geometry/nearshore.csv: scripts/00_get_nearshore.R \
 data/00_bathy_depth/bathy_pnts.rds \
 data/lagosne_depth_predictors.csv
 	Rscript $<
-# data/lagosus_depth.csv \
+
+data/01_depth_model/depth_grid_metrics.rds: scripts/05_depth_model.R \
+data/00_geometry/nearshore.csv data/lagosne_depth_predictors.csv
+	Rscript $<
 
 manuscript/combined.pdf: manuscript/figures.pdf manuscript/appendix.pdf
-	pdftk manuscript/figures.pdf manuscript/appendix.pdf output manuscript/combined.pdf
+	cd manuscript && make combined.pdf
 
 manuscript/appendix.pdf: manuscript/si_template_2019.tex \
 figures/00_map_bathy-1.pdf \
