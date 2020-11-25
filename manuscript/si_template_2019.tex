@@ -408,15 +408,43 @@ Variable & Median & Q25 & Q75 & n\\
 \end{table}
 
 \begin{table}
-\caption{Show model metrics for sensitivity analysis. Describe how each different metric was calculated.} \label{tableS2}
+\caption{Model fit and predictive accuracy metrics (RMSE = root mean square error, $R^2$ = coefficient of determination, MAPE = mean absolute percent error) for the proxy - proxy combination of geometry metrics (see main text Table 1). Each row shows model metrics when proxy and "true" measures are calculated with slight differences from the default (bolded) used in the main text. \texttt{slope\_mean} is the mean slope of all inlake or nearshore buffer points. \texttt{slope\_pnts} is the average \texttt{slope\_pnt} of all points at maximum depth. \texttt{slope\_online\_mean} is the mean pixel-to-pixel slope of each pixel lying on a straight line either from the single deepest point to the lake shoreline (in the case of inlake slope) or from the lake shoreline point extending to the buffer exterior (in the case of nearshore slope). \texttt{slopes\_online\_mean} is the same as \texttt{slope\_online\_mean} except for all inlake points at maximum depth. \texttt{dists\_deepest} is the same as \texttt{dist\_deepest} except distance is calculated for all points at maximum depth.}  \label{tableS2}
 \centering
 \setlength\tabcolsep{1.5pt} % default value: 6pt
-
-\begin{tabular}{lllll}
+\begin{tabular}{lllllc}
 \hline
-Variable & Median & Q25 & Q75 & n\\
+Inlake slope & Nearshore slope & Inlake distance & RMSE & $R^2$ & MAPE\\
 \hline
-- & 0.077 (-) & 0.037 (-) & 0.13 (-) & 4540 (-)\\
+slope\_pnts & slope\_mean & dists\_deepest & 6.2 m & 0.38 & 58 \%\\
+\textbf{slope\_pnt} & \textbf{slope\_mean} & \textbf{dist\_deepest} & \textbf{6.4 m} & \textbf{0.35} & \textbf{59 \%}\\
+slope\_pnts & slopes\_online\_mean & dist\_deepest & 6.4 m & 0.32 & 61 \%\\
+slope\_online\_mean & slope\_mean & dists\_deepest & 6.5 m & 0.41 & 63 \%\\
+slope\_pnts & slope\_mean & dist\_deepest & 6.7 m & 0.44 & 58 \%\\
+slope\_online\_mean & slope\_mean & dist\_deepest & 6.7 m & 0.36 & 59 \%\\
+slope\_online\_mean & slopes\_online\_mean & dist\_deepest & 6.7 m & 0.32 & 66 \%\\
+slope\_mean & slope\_mean & dists\_deepest & 6.8 m & 0.36 & 59 \%\\
+slope\_pnt & slopes\_online\_mean & dists\_deepest & 6.8 m & 0.25 & 73 \%\\
+slope\_pnts & slope\_online\_mean & dist\_deepest & 6.9 m & 0.3 & 71 \%\\
+slope\_online\_mean & slope\_online\_mean & dist\_deepest & 6.9 m & 0.32 & 68 \%\\
+slope\_online\_mean & slope\_online\_mean & dists\_deepest & 6.9 m & 0.33 & 65 \%\\
+slope\_mean & slopes\_online\_mean & dists\_deepest & 7 m & 0.24 & 65 \%\\
+slope\_mean & slope\_mean & dist\_deepest & 7.1 m & 0.4 & 64 \%\\
+slopes\_online\_mean & slope\_mean & dist\_deepest & 7.1 m & 0.37 & 56 \%\\
+slope\_mean & slope\_online\_mean & dist\_deepest & 7.1 m & 0.3 & 69 \%\\
+slopes\_online\_mean & slopes\_online\_mean & dists\_deepest & 7.2 m & 0.32 & 63 \%\\
+slopes\_online\_mean & slopes\_online\_mean & dist\_deepest & 7.3 m & 0.25 & 64 \%\\
+slope\_pnt & slope\_mean & dists\_deepest & 7.3 m & 0.35 & 61 \%\\
+slopes\_online\_mean & slope\_mean & dists\_deepest & 7.3 m & 0.36 & 60 \%\\
+slope\_online\_mean & slopes\_online\_mean & dists\_deepest & 7.3 m & 0.29 & 58 \%\\
+slope\_pnts & slope\_online\_mean & dists\_deepest & 7.4 m & 0.27 & 64 \%\\
+slopes\_online\_mean & slope\_online\_mean & dists\_deepest & 7.4 m & 0.33 & 67 \%\\
+slopes\_online\_mean & slope\_online\_mean & dist\_deepest & 7.5 m & 0.26 & 61 \%\\
+slope\_pnt & slopes\_online\_mean & dist\_deepest & 7.5 m & 0.33 & 69 \%\\
+slope\_mean & slopes\_online\_mean & dist\_deepest & 7.6 m & 0.26 & 64 \%\\
+slope\_pnt & slope\_online\_mean & dist\_deepest & 7.7 m & 0.27 & 68 \%\\
+slope\_pnts & slopes\_online\_mean & dists\_deepest & 7.8 m & 0.3 & 65 \%\\
+slope\_pnt & slope\_online\_mean & dists\_deepest & 7.9 m & 0.27 & 67 \%\\
+slope\_mean & slope\_online\_mean & dists\_deepest & 7.9 m & 0.31 & 60 \%\\
 \hline
 \end{tabular}
 \end{table}

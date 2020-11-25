@@ -65,14 +65,14 @@ options(knitr.kable.NA = '-')
 knitr::kable(dt_metrics, digits = 2, format = "markdown")
 
 dt_metrics[2,] <- paste0("**", dt_metrics[2,], "**") # highlight row from main text
-clipr::write_clip(
-  gsub("%\\*\\*", "\\\\%\\*\\*",
-  gsub("_", "\\\\_",
-  gsub("%\\\\", "\\\\%\\\\",
-  sub("\\\\midrule", "\\\\hline",
-  sub("\\\\bottomrule", "\\\\hline",
-  sub("\\\\toprule", "\\\\hline",
-      knitr::kable(dt_metrics, digits = 2, format = "latex",
-     booktabs = TRUE, linesep = "", align = c("lllllc"), escape = FALSE)))))))
-   )
+# clipr::write_clip(
+#   gsub("%\\*\\*", "\\\\%\\*\\*",
+#   gsub("_", "\\\\_",
+#   gsub("%\\\\", "\\\\%\\\\",
+#   sub("\\\\midrule", "\\\\hline",
+#   sub("\\\\bottomrule", "\\\\hline",
+#   sub("\\\\toprule", "\\\\hline",
+#       knitr::kable(dt_metrics, digits = 2, format = "latex",
+#      booktabs = TRUE, linesep = "", align = c("lllllc"), escape = FALSE)))))))
+#    )
 ```
