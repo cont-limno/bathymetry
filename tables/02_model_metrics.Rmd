@@ -44,3 +44,35 @@ knitr::kable(dt_metrics, digits = 2, format = "markdown")
 #   knitr::kable(dt_metrics, format = 'latex', align = c("llll"),
 # escape = TRUE))
 ```
+
+```{r 02_alternate_metrics, eval=TRUE}
+
+dt_metrics <- read.csv("../data/01_depth_model/alternatives_metrics.csv",
+                       stringsAsFactors = FALSE) %>%
+  mutate_if(is.numeric, function(x) as.character(round(x, 2))) %>%
+  mutate(proxy_proxy_rmse = paste0(
+    round(as.numeric(proxy_proxy_rmse), 1), " m")) %>%
+  mutate(proxy_proxy_rsq = round(as.numeric(proxy_proxy_rsq), 2)) %>%
+  mutate(proxy_proxy_mape = paste0(
+    round(as.numeric(proxy_proxy_mape), 0), " %")) %>%
+  mutate(inlake_slope = gsub("inlake_", "", inlake_slope)) %>%
+  mutate(nearshore_slope = gsub("nearshore_", "", nearshore_slope)) %>%
+  arrange(proxy_proxy_rmse) %>%
+  setNames(c("Inlake slope", "Nearshore slope", 
+             "Inlake distance", "RMSE", "$R^2$", "MAPE"))
+
+options(knitr.kable.NA = '-')
+knitr::kable(dt_metrics, digits = 2, format = "markdown")
+
+dt_metrics[2,] <- paste0("**", dt_metrics[2,], "**") # highlight row from main text
+clipr::write_clip(
+  gsub("%\\*\\*", "\\\\%\\*\\*",
+  gsub("_", "\\\\_",
+  gsub("%\\\\", "\\\\%\\\\",
+  sub("\\\\midrule", "\\\\hline",
+  sub("\\\\bottomrule", "\\\\hline",
+  sub("\\\\toprule", "\\\\hline",
+      knitr::kable(dt_metrics, digits = 2, format = "latex",
+     booktabs = TRUE, linesep = "", align = c("lllllc"), escape = FALSE)))))))
+   )
+```
