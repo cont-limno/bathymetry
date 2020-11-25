@@ -115,8 +115,9 @@ dt <- dt_combined %>%
   dplyr::filter(variable %in% c(slope_distance_vars, 
                            "lake_maxdepth_m", "lake_elevation_m",
                            "lake_perimeter_m", "lake_shorelinedevfactor",
-                           "ws_lake_arearatio"))
-dt$variable
+                           "ws_lake_arearatio", "lake_islandarea_ha", 
+                           "lake_waterarea_ha"))
+# dt$variable
                        # %>%
   # mutate(n = dt_bathy$n[which(dt_bathy$variable == "inlake_slope")])
 
@@ -131,19 +132,30 @@ taxonomy_key <- read.csv("../data/taxonomy.csv", stringsAsFactors = FALSE)
 
 # dt$variable[!dt$variable %in% taxonomy_key$col_name]
 
-dt[9:16,] <- dplyr::arrange(dt[9:16,], variable)
-
 dt <- left_join(dt, taxonomy_key, by = c("variable" = "col_name")) %>%
   dplyr::mutate(variable = pretty) %>% select(-pretty, -description)
 
+dt[11:18,] <- dplyr::arrange(dt[11:18,], variable)
+
 dt <- dplyr::rename(dt, Variable = variable)
 
+model_predictors <- data.frame(
+  variable = names(read.csv("../data/depth_predictors.csv", 
+                            stringsAsFactors = FALSE)), 
+  stringsAsFactors = FALSE) %>%
+  dplyr::filter(variable != "lake_maxdepth_m") %>%
+  left_join(taxonomy, by = c("variable" = "col_name")) %>%
+  pull(pretty) %>% na.omit() %>% as.character()
+  
+  
 # bold Eq 2 predictor variables
 dt_md <- dt
-dt_md$Variable[!stringr::str_detect(dt_md$Variable, "slope|Distance|depth") & !is.na(dt_md$Variable)] <- 
+dt_md$Variable[
+  dt_md$Variable %in% model_predictors & !is.na(dt_md$Variable)] <- 
   paste0("**", 
-         dt_md$Variable[!stringr::str_detect(dt_md$Variable, "slope|Distance|depth") & !is.na(dt_md$Variable)],
-         "**") 
+dt_md$Variable[
+  dt_md$Variable %in% model_predictors & !is.na(dt_md$Variable)],
+         "**")
 
 options(knitr.kable.NA = '-')
 knitr::kable(dt_md, digits = 0, format = "markdown")
@@ -151,19 +163,23 @@ knitr::kable(dt_md, digits = 0, format = "markdown")
 # ---- latex output ----
 
 # bold Eq 2 predictor variables
-dt$Variable[!stringr::str_detect(dt$Variable, "slope|Distance|depth") & !is.na(dt_md$Variable)] <- 
+dt$Variable[
+  dt$Variable %in% model_predictors & !is.na(dt$Variable)] <- 
   paste0("\\textbf{", 
-         dt$Variable[!stringr::str_detect(dt$Variable, "slope|Distance|depth") & !is.na(dt_md$Variable)],
+dt$Variable[
+  dt$Variable %in% model_predictors & !is.na(dt$Variable)],
          "}")
 
-# clipr::write_clip(
-#   gsub("%\\*\\*", "\\\\%\\*\\*",
-#   gsub("_", "\\\\_",
-#   gsub("%\\\\", "\\\\%\\\\",
-#   sub("\\\\midrule", "\\\\hline",
-#   sub("\\\\bottomrule", "\\\\hline",
-#   sub("\\\\toprule", "\\\\hline",
-#       knitr::kable(dt, digits = 2, format = "latex",
-#      booktabs = TRUE, linesep = "", align = c("l"), escape = FALSE)))))))
-#    )
+if(interactive()){
+  clipr::write_clip(
+    gsub("%\\*\\*", "\\\\%\\*\\*",
+    gsub("_", "\\\\_",
+    gsub("%\\\\", "\\\\%\\\\",
+    sub("\\\\midrule", "\\\\hline",
+    sub("\\\\bottomrule", "\\\\hline",
+    sub("\\\\toprule", "\\\\hline",
+        knitr::kable(dt, digits = 2, format = "latex",
+       booktabs = TRUE, linesep = "", align = c("l"), escape = FALSE)))))))
+     )
+}
 ```
