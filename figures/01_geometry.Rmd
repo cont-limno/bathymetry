@@ -460,7 +460,7 @@ cowplot::plot_grid(
 )
 ```
 
-```{r slope_by_area_depth, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=5.5, fig.height=4.2}
+```{r slope_by_area_depth, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=5.7, fig.height=3.3}
 
 nearshore     <- read.csv("../data/00_geometry/nearshore.csv",
                       stringsAsFactors = FALSE) %>%
@@ -487,6 +487,7 @@ gg_area <- ggplot(data = dt) +
    geom_point(aes(x = nearshore_slope_mean, y = inlake_slope_pnt, color = x_bins)) +
    geom_smooth(aes(nearshore_slope_mean, inlake_slope_pnt, color = x_bins),
                method = "lm", se = FALSE) + 
+  xlim(c(0, 0.6)) + ylim(c(0, 0.6)) +
   facet_wrap(~shape_class) +
     ggtitle("Area (ha)")
   
@@ -506,6 +507,7 @@ gg_depth <- ggplot(data = dt) +
    geom_point(aes(x = nearshore_slope_mean, y = inlake_slope_pnt, color = x_bins)) +
    geom_smooth(aes(nearshore_slope_mean, inlake_slope_pnt, color = x_bins),
                method = "lm", se = FALSE) +
+    xlim(c(0, 0.6)) + ylim(c(0, 0.6)) +
     facet_wrap(~shape_class) +
     ggtitle("Max Depth (m)")
 
