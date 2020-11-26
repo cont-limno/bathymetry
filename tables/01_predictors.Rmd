@@ -144,7 +144,7 @@ model_predictors <- data.frame(
                             stringsAsFactors = FALSE)), 
   stringsAsFactors = FALSE) %>%
   dplyr::filter(variable != "lake_maxdepth_m") %>%
-  left_join(taxonomy, by = c("variable" = "col_name")) %>%
+  left_join(taxonomy_key, by = c("variable" = "col_name")) %>%
   pull(pretty) %>% na.omit() %>% as.character()
   
   
