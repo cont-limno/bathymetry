@@ -128,7 +128,8 @@ figures/01_contrasts-1.pdf \
 figures/01_hypsography-1.pdf \
 figures/01_geometry_grid-1.pdf \
 figures/02_depth_model_importance-1.pdf \
-figures/gg_effort-1.pdf
+figures/gg_effort-1.pdf \
+tables/02_alternate_metrics.pdf
 	cd manuscript && make appendix.pdf
 
 manuscript/figures.pdf: manuscript/figures.Rmd \
@@ -201,8 +202,17 @@ data/00_bathy_depth/bathy_pnts.rds
 	pdfcrop $@ $@
 
 tables/02_model_metrics.pdf: tables/02_model_metrics.Rmd \
+data/01_depth_model/depth_grid_metrics.rds tables/02_alternate_metrics.pdf
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdftk $@ cat 1 output temp.pdf
+	mv temp.pdf $@
+	pdfcrop $@ $@
+
+tables/02_alternate_metrics.pdf: tables/02_model_metrics.Rmd \
 data/01_depth_model/depth_grid_metrics.rds
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdftk tables/02_model_metrics.pdf cat 2 output temp.pdf
+	mv temp.pdf $@
 	pdfcrop $@ $@
 
 figures/02_depth_model_fitted-1.pdf: figures/02_depth_model.Rmd \

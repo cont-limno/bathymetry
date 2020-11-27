@@ -8,7 +8,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.path = "../figures/", fig.width = 5, fig.height = 6)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 5, fig.height = 6)
 # setwd("tables")
 ```
 
@@ -45,6 +45,8 @@ knitr::kable(dt_metrics, digits = 2, format = "markdown")
 # escape = TRUE))
 ```
 
+\clearpage
+
 ```{r 02_alternate_metrics, eval=TRUE}
 
 dt_metrics <- read.csv("../data/01_depth_model/alternatives_metrics.csv",
@@ -64,7 +66,7 @@ dt_metrics <- read.csv("../data/01_depth_model/alternatives_metrics.csv",
 options(knitr.kable.NA = '-')
 knitr::kable(dt_metrics, digits = 2, format = "markdown")
 
-dt_metrics[2,] <- paste0("**", dt_metrics[2,], "**") # highlight row from main text
+# dt_metrics[2,] <- paste0("**", dt_metrics[2,], "**") # highlight row from main text
 # clipr::write_clip(
 #   gsub("%\\*\\*", "\\\\%\\*\\*",
 #   gsub("_", "\\\\_",

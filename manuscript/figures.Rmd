@@ -36,13 +36,13 @@ knitr::include_graphics("../figures/01_geometry_base-1.pdf")
 
 \captionsetup[figure]{name=Table}
 \captionsetup[figure]{labelformat=empty}
-```{r depth_model_metrics, fig.cap = "Table 2: Model fit and predictive accuracy metrics (RMSE = root mean square error, R2 = coefficient of determination) for all combinations of true (in-lake slope, distance to the deepest point of the lake) and proxy (nearshore land slope, distance to lake center) metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r depth_model_metrics, fig.cap = "Table 1: Model fit and predictive accuracy metrics (RMSE = root mean square error, R2 = coefficient of determination) for all combinations of true (in-lake slope, distance to the deepest point of the lake) and proxy (nearshore land slope, distance to lake center) metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 # see tables/02_model_metrics.Rmd
 knitr::include_graphics("../tables/02_model_metrics.pdf")
 ```
 \captionsetup[figure]{name=Figure}
 \captionsetup[figure]{labelformat=default}
-\setcounter{figure}{3}
+\setcounter{figure}{2}
 
 ```{r depth_model_grid_resid, fig.cap = "Depth model residuals (residual  = observed - predicted) in meters by cross-section shape and reservoir class indicating overprediction of concave and reservoir lakes.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 # see 02_depth_model.Rmd
