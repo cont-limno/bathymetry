@@ -1,10 +1,12 @@
-all: datasets \
-manuscript/figures.pdf \
+# datasets
+all: manuscript/figures.pdf \
 manuscript/appendix.pdf \
 manuscript/combined.pdf \
 manuscript/manuscript.pdf \
+manuscript/diff.pdf \
 README.md
 
+# data/gis.gpkg
 datasets: data/lagosus_depth.csv \
 data/00_hypso/hypso.csv \
 data/00_hypso/hypso_classes.csv \
@@ -13,8 +15,6 @@ data/lagosne_depth_predictors.csv \
 data/00_hypso/hypso_predictors.csv \
 data/00_bathy_depth/bathy_geometry.csv \
 data/00_bathy_depth/bathy_pnts.rds
-
-# data/gis.gpkg
 
 data/00_hypso/hypso.csv: scripts/01_hypso_merge.R \
 data/ct_hypso.csv \
@@ -120,6 +120,9 @@ data/00_geometry/nearshore.csv data/lagosne_depth_predictors.csv
 
 manuscript/combined.pdf: manuscript/figures.pdf manuscript/appendix.pdf
 	cd manuscript && make combined.pdf
+
+manuscript/diff.pdf: manuscript/agujournaltemplate.tex
+	cd manuscript && make diff.pdf
 
 manuscript/appendix.pdf: manuscript/si_template_2019.tex \
 figures/00_map_bathy-1.pdf \
