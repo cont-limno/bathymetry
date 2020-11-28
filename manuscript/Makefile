@@ -1,4 +1,4 @@
-all: manuscript.pdf appendix.pdf diff.pdf combined.pdf
+all: manuscript.pdf appendix.pdf diff.pdf combined.pdf submission.pdf
 
 manuscript.pdf: agujournaltemplate.pdf
 	cp agujournaltemplate.pdf manuscript.pdf

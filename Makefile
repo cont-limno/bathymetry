@@ -284,3 +284,6 @@ data/taxonomy.csv
 lagos_depth.pdf: lagos_depth.Rmd
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 
+clean:
+	-@rm manuscript/manuscript.pdf manuscript/agujournaltemplate.pdf
+	-@rm *.nav *.aux *.snm *.toc *.out *.log *.cpc 2>/dev/null || true
