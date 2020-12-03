@@ -139,7 +139,7 @@ Wilson Rd., East Lansing, MI 48824, USA}
 \begin{keypoints}
 \item Geometric models to predict lake depth, which require in-lake slope, assume that nearshore land slope is a good proxy for in-lake slope.
 \item Using data from thousands of lakes, we show that nearshore land slope is a poor proxy for in-lake slope and increases prediction error.
-\item Prediction errors were systematic such that depth was overpredicted in concave and reservoir lakes.
+\item Systematic overprediction of depth in concave and reservoir lakes highlights the potential for improvement in future depth prediction efforts.
 \end{keypoints}
 
 %% ------------------------------------------------------------------------ %%
@@ -349,7 +349,7 @@ As expected, we found that the maximum depth of concave lakes was systematically
 
 \subsection{Future research}
 \noindent
-One of our models (true slope, proxy distance) was more accurate than even the most accurate of prior studies. However, parameterization of this model requires data on bathymetry which is not available for all lakes. We propose that the error rate of this model ($\pm$ 4.4m, 29\%) be used as an out-of-sample prediction benchmark for future studies such that they should attempt to match it but not expect to exceed it.
+One of our models (where $depth_{geometric}$ was calculated using true slope and proxy distance) was more accurate than even the most accurate of prior studies. However, parameterization of this model requires data on bathymetry which is not available for all lakes. We propose that the error rate of this model ($\pm$ 4.4m, 29\%) be used as an out-of-sample prediction benchmark for future studies such that they should attempt to match it but not expect to exceed it.
 
 Because this most accurate model requires bathymetry data, this suggests that it may not be possible with current data and models to produce depth predictions for all lakes with error rates below 6m. To achieve high prediction accuracy using data available for all lakes, future studies could explore alternative modeling approaches such as ordinal modeling, which would capture whether or not a lake crosses some important depth threshold but would not seek to predict a specific depth value, or emerging data types such as “topobathymetric” products that integrate both topographic and bathymetric data in a seamless fashion rather than treating them as separate entities. Topobathymetry would allow for more robust tests of the representativeness of geometric model inputs. Unfortunately, topobathymetric products are rare, have mostly been limited nearshore marine environments, and as such are not yet widely available for inland waters \cite{danielsonTopobathymetricElevationModel2016}.
 
