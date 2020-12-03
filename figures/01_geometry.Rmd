@@ -357,13 +357,13 @@ gg_slope_alternative <- function(nearshore_var, inlake_var, dt){
     #            lm(inlake_slope_pnt ~ nearshore_slope_mean, data = test)), 
     #          size = text_size-0.85, fill = "white", label.size = NA) +
     # geom_abline(slope = 1, intercept = 0) +
-    xlab(stringr::str_replace_all(nearshore_var, c("nearshore_" = "", "_mean" = ""))) +
+    xlab(stringr::str_replace_all(nearshore_var, c("nearshore_" = ""))) +
     ylab(pad_str(stringr::str_replace_all(inlake_var, c("inlake_" = "")), 
                  18)) +
     xlim(c(0, 0.6)) + ylim(0, 0.6) +
     labs(color = "") +
     theme_opts +
-    theme(axis.title = element_text(family = "mono"))
+    theme(axis.title = element_text(family = "mono", size = 6))
   
   res
 }
@@ -377,6 +377,12 @@ gg_slope_list <- lapply(seq_len(nrow(slope_alternatives)), function(i)
   gg_slope_alternative(slope_alternatives$nearshore_slope[i],
                      slope_alternatives$inlake_slope[i], test)
 )
+
+gg_slope_list[[1]] <- gg_slope_list[[1]] +
+  theme(axis.title.y = element_text(face = "bold"))
+
+gg_slope_list[[5]] <- gg_slope_list[[5]] +
+  theme(axis.title.x = element_text(face = "bold"))
 
 gg_slope_list[c(1:5)] <- lapply(
   gg_slope_list[c(1:5)], function(x) x +
