@@ -1,5 +1,14 @@
 all: manuscript.pdf appendix.pdf diff.pdf combined.pdf submission.pdf
 
+sync_figures:
+	cp ../figures/slope_diagram_new.pdf slope_diagram_new.pdf
+	cp ../figures/00_map_bathy-1.pdf 00_map_bathy-1.pdf
+	cp ../figures/01_geometry_base-1.pdf 01_geometry_base-1.pdf
+	cp ../figures/02_depth_model_grid_resid-1.pdf 02_depth_model_grid_resid-1.pdf
+
+reviewer_comments.pdf: reviewer_comments.md
+	pandoc $< -H quote_setup.tex -o $@
+
 manuscript.pdf: agujournaltemplate.pdf
 	cp agujournaltemplate.pdf manuscript.pdf
 	@echo wordcount:
