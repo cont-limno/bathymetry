@@ -184,7 +184,7 @@ dt           <- st_read("../data/gis.gpkg", "dt", quiet = TRUE) %>%
 dt_withshape <- read.csv("../data/lagosus_depth_predictors.csv", 
                stringsAsFactors = FALSE) %>%
   dplyr::distinct(lagoslakeid, shape_class) %>%
-  dplyr::filter(!is.na(shape_class)) %>%
+  dplyr::filter(!is.na(shape_class) & shape_class != "neither") %>%
   mutate(lagoslakeid = as.character(lagoslakeid))
 dt           <- inner_join(dt, dt_withshape) %>%
   arrange(desc(shape_class))
