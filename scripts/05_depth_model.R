@@ -218,6 +218,18 @@ slope_distance_alternatives$proxy_proxy_rsq <- unlist(
   lapply(res, function(x) x$dt_metrics$rsq[4]))
 slope_distance_alternatives$proxy_proxy_mape <- unlist(
   lapply(res, function(x) x$dt_metrics$mape[4]))
+
+more_sensitive_to_slope <- function(x){
+  # x <- res[[1]]$dt_metrics
+  dplyr::filter(x, model == "maxdepth_true_false")$rmse <
+    dplyr::filter(x, model == "maxdepth_false_true")$rmse &
+  dplyr::filter(x, model == "maxdepth_true_false")$rmse <
+    dplyr::filter(x, model == "maxdepth_false_false")$rmse
+}
+slope_distance_alternatives$sensitive_to_slope <- unlist(
+  lapply(res, function(x) more_sensitive_to_slope(x$dt_metrics))
+)
+
 # View(slope_distance_alternatives)
 write.csv(slope_distance_alternatives, "data/01_depth_model/alternatives_metrics.csv",
           row.names = FALSE)
