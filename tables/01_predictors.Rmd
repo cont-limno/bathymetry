@@ -80,9 +80,22 @@ compute_stats <- function(dt){
 # compute stats for bathymetry lakes
 dt_bathy <- compute_stats(dt_bathy)
 dt_bathy <- data.frame(dt_bathy)
+# round geometry measures to two decimal points
+clean_geometry <- function(x) as.character(round(as.numeric(x), 2))
+dt_bathy$Median[which(dt_bathy$variable == "inlake_slope_pnt"):nrow(dt_bathy)] <-
+  clean_geometry(
+    dt_bathy$Median[which(dt_bathy$variable == "inlake_slope_pnt"):nrow(dt_bathy)])
+dt_bathy$Q25[which(dt_bathy$variable == "inlake_slope_pnt"):nrow(dt_bathy)] <-
+  clean_geometry(
+    dt_bathy$Q25[which(dt_bathy$variable == "inlake_slope_pnt"):nrow(dt_bathy)])
+dt_bathy$Q75[which(dt_bathy$variable == "inlake_slope_pnt"):nrow(dt_bathy)] <-
+  clean_geometry(
+    dt_bathy$Q75[which(dt_bathy$variable == "inlake_slope_pnt"):nrow(dt_bathy)])
+  
 # compute stats for all of lagosus
 dt_all <- data.frame(compute_stats(dt_all))
-dt_all <- dplyr::filter(dt_all, variable %in% dt_bathy$variable) 
+dt_all <- dplyr::filter(dt_all, variable %in% dt_bathy$variable)
+
 # interleave
 dt_combined <- suppressMessages(
   bind_cols(lapply(names(dt_bathy)[2:5], 
