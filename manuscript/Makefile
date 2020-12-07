@@ -29,7 +29,7 @@ si_template_2019.pdf: figures.pdf si_template_2019.tex apacite.bst
 	-bibtex si_template_2019
 	-pdflatex si_template_2019
 
-diff.pdf: agujournaltemplate.tex
+diff.pdf: agujournaltemplate.tex agujournaltemplate.pdf
 	latexdiff agujournaltemplate_0.1.tex agujournaltemplate.tex > diff.tex --flatten --append-safecmd=doi --allow-spaces --disable-citation-markup
 	latexdiff agujournaltemplate_0.1.bbl agujournaltemplate.bbl > diff.bbl --flatten --append-safecmd=doi --allow-spaces --disable-citation-markup
 	pdflatex diff.tex
