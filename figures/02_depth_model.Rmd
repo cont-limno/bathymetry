@@ -150,8 +150,10 @@ gg_shape <- cowplot::plot_grid(gg_shape[[1]],
                                rel_widths = c(1, 0.85)),
             cowplot::plot_grid(gg_shape[[3]], gg_shape[[4]], 
                                rel_widths = c(1, 0.85)), 
+            ggdraw() + draw_label("Residual (m)", size = 10, y = 0.6),
             leg, 
-            nrow = 3, rel_heights = c(0.85, 1, 0.15)), 
+            nrow = 4, rel_heights = c(0.85, 1, 0.1, 0.15)),
+          
           ncol = 2, rel_widths = c(0.1, 1)) %>%
   ggdraw() +
   draw_label("proxy", x = 0.06, y = 0.32, angle = 90, size = 10) +
@@ -198,8 +200,9 @@ gg_reservoir <- cowplot::plot_grid(gg_reservoir[[1]],
                                rel_widths = c(1, 0.85)),
             cowplot::plot_grid(gg_reservoir[[3]], gg_reservoir[[4]], 
                                rel_widths = c(1, 0.85)), 
+            ggdraw() + draw_label("Residual (m)", size = 10, y = 0.6),
             leg, 
-            nrow = 3, rel_heights = c(0.85, 1, 0.15)), 
+            nrow = 4, rel_heights = c(0.85, 1, 0.1, 0.15)), 
           ncol = 2, rel_widths = c(0.1, 1)) %>%
   ggdraw() +
   # draw_label("proxy", x = 0.06, y = 0.32, angle = 90, size = 10) +
