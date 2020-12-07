@@ -283,10 +283,18 @@ gg_slope_base <- ggplot(data = test) +
   theme_opts
 
 cowplot::plot_grid(
-  gg_dist_base, 
-  gg_slope_base, 
-  rel_widths = c(1, 0.9)
-)
+  ggdraw() + 
+    draw_label("True measures", y = 0.37, hjust = 0, size = 12, angle = 90,  fontface = "bold"), 
+cowplot::plot_grid(
+  cowplot::plot_grid(
+    gg_dist_base, 
+    gg_slope_base, 
+    rel_widths = c(1, 0.9)
+  ), 
+  ggdraw() + 
+    draw_label("Proxy measures", x = 0.45, hjust = 0, size = 12, fontface = "bold"),
+  ncol = 1, rel_heights = c(1, 0.1)),
+ncol = 2, rel_widths = c(0.1, 1))
 
 ```
 
