@@ -23,7 +23,7 @@ pred_class_raw <- readxl::read_excel(
 dt <- dplyr::bind_rows(manual_class_raw, pred_class_raw) %>%
   arrange(lagoslakeid) %>%
   rename(lagosne_lagoslakeid = lagoslakeid) %>%
-  left_join(dplyr::select(lg$locus$locus_link, lagoslakeid, lagosne_lagoslakeid),
+  left_join(dplyr::select(lg$locus$lake_link, lagoslakeid, lagosne_lagoslakeid),
                           by = "lagosne_lagoslakeid") %>%
   dplyr::filter(!is.na(lagoslakeid)) %>%
   distinct(lagoslakeid, .keep_all = TRUE) %>%
