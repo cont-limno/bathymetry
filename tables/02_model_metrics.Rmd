@@ -38,7 +38,7 @@ dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
   dplyr::select(slope, distance, everything(), -.estimator) 
 
 options(knitr.kable.NA = '-')
-knitr::kable(dt_metrics, digits = 2, format = "markdown") 
+knitr::kable(dt_metrics, digits = 2, format = "markdown")
 
 # clipr::write_clip(
 #   knitr::kable(dt_metrics, format = 'latex', align = c("llll"),
