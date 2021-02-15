@@ -1,7 +1,7 @@
 \def\currversion{January 14, 2019}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 
+%%
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
@@ -1355,13 +1355,8 @@ $$%
 \def\draft{\global\jdrafttrue
 \def\@oddfoot{\vtop to 0pt{\vskip24pt\large\tt\hsize=\textwidth
 \everypar{}
-\hspace{1cm}\hfill\today, \realtime\hfill \hspace{1cm}\global\titlefalse\vss}}
+\hspace{1cm}\hfill, \hspace{1cm}\global\titlefalse\vss}}
 \def\@evenfoot{\@oddfoot}}
-
-\def\today{\ifcase\month\or
-  January\or February\or March\or April\or May\or June\or
-  July\or August\or September\or October\or November\or December\fi
-  \space\number\day, \number\year}
 
 \def\fix{\ifcase\oldtime 0\or0\or0\or%
 0\or0\or0\or0\or0\or0\or0\fi}
@@ -5347,7 +5342,7 @@ pal  for  PALEOCEANOGRAPHY^^J
 ras  for  RADIO SCIENCE^^J
 rog  for  REVIEWS OF GEOPHYSICS^^J
 tec  for  TECTONICS^^J
-wrr  for WATER RESOURCES RESEARCH^^J^^J
+wrr  for ^^J^^J
 sw   for SPACE WEATHER^^J^^J
 gc   for GEOCHEMISTRY, GEOPHYSICS, GEOSYSTEMS^^J^^J
 ms   for JAMES^^J^^J
@@ -5920,7 +5915,7 @@ Abstract.}\hskip1em \relax\ifdim\belowabstractnameskip>0pt %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\stylecurrversion{October 1, 2001}
 
-\def\journalname{\uppercase{Water Resources Research}}
+\def\journalname{\uppercase{}}
 
 \topmargin=-38pt
 \oddsidemargin-6pt
