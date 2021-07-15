@@ -129,7 +129,7 @@ poly_to_filled_raster <- function(dt_raw, depth_attr, wh, proj){
   r             <- raster(xmn = st_bbox(dt)[1], ymn = st_bbox(dt)[2],
                           xmx = st_bbox(dt)[3], ymx = st_bbox(dt)[4])
   r[]           <- NA
-  r             <- rasterize(as_Spatial(dt), r, field = depth_attr)
+  r             <- raster::rasterize(as_Spatial(dt), r, field = depth_attr)
   projection(r) <- projection(as_Spatial(dt))
 
   r2 <- r
@@ -147,7 +147,7 @@ poly_to_filled_raster <- function(dt_raw, depth_attr, wh, proj){
                         fun = function(x){fill.na(x, width = wh)},
                         pad = TRUE, na.rm = FALSE, NAonly = TRUE),
                    error = function(e) r2)
-    wh <- wh + 4
+    wh <- wh + 4    
   }
   # plot(r2)
 
