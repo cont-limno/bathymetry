@@ -13,78 +13,78 @@ source("../scripts/99_utils.R")
 ```
 
 ```{r define-plots, echo=FALSE}
-contrast_plot <- function(..., plot_type){
+contrast_plot <- function(..., plot_type) {
   theme_opts <- cowplot::theme_cowplot()
-  
-  if(plot_type == "violin"){
+
+  if (plot_type == "violin") {
     violin_plot(...) + theme_opts
-  }else{
+  } else {
     pointrange_plot(...) + theme_opts
   }
 }
 
-violin_plot <- function(x, grp, varb, label){
+violin_plot <- function(x, grp, varb, label) {
   ggplot(data = x) +
-  geom_violin(aes(x = UQ(rlang::sym(grp)), y = UQ(rlang::sym(varb))), 
-              adjust = 0.8, scale = "count", 
-              draw_quantiles = c(0.25, 0.5, 0.75)) +
+    geom_violin(aes(x = UQ(rlang::sym(grp)), y = UQ(rlang::sym(varb))),
+      adjust = 0.8, scale = "count",
+      draw_quantiles = c(0.25, 0.5, 0.75)) +
     ylab(label) + xlab("")
 }
 
-quantile_collapse <- function(x){
+quantile_collapse <- function(x) {
   list(tibble::enframe(
-    quantile(x, probs = c(0.05,0.5,0.95), na.rm = TRUE)))
+    quantile(x, probs = c(0.05, 0.5, 0.95), na.rm = TRUE)))
 }
 
-pointrange_plot <- function(x, grp, varb, label){
+pointrange_plot <- function(x, grp, varb, label) {
   x %>%
-  group_by(UQ(rlang::sym(grp))) %>%
+    group_by(UQ(rlang::sym(grp))) %>%
     dplyr::select(UQ(rlang::sym(grp)), UQ(rlang::sym(varb))) %>%
     summarize_all(quantile_collapse) %>%
     unnest() %>%
-  tidyr::spread(name, value) %>%
-  ggplot() +
-geom_pointrange(aes(x = UQ(rlang::sym(grp)), y = `50%`, 
-                      ymin = `5%`, ymax = `95%`)) +
-  ylab(label) + xlab("")
+    tidyr::spread(name, value) %>%
+    ggplot() +
+    geom_pointrange(aes(x = UQ(rlang::sym(grp)), y = `50%`,
+      ymin = `5%`, ymax = `95%`)) +
+    ylab(label) + xlab("")
 }
 ```
 
 ```{r gg_depth_shape_class, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 
-dt <- read.csv("../data/00_hypso/hypso_predictors.csv", 
-               stringsAsFactors = FALSE)
+dt <- read.csv("../data/00_hypso/hypso_predictors.csv",
+  stringsAsFactors = FALSE)
 
 # gg_depth_shape_class <- dt %>%
-#   dplyr::filter(shape_class != "neither") %>%  
-#   contrast_plot(grp = "shape_class", varb = "lake_maxdepth_m", 
+#   dplyr::filter(shape_class != "neither") %>%
+#   contrast_plot(grp = "shape_class", varb = "lake_maxdepth_m",
 #                 label = "Depth (m)", plot_type = "violin")
 
 gg_depth_shape_class <- dt %>%
-  dplyr::filter(shape_class != "neither") %>%  
-  contrast_plot(grp = "shape_class", varb = "lake_maxdepth_m", 
-                label = "Depth (m)", plot_type = "pointrange")
+  dplyr::filter(shape_class != "neither") %>%
+  contrast_plot(grp = "shape_class", varb = "lake_maxdepth_m",
+    label = "Depth (m)", plot_type = "pointrange")
 ```
 
 ```{r gg_area_shape_class, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_area_shape_class <- dt %>%
-  dplyr::filter(shape_class != "neither") %>%  
-  contrast_plot(grp = "shape_class", varb = "lake_waterarea_ha", 
-                label = "Area (ha)", plot_type = "pointrange")
+  dplyr::filter(shape_class != "neither") %>%
+  contrast_plot(grp = "shape_class", varb = "lake_waterarea_ha",
+    label = "Area (ha)", plot_type = "pointrange")
 ```
 
 ```{r gg_slope_shape_class, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_slope_shape_class <- dt %>%
-  dplyr::filter(shape_class != "neither") %>%  
-  contrast_plot(grp = "shape_class", varb = "inlake_slope_pnt", 
-                label = "In-lake slope (m/m)", plot_type = "pointrange")
+  dplyr::filter(shape_class != "neither") %>%
+  contrast_plot(grp = "shape_class", varb = "inlake_slope_pnt",
+    label = "In-lake slope (m/m)", plot_type = "pointrange")
 ```
 
 ```{r gg_dist_shape_class, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_dist_shape_class <- dt %>%
-  dplyr::filter(shape_class != "neither") %>%  
-  contrast_plot(grp = "shape_class", varb = "dist_deepest", 
-                label = "Distance to deepest point (m)", plot_type = "pointrange")
+  dplyr::filter(shape_class != "neither") %>%
+  contrast_plot(grp = "shape_class", varb = "dist_deepest",
+    label = "Distance to deepest point (m)", plot_type = "pointrange")
 ```
 
 ```{r gg_depth_connectivity, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
@@ -92,12 +92,12 @@ gg_depth_conny_class <- dt %>%
   dplyr::filter(!is.na(lake_connectivity_class)) %>%
   group_by(lake_connectivity_class) %>%
   summarize(lake_maxdepth_m = list(tibble::enframe(
-    quantile(lake_maxdepth_m, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
+    quantile(lake_maxdepth_m, probs = c(0.05, 0.5, 0.95), na.rm = TRUE)))) %>%
   unnest() %>%
   tidyr::spread(name, value) %>%
   ggplot() +
-geom_pointrange(aes(x = lake_connectivity_class, y = `50%`, 
-                      ymin = `5%`, ymax = `95%`)) +
+  geom_pointrange(aes(x = lake_connectivity_class, y = `50%`,
+    ymin = `5%`, ymax = `95%`)) +
   ylab("Depth (m)") + xlab("")
 ```
 
@@ -108,99 +108,98 @@ gg_depth_glaciated_class <- dt %>%
   dplyr::filter(!is.na(lake_glaciatedlatewisc)) %>%
   group_by(lake_glaciatedlatewisc) %>%
   summarize(lake_maxdepth_m = list(tibble::enframe(
-    quantile(lake_maxdepth_m, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
+    quantile(lake_maxdepth_m, probs = c(0.05, 0.5, 0.95), na.rm = TRUE)))) %>%
   unnest() %>%
   tidyr::spread(name, value) %>%
   ggplot() +
-geom_pointrange(aes(x = lake_glaciatedlatewisc, y = `50%`, 
-                      ymin = `5%`, ymax = `95%`)) +
+  geom_pointrange(aes(x = lake_glaciatedlatewisc, y = `50%`,
+    ymin = `5%`, ymax = `95%`)) +
   ylab("Depth (m)") + xlab("")
 ```
 
 ```{r gg_depth_reservoir, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_depth_reservoir <- dt %>%
-  dplyr::filter(!is.na(reservoir_class)) %>%  
-  contrast_plot(grp = "reservoir_class", varb = "lake_maxdepth_m", 
-                label = "Depth (m)", plot_type = "pointrange")
+  dplyr::filter(!is.na(reservoir_class)) %>%
+  contrast_plot(grp = "reservoir_class", varb = "lake_maxdepth_m",
+    label = "Depth (m)", plot_type = "pointrange")
 ```
 
 ```{r gg_area_reservoir, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_area_reservoir <- dt %>%
-  dplyr::filter(!is.na(reservoir_class)) %>%  
-  contrast_plot(grp = "reservoir_class", varb = "lake_waterarea_ha", 
-                label = "Area (ha)", plot_type = "pointrange")
+  dplyr::filter(!is.na(reservoir_class)) %>%
+  contrast_plot(grp = "reservoir_class", varb = "lake_waterarea_ha",
+    label = "Area (ha)", plot_type = "pointrange")
 ```
 
 ```{r gg_slope_reservoir, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_slope_reservoir <- dt %>%
-  dplyr::filter(!is.na(reservoir_class)) %>%  
-  contrast_plot(grp = "reservoir_class", varb = "inlake_slope_pnt", 
-                label = "In-lake slope (m/m)", plot_type = "pointrange")
+  dplyr::filter(!is.na(reservoir_class)) %>%
+  contrast_plot(grp = "reservoir_class", varb = "inlake_slope_pnt",
+    label = "In-lake slope (m/m)", plot_type = "pointrange")
 ```
 
 ```{r gg_dist_reservoir, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_dist_reservoir <- dt %>%
-  dplyr::filter(!is.na(reservoir_class)) %>%  
-  contrast_plot(grp = "reservoir_class", varb = "dist_deepest", 
-                label = "Distance to deepest point (m)", plot_type = "pointrange")
+  dplyr::filter(!is.na(reservoir_class)) %>%
+  contrast_plot(grp = "reservoir_class", varb = "dist_deepest",
+    label = "Distance to deepest point (m)", plot_type = "pointrange")
 ```
 
 ```{r gg_depth_xtabs, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
-dt_sub <- dplyr::filter(dt, 
-                        !is.na(shape_class), shape_class != "neither", 
-                        !is.na(reservoir_class))
+dt_sub <- dplyr::filter(dt,
+  !is.na(shape_class), shape_class != "neither",
+  !is.na(reservoir_class))
 # group_by(dt_sub, lake_glaciatedlatewisc, reservoir_class) %>%
 #   tally() %>%
 #   arrange(lake_glaciatedlatewisc) %>%
 #   gridExtra::grid.table()
-  
-(gg_depth_xtabs <- group_by(dt_sub, 
-                           lake_glaciatedlatewisc, reservoir_class) %>%
-    summarize(lake_maxdepth_m = list(tibble::enframe(
-    quantile(lake_maxdepth_m, probs = c(0.05,0.5,0.95), na.rm = TRUE)))) %>% 
+
+(gg_depth_xtabs <- group_by(dt_sub,
+  lake_glaciatedlatewisc, reservoir_class) %>%
+  summarize(lake_maxdepth_m = list(tibble::enframe(
+    quantile(lake_maxdepth_m, probs = c(0.05, 0.5, 0.95), na.rm = TRUE)))) %>%
   unnest() %>%
   tidyr::spread(name, value) %>%
   tidyr::unite(cat, lake_glaciatedlatewisc:reservoir_class) %>%
   ggplot() +
-geom_pointrange(aes(x = cat, y = `50%`, 
-                      ymin = `5%`, ymax = `95%`)) +
+  geom_pointrange(aes(x = cat, y = `50%`,
+    ymin = `5%`, ymax = `95%`)) +
   ylab("Depth (m)") + xlab(""))
-
 ```
 
 ```{r gg_shorelinedev_shape_class, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 # compare shoreline dev for each shapeclass
 gg_shorelinedev_shape_class <- dt %>%
-  dplyr::filter(shape_class != "neither") %>%  
-  contrast_plot(grp = "shape_class", varb = "lake_shorelinedevfactor", 
-                label = "Shoreline Dev.", plot_type = "pointrange")
+  dplyr::filter(shape_class != "neither") %>%
+  contrast_plot(grp = "shape_class", varb = "lake_shorelinedevfactor",
+    label = "Shoreline Dev.", plot_type = "pointrange")
 ```
 
 
 ```{r 01_contrasts, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height = 3.5}
-theme_opts <- theme(axis.text.x = element_text(angle = 90), 
-                    axis.title = element_blank(),
-                    plot.title = element_text(size = 8))
+theme_opts <- theme(axis.text.x = element_text(angle = 90),
+  axis.title = element_blank(),
+  plot.title = element_text(size = 8))
 
 gg_shape <- cowplot::plot_grid(
   gg_depth_shape_class + ggtitle("Depth (m)") + theme_opts,
-  gg_area_shape_class + ggtitle("Area (ha)") + theme_opts, 
-  gg_slope_shape_class + ggtitle("In-lake slope (m/m)") + theme_opts, 
-  gg_dist_shape_class + ggtitle("Dist. deepest pnt (m)") + theme_opts, 
+  gg_area_shape_class + ggtitle("Area (ha)") + theme_opts,
+  gg_slope_shape_class + ggtitle("In-lake slope (m/m)") + theme_opts,
+  gg_dist_shape_class + ggtitle("Dist. deepest pnt (m)") + theme_opts,
   nrow = 1)
- 
-gg_reservoir <- cowplot::plot_grid(gg_depth_reservoir + theme_opts, 
-                                   gg_area_reservoir + theme_opts, 
-                                   gg_slope_reservoir + theme_opts, 
-                                   gg_dist_reservoir + theme_opts, 
-                                   nrow = 1)
 
-cowplot::plot_grid(gg_shape, gg_reservoir, 
-                   nrow = 2, rel_heights = c(1, 0.76))
+gg_reservoir <- cowplot::plot_grid(gg_depth_reservoir + theme_opts,
+  gg_area_reservoir + theme_opts,
+  gg_slope_reservoir + theme_opts,
+  gg_dist_reservoir + theme_opts,
+  nrow = 1)
 
-cowplot::plot_grid(gg_depth_xtabs + theme_opts, 
-                   ggplot() + geom_blank() + 
-                     theme(panel.background = element_blank()), nrow = 1)
+cowplot::plot_grid(gg_shape, gg_reservoir,
+  nrow = 2, rel_heights = c(1, 0.76))
+
+cowplot::plot_grid(gg_depth_xtabs + theme_opts,
+  ggplot() + geom_blank() +
+    theme(panel.background = element_blank()), nrow = 1)
 ```
 
 ```{r gg_tally_profileshapeclass, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
@@ -208,24 +207,24 @@ cowplot::plot_grid(gg_depth_xtabs + theme_opts,
 # include sum across all types
 
 gg_tally_profileshapeclass <- read.csv(
-  "../data/00_hypso/hypso_predictors.csv", stringsAsFactors = FALSE) %>% 
+  "../data/00_hypso/hypso_predictors.csv", stringsAsFactors = FALSE) %>%
   group_by(shape_class) %>%
   tally() %>%
-  ggplot() + 
+  ggplot() +
   geom_col(aes(x = shape_class, y = n))
 ```
 
 ```{r gg_tally_programtype, echo=FALSE, message=FALSE, eval=FALSE, warning=FALSE, results='hide'}
 # tally number of lakes with max depth by programtype_depth
 gg_tally_programtype <- read.csv(
-  "../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>% 
-   dplyr::filter(!is.na(lake_maxdepth_m)) %>%
-   group_by(sourcetype_depth) %>% 
-   tally() %>% 
-   ggplot(aes(x = sourcetype_depth, y = n)) + 
-   geom_col() + 
-   geom_text(aes(label = n), vjust = -0.5) + 
-   ylim(0, 13000) +
+  "../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
+  dplyr::filter(!is.na(lake_maxdepth_m)) %>%
+  group_by(sourcetype_depth) %>%
+  tally() %>%
+  ggplot(aes(x = sourcetype_depth, y = n)) +
+  geom_col() +
+  geom_text(aes(label = n), vjust = -0.5) +
+  ylim(0, 13000) +
   xlab("Source type")
 ```
 
@@ -238,71 +237,71 @@ dt <- read.csv(
   "../data/lagosus_depth_predictors.csv", stringsAsFactors = FALSE)
 max_depth <- dt$lake_maxdepth_m
 gg_tally_maxdepthclass <- dt %>%
-  mutate(maxdepth_class = 
-           smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, max(max_depth)), 
-                     brackets = NULL, sep = " - ")
-         ) %>%
+  mutate(maxdepth_class =
+    smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, max(max_depth)),
+      brackets = NULL, sep = " - ")
+  ) %>%
   group_by(maxdepth_class) %>%
   tally() %>%
   ggplot(aes(x = maxdepth_class, y = n)) +
-  geom_col() + 
+  geom_col() +
   geom_text(aes(label = n), vjust = -0.5) +
-  ylim(0, 15000) + 
+  ylim(0, 15000) +
   xlab("Max depth class (m)")
 ```
 
 ```{r gg_tally_waterareaclass, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 # panel histograms that tally number of lakes with max depth by waterarea_class
 # include sum across all types
-gg_tally_waterareaclass <- read.csv("../data/lagosus_depth_predictors.csv", 
-               stringsAsFactors = FALSE) %>%
+gg_tally_waterareaclass <- read.csv("../data/lagosus_depth_predictors.csv",
+  stringsAsFactors = FALSE) %>%
   mutate(area_class =
-           smart_cut(lake_waterarea_ha, c(1, 4, 40, 80, 300, 400,
-                                               1000, 20000, Inf),
-             labels = ~paste(sep="-", thousand_k(.y[1]), thousand_k(.y[2])))
-         ) %>%
+    smart_cut(lake_waterarea_ha, c(1, 4, 40, 80, 300, 400,
+      1000, 20000, Inf),
+    labels = ~ paste(sep = "-", thousand_k(.y[1]), thousand_k(.y[2])))
+  ) %>%
   group_by(area_class) %>%
   tally() %>%
   ggplot(aes(x = area_class, y = n)) +
-  geom_col() + 
+  geom_col() +
   geom_text(aes(label = n), vjust = -0.5) +
-  ylim(0, 11000) + 
+  ylim(0, 11000) +
   xlab("Lake area class (ha)")
 ```
 
 ```{r gg_tally_hypsoclass, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
 gg_tally_hypsoclass <- read.csv(
-  "../data/lagosus_depth_predictors.csv", 
-               stringsAsFactors = FALSE) %>%
+  "../data/lagosus_depth_predictors.csv",
+  stringsAsFactors = FALSE) %>%
   dplyr::filter(!is.na(shape_class)) %>%
   distinct(lagoslakeid, shape_class, .keep_all = TRUE) %>%
   group_by(shape_class) %>%
   tally() %>%
   ggplot(aes(x = shape_class, y = n)) +
-  geom_col() + 
+  geom_col() +
   geom_text(aes(label = n), vjust = -0.5) +
-  ylim(0, 4500) + 
+  ylim(0, 4500) +
   xlab("Shape class")
 ```
 
 ```{r 01_contrasts_tally, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height = 7.6}
-cowplot::plot_grid(gg_tally_maxdepthclass, 
-                   gg_tally_waterareaclass, gg_tally_hypsoclass, 
-                   ncol = 1)
+cowplot::plot_grid(gg_tally_maxdepthclass,
+  gg_tally_waterareaclass, gg_tally_hypsoclass,
+  ncol = 1)
 ```
 
 ```{r 01_programs_tally, echo=FALSE, message=FALSE, eval=FALSE, warning=FALSE, results='hide'}
 # number of programs in each type
 read.csv(
-  "../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>% 
-   dplyr::filter(!is.na(lake_maxdepth_m)) %>%
-   distinct(sourcetype_depth, sourceurl_depth) %>% 
-   ungroup() %>% group_by(sourcetype_depth) %>%
-   tally() %>%
-   ggplot(aes(x = sourcetype_depth, y = n)) + 
-   geom_col() + 
-   geom_text(aes(label = n), vjust = -0.5) + 
-   ylim(0, 250) +
+  "../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
+  dplyr::filter(!is.na(lake_maxdepth_m)) %>%
+  distinct(sourcetype_depth, sourceurl_depth) %>%
+  ungroup() %>% group_by(sourcetype_depth) %>%
+  tally() %>%
+  ggplot(aes(x = sourcetype_depth, y = n)) +
+  geom_col() +
+  geom_text(aes(label = n), vjust = -0.5) +
+  ylim(0, 250) +
   xlab("Program type")
 ```
 
@@ -311,7 +310,7 @@ dt_sub <- dplyr::filter(dt, !is.na(shape_class), shape_class != "neither")
 as.data.frame(
   table(paste(dt_sub$lake_glaciatedlatewisc, dt_sub$shape_class))) %>%
   tidyr::separate(Var1, c("glaciation", "shape_class"), sep = " ") %>%
-  ggplot() + 
+  ggplot() +
   geom_point(aes(glaciation, shape_class, size = Freq)) +
   scale_size_continuous(range = c(5, 20)) +
   theme(legend.position = "none")
@@ -323,10 +322,10 @@ as.data.frame(
 # load LAGOSUS DEPTH
 lg_raw <- lagosus_load("depth")$depth$depth
 lg <- lg_raw %>%
-  mutate(lagos_effort = 
-           forcats::fct_collapse(lg_raw$lagos_effort, 
-                                 bathymetry = "bathymetry", 
-                                 other = c("LAGOSNE", "manual", "NLA")))
+  mutate(lagos_effort =
+    forcats::fct_collapse(lg_raw$lagos_effort,
+      bathymetry = "bathymetry",
+      other = c("LAGOSNE", "manual", "NLA")))
 
 # library(tigris)
 # urbanareas <- tigris::urban_areas()
@@ -335,7 +334,7 @@ lg <- lg_raw %>%
 # urbanareas <- tidyr::separate(urbanareas, NAME10,
 #                               c("urban_name", "urban_state"), sep = ", ")
 # urbanareas <- dplyr::filter(urbanareas, !(urban_state %in% c("AK", "HI")))
-# urbanareas <- urbanareas[st_area(urbanareas) > 
+# urbanareas <- urbanareas[st_area(urbanareas) >
 #                      units::as_units(9500000, "m2"),]
 # for(i in seq_len(nrow(urbanareas))){
 #   print(i)
@@ -347,9 +346,9 @@ urbanareas <- readRDS("../data/urbanareas.rds")
 lg$urban_distance <- apply(
   st_distance(
     st_transform(
-      LAGOSUS::coordinatize(dt = lg, crs_in = 4326), 
+      LAGOSUS::coordinatize(dt = lg, crs_in = 4326),
       LAGOSUSgis:::albers_conic()),
-    urbanareas), 
+    urbanareas),
   1, function(x) x[which.min(x)])
 lg$urban_distance <- lg$urban_distance * 0.001 # m to km
 
@@ -358,12 +357,12 @@ cowplot::plot_grid(
   gg_quantdot(lg, lagos_effort, "lake_maxdepth_m") +
     ylab("Max depth (m) \n") +
     theme_opts +
-    theme(axis.text.x = element_blank()), 
+    theme(axis.text.x = element_blank()),
   gg_quantdot(lg, lagos_effort, "lake_waterarea_ha") +
     scale_y_log10() +
     ylab("Area (ha)") +
     theme_opts +
-    theme(axis.text.x = element_blank()), 
+    theme(axis.text.x = element_blank()),
   gg_quantdot(lg, lagos_effort, "urban_distance") +
     scale_y_log10() +
     ylab("Distance to urban (km)") +
