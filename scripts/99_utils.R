@@ -43,22 +43,22 @@ library(parsnip)
 # ---- misc fxn ----
 # jsta::get_if_not_exists
 get_if_not_exists <- function(x, destfile, read_function = readRDS,
-                              ow = FALSE, ...){
+                              ow = FALSE, ...) {
 
-  if(is.function(x)){
-    if(!file.exists(destfile) | ow){
+  if (is.function(x)) {
+    if (!file.exists(destfile) | ow) {
       res <- x(destfile, ...)
       return(res)
-    }else{
+    } else {
       message(paste0("A local evaulation of x already exists on disk"))
       return(read_function(destfile))
     }
   }
 
-  if(!is.function(x)){
-    if(!file.exists(destfile) | ow){
+  if (!is.function(x)) {
+    if (!file.exists(destfile) | ow) {
       download.file(x, destfile)
-    }else{
+    } else {
       message(paste0("A local copy of ", x, " already exists on disk"))
     }
     invisible(x)
@@ -66,30 +66,32 @@ get_if_not_exists <- function(x, destfile, read_function = readRDS,
 }
 
 # ---- assertr -----
-greater_than_0 <- function(x){
-  if(!is.na(x) & x <= 0){
+greater_than_0 <- function(x) {
+  if (!is.na(x) & x <= 0) {
     return(FALSE)
   }
 }
-row_redux <- function(df){df[[1]] - df[[2]]}
+row_redux <- function(df) {
+  df[[1]] - df[[2]]
+}
 
 # ---- convienience functions ----
 
 # jsta::key_state
-key_state <- function(x){
+key_state <- function(x) {
   key <- data.frame(state.abb = datasets::state.abb,
-                    state.name = datasets::state.name,
-                    stringsAsFactors = FALSE)
+    state.name = datasets::state.name,
+    stringsAsFactors = FALSE)
   dplyr::left_join(x, key,
-                   by = c("state.name"))
+    by = c("state.name"))
 }
 
-thousand_k <- function(x){
+thousand_k <- function(x) {
   res <- rep(NA, length(x))
-  for(i in 1:length(x)){
-    if(x[i] >= 1000 & x[i] < Inf){
+  for (i in 1:length(x)) {
+    if (x[i] >= 1000 & x[i] < Inf) {
       res[i] <- paste0(substring(x[i], 1, 1), ".", substring(x[i], 2, 2), "k")
-    }else{
+    } else {
       res[i] <- x[i]
     }
   }
@@ -97,23 +99,23 @@ thousand_k <- function(x){
 }
 
 # jsta::usa_sf()
-usa_sf <- function(crs){
+usa_sf <- function(crs) {
   res <- sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
   state_key <- data.frame(state = datasets::state.abb,
-                          ID = tolower(datasets::state.name),
-                          stringsAsFactors = FALSE)
+    ID = tolower(datasets::state.name),
+    stringsAsFactors = FALSE)
   res <- dplyr::left_join(res, state_key, by = "ID")
   dplyr::filter(res, !is.na(.data$state))
 }
 
-get_csv   <- function(destfile, drive_name){
+get_csv   <- function(destfile, drive_name) {
   tryCatch(drive_download(drive_name, type = "csv",
-                          path = destfile),
-           error = function(e){
-             print(drive_name)
-             write.csv(NA, file = destfile, row.names = FALSE)
-             return(NA)
-           }
+    path = destfile),
+  error = function(e) {
+    print(drive_name)
+    write.csv(NA, file = destfile, row.names = FALSE)
+    return(NA)
+  }
   )
   return(
     read.csv(destfile, stringsAsFactors = FALSE)
@@ -121,13 +123,13 @@ get_csv   <- function(destfile, drive_name){
 }
 
 # convert collection of depth contours/points to a depth raster
-poly_to_filled_raster <- function(dt_raw, depth_attr, wh, proj){
+poly_to_filled_raster <- function(dt_raw, depth_attr, wh, proj) {
   # use state plane for given state
   dt         <- st_transform(dt_raw, proj)
   dt         <- dplyr::select(dt, all_of(depth_attr))
 
   r             <- raster(xmn = st_bbox(dt)[1], ymn = st_bbox(dt)[2],
-                          xmx = st_bbox(dt)[3], ymx = st_bbox(dt)[4])
+    xmx = st_bbox(dt)[3], ymx = st_bbox(dt)[4])
   r[]           <- NA
   r             <- raster::rasterize(as_Spatial(dt), r, field = depth_attr)
   projection(r) <- projection(as_Spatial(dt))
@@ -137,17 +139,19 @@ poly_to_filled_raster <- function(dt_raw, depth_attr, wh, proj){
 
   # moving window(focal) fill - https://stackoverflow.com/a/45658609/3362993
   wh_init <- wh
-  while(
+  while (
     any(is.na(extract(r2, concaveman::concaveman(dt))[[1]])) |
-    wh == wh_init
-  ){
+      wh == wh_init
+  ) {
     # print(wh)
     w_mat <- matrix(1, wh, wh)
     r2 <- tryCatch(raster::focal(r, w = w_mat,
-                        fun = function(x){fill.na(x, width = wh)},
-                        pad = TRUE, na.rm = FALSE, NAonly = TRUE),
-                   error = function(e) r2)
-    wh <- wh + 4    
+      fun = function(x) {
+        fill.na(x, width = wh)
+      },
+      pad = TRUE, na.rm = FALSE, NAonly = TRUE),
+    error = function(e) r2)
+    wh <- wh + 4
   }
   # plot(r2)
 
@@ -158,15 +162,15 @@ poly_to_filled_raster <- function(dt_raw, depth_attr, wh, proj){
 
 # https://stackoverflow.com/a/45658609/3362993
 fill.na <- function(x, width) {
-  center = 0.5 + (width * width / 2)
-  if( is.na(x)[center] ) {
-    return( round(mean(x, na.rm=TRUE),0) )
+  center <- 0.5 + (width * width / 2)
+  if (is.na(x)[center]) {
+    return(round(mean(x, na.rm = TRUE), 0))
   } else {
-    return( round(x[center],0) )
+    return(round(x[center], 0))
   }
 }
 
-rm_dups <- function(res){
+rm_dups <- function(res) {
   # deal with duplicates where depth is missing versus where present
   ## remove the smaller lake of duplicates with no depth data
   res_na <- res %>%
@@ -194,7 +198,7 @@ rm_dups <- function(res){
   res <- dplyr::bind_rows(res_na, res_values)
 
   ## deal with lakes that have both missing and present depth in separate rows
-  dup_llids <- as.numeric(na.omit(res[duplicated(res$llid),]$llid))
+  dup_llids <- as.numeric(na.omit(res[duplicated(res$llid), ]$llid))
   res_na <- dplyr::filter(res, llid %in% dup_llids) %>%
     arrange(llid) %>%
     dplyr::filter(max_depth_m == max_depth_m)
@@ -205,11 +209,11 @@ rm_dups <- function(res){
 }
 
 # https://stackoverflow.com/a/5173906/3362993
-decimalplaces <- function(x){
+decimalplaces <- function(x) {
   # x <- 0.1
   # x <- 0.100
-  if(!is.na(x)){
-    if(abs(x - round(x)) > .Machine$double.eps^0.5){
+  if (!is.na(x)) {
+    if (abs(x - round(x)) > .Machine$double.eps^0.5) {
       nchar(
         strsplit(as.character(x),
           # sub('0+$', '', as.character(x)), # uncomment 2 ignore trailing zeros
@@ -217,17 +221,17 @@ decimalplaces <- function(x){
     } else {
       return(0)
     }
-  }else{
+  } else {
     NA
   }
 }
 
-convert_ft_m <- function(dt_raw){
+convert_ft_m <- function(dt_raw) {
   # track decimal sig figs ft to m based on conversion factor:
   # 0 = 4, 0.1 = 5, 0.01 = 6
   target_decimals <- data.frame(decimal_places_ft = c(0, 1, 2),
-                                decimal_places_target = c(4, 5, 6),
-                                stringsAsFactors = FALSE)
+    decimal_places_target = c(4, 5, 6),
+    stringsAsFactors = FALSE)
 
   res <- dt_raw %>%
     mutate_at(vars(contains("depth")), as.numeric) %>%
@@ -239,8 +243,8 @@ convert_ft_m <- function(dt_raw){
     mutate(decimal_places_ft = sapply(max_depth_ft, decimalplaces)) %>%
     arrange(desc(decimal_places_ft))
 
-    res <- res %>%
-      left_join(target_decimals, by = "decimal_places_ft") %>%
+  res <- res %>%
+    left_join(target_decimals, by = "decimal_places_ft") %>%
     mutate(max_depth_m = case_when(
       is.na(max_depth_m) & !is.na(max_depth_ft) ~ max_depth_ft * 0.3048,
       TRUE ~ max_depth_m
@@ -249,10 +253,10 @@ convert_ft_m <- function(dt_raw){
       is.na(mean_depth_m) & !is.na(mean_depth_ft) ~ mean_depth_ft * 0.3048,
       TRUE ~ mean_depth_m
     )) %>%
-      # dplyr::select(max_depth_m, max_depth_ft,
-      #               decimal_places_ft, decimal_places_target) %>%
-      mutate(decimal_places_m = sapply(max_depth_m, decimalplaces)) %>%
-      # arrange(desc(decimal_places_m)) %>%
+    # dplyr::select(max_depth_m, max_depth_ft,
+    #               decimal_places_ft, decimal_places_target) %>%
+    mutate(decimal_places_m = sapply(max_depth_m, decimalplaces)) %>%
+    # arrange(desc(decimal_places_m)) %>%
     dplyr::select(-mean_depth_ft, -max_depth_ft, -contains("decimal_places"))
 
   res
@@ -260,12 +264,12 @@ convert_ft_m <- function(dt_raw){
 
 # single_state("AS:PO")
 # single_state("AS PO")
-single_state <- function(x){
+single_state <- function(x) {
   res <- sapply(x, function(y) strsplit(y, ":")[[1]][1])
   sapply(res, function(y) strsplit(y, " ")[[1]][1])
 }
 
-calc_depth <- function(slope, distance, grain = 1){
+calc_depth <- function(slope, distance, grain = 1) {
   # dplyr::filter(test, llid == 2654) %>%
   #   dplyr::select(inlake_slope, dist_deepest)
 
@@ -276,10 +280,10 @@ calc_depth <- function(slope, distance, grain = 1){
   depth
 }
 
-is_url <- function(x){
+is_url <- function(x) {
   # https://stackoverflow.com/a/3809435/3362993
   length(grep("[-a-zA-Z0-9@:%._\\+~#=]\\.[a-zA-Z0-9()]{2,10}\\b([-a-zA-Z0-9()@:%_\\+.~#?&\\/\\/=]*)",
-              x)) > 0
+    x)) > 0
 }
 
 # library(maptools)
@@ -304,11 +308,11 @@ jheatmap <- function(dt, focal_columns = NULL) {
     test <- dplyr::select(test, focal_columns)
   }
   hmap.palette_red <- colorRampPalette(RColorBrewer::brewer.pal(n = 7,
-                                                                name = "Reds"))
+    name = "Reds"))
   hmap.palette_blue <- colorRampPalette(RColorBrewer::brewer.pal(n = 7,
-                                                                 name = "Blues"))
+    name = "Blues"))
   frac_color <- ceiling(range(as.numeric(unlist(test)), na.rm = TRUE) *
-                          10)
+    10)
   frac_pos <- frac_color[which(frac_color > 0)]
   frac_neg <- frac_color[which(frac_color < 0)]
   if (length(frac_neg) == 0) {
@@ -320,7 +324,7 @@ jheatmap <- function(dt, focal_columns = NULL) {
     }
     else {
       hmap_cols <- rev(c(rev(hmap.palette_red(frac_pos)),
-                         hmap.palette_blue(abs(frac_neg))))
+        hmap.palette_blue(abs(frac_neg))))
     }
   }
   if (length(focal_columns) == 1) {
@@ -332,7 +336,7 @@ jheatmap <- function(dt, focal_columns = NULL) {
   }
   if (length(focal_columns) > 0) {
     suppressWarnings(pheatmap::pheatmap(test, color = hmap_cols,
-                                        cluster_rows = FALSE, cluster_cols = FALSE))
+      cluster_rows = FALSE, cluster_cols = FALSE))
   }
   else {
     pheatmap::pheatmap(t(test), color = hmap_cols)
@@ -340,23 +344,25 @@ jheatmap <- function(dt, focal_columns = NULL) {
 }
 
 # jsta::gg_quantdot
-gg_quantdot <- function(dt, grp, var){
+gg_quantdot <- function(dt, grp, var) {
   # dt <- mtcars; grp <- "cyl"; var <- "mpg"
 
   # https://tbradley1013.github.io/2018/10/01/calculating-quantiles-for-groups-with-dplyr-summarize-and-purrr-partial/
   p       <- c(0.05, 0.5, 0.95)
-  p_names <- paste0(as.character(p*100), "%")
-  p_funs  <- lapply(seq_along(p), function(x){
-    function(...){quantile(probs = p[x], na.rm = TRUE, ...)}
+  p_names <- paste0(as.character(p * 100), "%")
+  p_funs  <- lapply(seq_along(p), function(x) {
+    function(...) {
+      quantile(probs = p[x], na.rm = TRUE, ...)
+    }
   })
   p_funs <- setNames(p_funs, p_names)
 
   dt %>%
-    group_by({{grp}}) %>%
-    summarise_at({{var}}, p_funs) %>%
+    group_by({{ grp }}) %>%
+    summarise_at({{ var }}, p_funs) %>%
     ggplot() +
-    geom_pointrange(aes(x = {{grp}}, y = .data$`50%`,
-                        ymin = .data$`5%`, ymax = .data$`95%`)) +
+    geom_pointrange(aes(x = {{ grp }}, y = .data$`50%`,
+      ymin = .data$`5%`, ymax = .data$`95%`)) +
     ylab(var)
 }
 
@@ -364,28 +370,27 @@ gg_quantdot <- function(dt, grp, var){
 # get_formula(lm(dist ~ speed, data = cars))
 get_formula <- function(model) {
   broom::tidy(model)[, 1:2] %>%
-    mutate(sign = ifelse(sign(estimate) == 1, ' + ', ' - ')) %>% #coeff signs
-    mutate_if(is.numeric, ~ abs(round(., 2))) %>% #for improving formatting
-    mutate(a = ifelse(term == '(Intercept)', paste0('y ~ ', estimate), paste0(sign, estimate, ' * ', term))) %>%
-    summarise(formula = paste(a, collapse = '')) %>%
-    as.character
+    mutate(sign = ifelse(sign(estimate) == 1, " + ", " - ")) %>% # coeff signs
+    mutate_if(is.numeric, ~ abs(round(., 2))) %>% # for improving formatting
+    mutate(a = ifelse(term == "(Intercept)", paste0("y ~ ", estimate), paste0(sign, estimate, " * ", term))) %>%
+    summarise(formula = paste(a, collapse = "")) %>%
+    as.character()
 }
 
-flatten_multipoint <- function(x){
+flatten_multipoint <- function(x) {
   list(as.data.frame(st_coordinates(x)))
 }
 
 # pad_str("a", 3)
 # pad_str(c("a", "b"), 3)[1]
-pad_str <- function(x, n){
+pad_str <- function(x, n) {
 
-  .pad_str <- function(x, n){
-    if(nchar(x) < n){
+  .pad_str <- function(x, n) {
+    if (nchar(x) < n) {
       paste0(x, paste0(rep(" ", abs(nchar(x) - n)), collapse = ""))
-    }else{
+    } else {
       x
     }
   }
   as.character(sapply(x, function(x) .pad_str(x, n)))
 }
-
