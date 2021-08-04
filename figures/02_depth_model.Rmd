@@ -262,10 +262,11 @@ cowplot::plot_grid(gg_noshape + theme_opts,
 )
 ```
 
-```{r 02_depth_model_resid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+```{r 02_depth_model_resid, echo=FALSE, message=FALSE, eval=FALSE, warning=FALSE, results='hide'}
 # residual = observed - predicted
 # positive value = underprediction
 # negative value = overprediction
+dt <- readRDS("../data/01_depth_model/depth_model.rds")
 
 ggplot() +
   geom_boxplot(data = dt$no_shape, aes(y = resid, x = shape_class),
