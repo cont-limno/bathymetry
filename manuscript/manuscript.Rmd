@@ -3,7 +3,7 @@ title: Geometric models overestimate lake depth due to imperfect slope measureme
 
 # Use letters for affiliations
 author:
-  - name: Joseph Stachelek
+  - name: Jemma Stachelek
     affiliation: a
   - name: Patrick J. Hanly
     affiliation: a

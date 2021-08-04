@@ -11,7 +11,7 @@ library(EML)
 
 joe <- eml$creator(
   individualName = eml$individualName(
-    givenName = "Joseph",
+    givenName = "Jemma",
     surName = "Stachelek"),
   electronicMailAddress = "stachel2@msu.edu")
 
