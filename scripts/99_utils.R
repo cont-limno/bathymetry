@@ -21,7 +21,7 @@ library(elevatr)
 suppressMessages(library(dplyr))
 library(progress)
 suppressMessages(library(LAGOSUS)) # install_github("cont-limno/LAGOSUS")
-Sys.setenv(LAGOSUS_DEPTH_VER = 0) # set module versions
+Sys.setenv(LAGOSUS_DEPTH_VER = 0.1) # set module versions
 library(polylabelr)
 library(esri2sf) # install_github("yonghah/esri2sf")
 library(rnaturalearth)
