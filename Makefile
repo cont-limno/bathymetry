@@ -145,7 +145,6 @@ figures/02_depth_model_grid_resid-1.pdf \
 figures/02_depth_model_importance-1.pdf \
 figures/01_contrasts_tally-1.pdf \
 figures/slope_diagram_new.pdf \
-figures/lake_shape.pdf \
 figures/gg_distance-1.pdf
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	-pdftk manuscript/figures.pdf cat 2-end output manuscript/figures2.pdf
@@ -153,6 +152,7 @@ figures/gg_distance-1.pdf
 #	cd figures && make pnglatest
 # figures/01_heatmap-1.pdf
 # figures/01_contrasts_depth-1.pdf 
+# figures/lake_shape.pdf
 
 manuscript/manuscript.pdf: manuscript/agujournaltemplate.tex \
 manuscript/lagosdepth.bib
