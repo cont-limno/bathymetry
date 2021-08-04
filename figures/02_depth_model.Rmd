@@ -217,7 +217,7 @@ gg_reservoir <- cowplot::plot_grid(gg_reservoir[[1]],
 cowplot::plot_grid(gg_shape, gg_reservoir, ncol = 2, rel_widths = c(1, 0.9))
 ```
 
-```{r 02_depth_model_fitted, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+```{r 02_depth_model_fitted, echo=FALSE, message=FALSE, eval=FALSE, warning=FALSE, results='hide'}
 dt <- readRDS("../data/01_depth_model/depth_model.rds")
 
 gg_noshape <- ggplot() +
