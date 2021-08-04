@@ -117,3 +117,4 @@ bathymetry_code.zip
 tables/*.png
 manuscript/reviewer_comments.pdf
 *.docx
+.vscode/
