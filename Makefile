@@ -85,8 +85,7 @@ data/gis.gpkg: scripts/00_get_gis.R
 archive:
 	cd data && make archive
 
-data/lagosus_depth.csv: scripts/00_get_lagosus.R \
-../../Projects/cont-limno/lagos_depth/data/lake_depth.csv
+data/lagosus_depth.csv: scripts/00_get_lagosus.R
 	Rscript $<
 
 data/00_lagosne/00_lagosne.csv: scripts/00_get_lagosne.R \
