@@ -109,3 +109,9 @@ data/urbanareas.rds
 data/stash_depth_predictors.csv
 data/00_bathy_depth (copy)/
 manuscript/agujournaltemplate.pdf
+tables/test*
+manuscript/submission-pas.pdf
+manuscript/wrr_submission.pdf
+dsos_export.R
+bathymetry_code.zip
+tables/*.png
