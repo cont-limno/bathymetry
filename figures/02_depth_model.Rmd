@@ -6,7 +6,7 @@ header-includes:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.path = "../figures/", fig.width = 6.5, fig.height = 4.5)
-if(interactive()){
+if (interactive()) {
   setwd("figures")
 }
 source("../scripts/99_utils.R")
@@ -27,54 +27,54 @@ dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
   tidyr::separate(model, c("slope", "distance")) %>%
   dplyr::select(slope, distance, everything(), -.estimator)
 
-ggplot(data = dt_metrics, 
-                    aes(y = slope, 
-                        x = reorder(distance, desc(distance)),
-                        fill = rsq)) +
+ggplot(data = dt_metrics,
+  aes(y = slope,
+    x = reorder(distance, desc(distance)),
+    fill = rsq)) +
   geom_tile(color = "black") +
   scale_fill_viridis_c(begin = 0.4, end = 0.7, na.value = "transparent") +
-  scale_x_discrete(limits = rev(levels(dt_metrics$slope)), 
-                   position = "top") +
+  scale_x_discrete(limits = rev(levels(dt_metrics$slope)),
+    position = "top") +
   geom_text(aes(label = rmse), vjust = .5, fontface  = "bold", alpha = 1) +
   xlab("distance") + ylab("slope") +
   cowplot::theme_cowplot() +
-  theme(axis.line = element_blank(), 
-        axis.ticks = element_blank())
+  theme(axis.line = element_blank(),
+    axis.ticks = element_blank())
 ```
 
 ```{r 02_depth_model_importance, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.2, fig.width=5}
 dt_fits      <- readRDS("../data/01_depth_model/depth_fits.rds")
 taxonomy_key <- read.csv("../data/taxonomy.csv", stringsAsFactors = FALSE)
 
-tidy_importance <- function(x){
+tidy_importance <- function(x) {
   # x <- dt_fits[[2]]$fit$fit
   res <- ranger::importance(x) %>%
-  data.frame() %>% cbind(row.names(.), .[,1]) %>%
-  setNames(c("percent_inc_mse", "variable"))
+    data.frame() %>% cbind(row.names(.), .[, 1]) %>%
+    setNames(c("percent_inc_mse", "variable"))
   row.names(res) <- NULL
-  res <- res[,c(2, 1)]
+  res <- res[, c(2, 1)]
   res <- arrange(res, percent_inc_mse)
   # res$variable <- factor(res$variable, levels = res$variable)
   res <- mutate(res, variable = as.character(variable))
   res <- mutate(res, variable = case_when(
-    stringr::str_detect(variable, "maxdepth") ~ "trig_depth", 
+    stringr::str_detect(variable, "maxdepth") ~ "trig_depth",
     TRUE ~ variable)
-    )
+  )
   res
 }
 
 dt_imp <- lapply(2:4, function(i) tidy_importance(dt_fits[[i]]$fit$fit))
-model_names <- c("true_proxy", 
-                 "proxy_true", 
-                 "proxy_proxy")
-dt_imp <- bind_rows(lapply(1:3, function(i){
+model_names <- c("true_proxy",
+  "proxy_true",
+  "proxy_proxy")
+dt_imp <- bind_rows(lapply(1:3, function(i) {
   mutate(dt_imp[[i]], model = model_names[i])
-  }))
+}))
 dt_imp$model <- factor(dt_imp$model, levels = model_names)
 
-var_order <- 
+var_order <-
   left_join(dt_imp, taxonomy_key, by = c("variable" = "col_name")) %>%
-  group_by(pretty) %>% 
+  group_by(pretty) %>%
   summarize(max = max(percent_inc_mse)) %>%
   arrange(max) %>%
   pull(pretty)
@@ -83,127 +83,127 @@ dt_imp <- left_join(dt_imp, taxonomy_key, by = c("variable" = "col_name")) %>%
   mutate(variable = pretty) %>%  dplyr::select(-description) %>%
   dplyr::select(-pretty)
 
-ggplot() + 
-  geom_point(data = dt_imp, aes(percent_inc_mse, variable, color = model)) +   
+ggplot() +
+  geom_point(data = dt_imp, aes(percent_inc_mse, variable, color = model)) +
   labs(color = "slope-distance\nmeasure") +
   geom_hline(linetype = 3, size = 1, colour = "gray",
-                 yintercept = 1:nlevels(dt_imp$variable)) +
-  theme(text = element_text(family="Times"),
-        panel.background = element_blank(), panel.grid = element_blank(),
-        panel.border = element_rect(fill = NA), # legend.position = "none", 
-        axis.title.x = element_text(family = "sans", face = "bold", 
-        vjust = -0.5, size = 10), 
-        axis.text = element_text(family="sans",size = 9, 
-                                 color = "black"), 
-         legend.key = element_blank()) + 
-        ylab("") + xlab("Percent Increase in Mean Square Error")
+    yintercept = 1:nlevels(dt_imp$variable)) +
+  theme(text = element_text(family = "Times"),
+    panel.background = element_blank(), panel.grid = element_blank(),
+    panel.border = element_rect(fill = NA), # legend.position = "none",
+    axis.title.x = element_text(family = "sans", face = "bold",
+      vjust = -0.5, size = 10),
+    axis.text = element_text(family = "sans", size = 9,
+      color = "black"),
+    legend.key = element_blank()) +
+  ylab("") + xlab("Percent Increase in Mean Square Error")
 ```
 
 ```{r 02_depth_model_grid_resid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.5, fig.width=8}
 
-lgus <- read.csv("../data/lagosus_depth_predictors.csv", 
-                 stringsAsFactors = FALSE) %>%
+lgus <- read.csv("../data/lagosus_depth_predictors.csv",
+  stringsAsFactors = FALSE) %>%
   mutate(lagoslakeid = as.character(lagoslakeid)) %>%
   dplyr::select(-lake_maxdepth_m) %>%
   distinct(lagoslakeid, .keep_all = TRUE)
 dt   <- readRDS("../data/01_depth_model/depth_grid.rds") %>% # 05_depth_model.R
   mutate(lagoslakeid = as.character(lagoslakeid)) %>%
-  mutate(resid = case_when(maxdepth == "maxdepth_true_true" ~ NA_real_, 
-                           TRUE ~ resid)) %>%
-  mutate(maxdepth = factor(maxdepth, levels = c("maxdepth_true_true", "maxdepth_true_false", 
-                                  "maxdepth_false_true", "maxdepth_false_false"))) %>%
+  mutate(resid = case_when(maxdepth == "maxdepth_true_true" ~ NA_real_,
+    TRUE ~ resid)) %>%
+  mutate(maxdepth = factor(maxdepth, levels = c("maxdepth_true_true", "maxdepth_true_false",
+    "maxdepth_false_true", "maxdepth_false_false"))) %>%
   left_join(lgus, by = "lagoslakeid")
 
-gg_shape <- lapply(unique(dt$maxdepth), function(x){ 
-  ggplot(data = dplyr::filter(dt, maxdepth == x)) + 
-  geom_density(aes(x = resid, fill = shape_class), alpha = 0.75, adjust = 1.3) +
-  scale_fill_manual(values = hue_pal()(3)[1:2]) +
-  geom_vline(aes(xintercept = 0), linetype = "dashed") +
+gg_shape <- lapply(unique(dt$maxdepth), function(x) {
+  ggplot(data = dplyr::filter(dt, maxdepth == x)) +
+    geom_density(aes(x = resid, fill = shape_class), alpha = 0.75, adjust = 1.3) +
+    scale_fill_manual(values = hue_pal()(3)[1:2]) +
+    geom_vline(aes(xintercept = 0), linetype = "dashed") +
     xlim(-25, 25) +
     xlab("Residual") +
     theme_cowplot() +
     theme(legend.position = "bottom",
-        strip.background = element_blank(), 
-        axis.text = element_text(size = 9.5),
-        strip.text = element_blank(),
-        plot.margin = unit(c(1.2,0.2,0.2,0.2), "cm"))  +
-  guides(fill = guide_legend(nrow = 2))
-  })
+      strip.background = element_blank(),
+      axis.text = element_text(size = 9.5),
+      strip.text = element_blank(),
+      plot.margin = unit(c(1.2, 0.2, 0.2, 0.2), "cm"))  +
+    guides(fill = guide_legend(nrow = 2))
+})
 gg_shape[[1]] <- ggplot() + geom_blank() + cowplot::theme_cowplot() +
   theme(axis.line = element_blank())
 leg            <- cowplot::get_legend(gg_shape[[2]] + labs(fill = "Shape class") +
-                                        theme(legend.direction = "horizontal") +
-                                        guides(fill = guide_legend(ncol = 2)))
-theme_opts     <- function(x) x + theme(legend.position = "none", 
-                                        axis.title = element_blank())
+  theme(legend.direction = "horizontal") +
+  guides(fill = guide_legend(ncol = 2)))
+theme_opts     <- function(x) x + theme(legend.position = "none",
+  axis.title = element_blank())
 rm_legend     <- function(x) x + theme(legend.position = "none")
 gg_shape      <- lapply(gg_shape, rm_legend)
-gg_shape[[2]] <- gg_shape[[2]] + theme(axis.text = element_blank(), 
-                                       axis.title = element_blank())
+gg_shape[[2]] <- gg_shape[[2]] + theme(axis.text = element_blank(),
+  axis.title = element_blank())
 gg_shape[[3]] <- gg_shape[[3]] + theme(axis.title = element_blank())
-gg_shape[[4]] <- gg_shape[[4]] + theme(axis.text.y = element_blank(), 
-                                       axis.title = element_blank())
+gg_shape[[4]] <- gg_shape[[4]] + theme(axis.text.y = element_blank(),
+  axis.title = element_blank())
 
-gg_shape <- cowplot::plot_grid(gg_shape[[1]], 
-          cowplot::plot_grid(
-            cowplot::plot_grid(gg_shape[[1]], gg_shape[[2]], 
-                               rel_widths = c(1, 0.85)),
-            cowplot::plot_grid(gg_shape[[3]], gg_shape[[4]], 
-                               rel_widths = c(1, 0.85)), 
-            ggdraw() + draw_label("Residual (m)", size = 10, y = 0.6),
-            leg, 
-            nrow = 4, rel_heights = c(0.85, 1, 0.1, 0.15)),
-          
-          ncol = 2, rel_widths = c(0.1, 1)) %>%
+gg_shape <- cowplot::plot_grid(gg_shape[[1]],
+  cowplot::plot_grid(
+    cowplot::plot_grid(gg_shape[[1]], gg_shape[[2]],
+      rel_widths = c(1, 0.85)),
+    cowplot::plot_grid(gg_shape[[3]], gg_shape[[4]],
+      rel_widths = c(1, 0.85)),
+    ggdraw() + draw_label("Residual (m)", size = 10, y = 0.6),
+    leg,
+    nrow = 4, rel_heights = c(0.85, 1, 0.1, 0.15)),
+
+  ncol = 2, rel_widths = c(0.1, 1)) %>%
   ggdraw() +
   draw_label("proxy", x = 0.06, y = 0.32, angle = 90, size = 10) +
   draw_label("true", x = 0.06, y = 0.75, angle = 90, size = 10) +
   draw_label("slope", x = 0.01, y = 0.55, size = 10, angle = 90) +
   draw_label("proxy", x = 0.8, y = 0.9, size = 10) +
   draw_label("true", x = 0.35, y = 0.9, size = 10) +
-  draw_label("distance", x = 0.55, y = 0.96, size = 10)#  +
-  # draw_label("Residual distribution", 
-  #            x = 0.55, y = 0.99, size = 10, fontface = "bold")
+  draw_label("distance", x = 0.55, y = 0.96, size = 10) #  +
+# draw_label("Residual distribution",
+#            x = 0.55, y = 0.99, size = 10, fontface = "bold")
 
-gg_reservoir <- lapply(unique(dt$maxdepth), function(x){ 
-  ggplot(data = dplyr::filter(dt, maxdepth == x)) + 
-  geom_density(aes(x = resid, fill = reservoir_class), alpha = 0.75, adjust = 1.3) +
-  geom_vline(aes(xintercept = 0), linetype = "dashed") +
+gg_reservoir <- lapply(unique(dt$maxdepth), function(x) {
+  ggplot(data = dplyr::filter(dt, maxdepth == x)) +
+    geom_density(aes(x = resid, fill = reservoir_class), alpha = 0.75, adjust = 1.3) +
+    geom_vline(aes(xintercept = 0), linetype = "dashed") +
     xlim(-25, 25) +
     xlab("Residual") +
     theme_cowplot() +
     theme(legend.position = "bottom",
-        strip.background = element_blank(), 
-        strip.text = element_blank(),
-        axis.text = element_text(size = 9.5),
-        plot.margin = unit(c(1.2,0.2,0.2,0.2), "cm"))  +
-  guides(fill = guide_legend(nrow = 2))
-  })
+      strip.background = element_blank(),
+      strip.text = element_blank(),
+      axis.text = element_text(size = 9.5),
+      plot.margin = unit(c(1.2, 0.2, 0.2, 0.2), "cm"))  +
+    guides(fill = guide_legend(nrow = 2))
+})
 gg_reservoir[[1]] <- ggplot() + geom_blank() + cowplot::theme_cowplot() +
   theme(axis.line = element_blank())
 leg            <- cowplot::get_legend(gg_reservoir[[2]] + labs(fill = "Reservoir class") +
-                                        theme(legend.direction = "horizontal") +
-                                        guides(fill = guide_legend(ncol = 2)))
-theme_opts     <- function(x) x + theme(legend.position = "none", 
-                                        axis.title = element_blank())
+  theme(legend.direction = "horizontal") +
+  guides(fill = guide_legend(ncol = 2)))
+theme_opts     <- function(x) x + theme(legend.position = "none",
+  axis.title = element_blank())
 rm_legend     <- function(x) x + theme(legend.position = "none")
 gg_reservoir      <- lapply(gg_reservoir, rm_legend)
-gg_reservoir[[2]] <- gg_reservoir[[2]] + theme(axis.text = element_blank(), 
-                                       axis.title = element_blank())
+gg_reservoir[[2]] <- gg_reservoir[[2]] + theme(axis.text = element_blank(),
+  axis.title = element_blank())
 gg_reservoir[[3]] <- gg_reservoir[[3]] + theme(axis.title = element_blank())
-gg_reservoir[[4]] <- gg_reservoir[[4]] + theme(axis.text.y = element_blank(), 
-                                       axis.title = element_blank())
+gg_reservoir[[4]] <- gg_reservoir[[4]] + theme(axis.text.y = element_blank(),
+  axis.title = element_blank())
 
-gg_reservoir <- cowplot::plot_grid(gg_reservoir[[1]], 
-          cowplot::plot_grid(
-            cowplot::plot_grid(gg_reservoir[[1]], gg_reservoir[[2]], 
-                               rel_widths = c(1, 0.85)),
-            cowplot::plot_grid(gg_reservoir[[3]], gg_reservoir[[4]], 
-                               rel_widths = c(1, 0.85)), 
-            ggdraw() + draw_label("Residual (m)", size = 10, y = 0.6),
-            leg, 
-            nrow = 4, rel_heights = c(0.85, 1, 0.1, 0.15)), 
-          ncol = 2, rel_widths = c(0.1, 1)) %>%
+gg_reservoir <- cowplot::plot_grid(gg_reservoir[[1]],
+  cowplot::plot_grid(
+    cowplot::plot_grid(gg_reservoir[[1]], gg_reservoir[[2]],
+      rel_widths = c(1, 0.85)),
+    cowplot::plot_grid(gg_reservoir[[3]], gg_reservoir[[4]],
+      rel_widths = c(1, 0.85)),
+    ggdraw() + draw_label("Residual (m)", size = 10, y = 0.6),
+    leg,
+    nrow = 4, rel_heights = c(0.85, 1, 0.1, 0.15)),
+  ncol = 2, rel_widths = c(0.1, 1)) %>%
   ggdraw() +
   # draw_label("proxy", x = 0.06, y = 0.32, angle = 90, size = 10) +
   # draw_label("true", x = 0.06, y = 0.75, angle = 90, size = 10) +
@@ -211,8 +211,8 @@ gg_reservoir <- cowplot::plot_grid(gg_reservoir[[1]],
   draw_label("proxy", x = 0.8, y = 0.9, size = 10) +
   draw_label("true", x = 0.35, y = 0.9, size = 10) +
   draw_label("distance", x = 0.55, y = 0.96, size = 10) # +
-  # draw_label("Residual distribution", 
-  #            x = 0.55, y = 0.99, size = 10, fontface = "bold")
+# draw_label("Residual distribution",
+#            x = 0.55, y = 0.99, size = 10, fontface = "bold")
 
 cowplot::plot_grid(gg_shape, gg_reservoir, ncol = 2, rel_widths = c(1, 0.9))
 ```
@@ -222,25 +222,25 @@ dt <- readRDS("../data/01_depth_model/depth_model.rds")
 
 gg_noshape <- ggplot() +
   geom_point(data = dplyr::filter(dt$no_shape, shape_class == "convex"),
-             aes(y = lake_maxdepth_m, x = fitted_values, color = shape_class),
-             alpha = 0.3) +
+    aes(y = lake_maxdepth_m, x = fitted_values, color = shape_class),
+    alpha = 0.3) +
   geom_point(data = dplyr::filter(dt$no_shape, shape_class == "concave"),
-             aes(y = lake_maxdepth_m, x = fitted_values, color = shape_class),
-             alpha = 0.3) +
+    aes(y = lake_maxdepth_m, x = fitted_values, color = shape_class),
+    alpha = 0.3) +
   geom_abline(slope = 1, intercept = 0) +
   ylab("Measured max depth") + xlab("Predicted max depth") +
   ylim(0, 80) + xlim(0, 80) +
   labs(color = "") +
   ggtitle("Max depth ~ Lake Area + Buffer slope")
-  # theme(legend.position = "none")
+# theme(legend.position = "none")
 
 gg_shape <- ggplot() +
   geom_point(data = dplyr::filter(dt$shape, shape_class == "convex"),
-             aes(y = lake_maxdepth_m, x = fitted_values, color = shape_class),
-             alpha = 0.3) +
+    aes(y = lake_maxdepth_m, x = fitted_values, color = shape_class),
+    alpha = 0.3) +
   geom_point(data = dplyr::filter(dt$shape, shape_class == "concave"),
-             aes(y = lake_maxdepth_m, x = fitted_values, color = shape_class),
-             alpha = 0.3) +
+    aes(y = lake_maxdepth_m, x = fitted_values, color = shape_class),
+    alpha = 0.3) +
   geom_abline(slope = 1, intercept = 0) +
   ylab("Measured max depth") + xlab("Predicted max depth") +
   ylim(0, 80) + xlim(0, 80) +
@@ -249,18 +249,17 @@ gg_shape <- ggplot() +
 
 legend <- get_legend(
   # create some space to the left of the legend
-  gg_noshape + theme(#legend.box.margin = margin(0, 0, 0, 12), 
-                     legend.direction = "horizontal")
+  gg_noshape + theme( # legend.box.margin = margin(0, 0, 0, 12),
+    legend.direction = "horizontal")
 )
 
-theme_opts <- theme(legend.position = "none", 
-                    plot.title = element_text(size = 8))
-cowplot::plot_grid(gg_noshape + theme_opts, 
-                   gg_shape + theme_opts,
-                   legend, 
-                   rel_heights = c(1, 0.1)
-                   )
-
+theme_opts <- theme(legend.position = "none",
+  plot.title = element_text(size = 8))
+cowplot::plot_grid(gg_noshape + theme_opts,
+  gg_shape + theme_opts,
+  legend,
+  rel_heights = c(1, 0.1)
+)
 ```
 
 ```{r 02_depth_model_resid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
@@ -270,7 +269,7 @@ cowplot::plot_grid(gg_noshape + theme_opts,
 
 ggplot() +
   geom_boxplot(data = dt$no_shape, aes(y = resid, x = shape_class),
-               outlier.shape = NA) +
+    outlier.shape = NA) +
   ylim(-20, 20)
 ```
 
@@ -282,44 +281,44 @@ dt <- readRDS("../data/01_depth_model/oliver_model.rds")
 
 rmse_group <- group_by(dt$test, hu4_zoneid) %>%
   summarize(r_rmse = yardstick::rmse_vec(
-    exp(lake_maxdepth_m), 
+    exp(lake_maxdepth_m),
     exp(lake_maxdepth_m_predicted)) / mean(lake_maxdepth_m))
 hu4_gis <- st_read("../data/gis.gpkg", layer = "hu4s_focal_simple") %>%
-# ggplot() + 
-#   geom_sf(data = hu4_gis) +
-#   geom_sf_text(data = hu4_gis, aes(label = hu4_zoneid))
+  # ggplot() +
+  #   geom_sf(data = hu4_gis) +
+  #   geom_sf_text(data = hu4_gis, aes(label = hu4_zoneid))
   left_join(rmse_group) %>%
   dplyr::filter(!is.na(r_rmse) & r_rmse != Inf & r_rmse < 12)
 ggplot() +
   geom_sf(data = hu4_gis, aes(fill = r_rmse))
 
 ## predicted vs obs
-ggplot(data = dt$test) + 
-  geom_point(aes(x = lake_maxdepth_m_predicted, 
-                 y = lake_maxdepth_m)) +
+ggplot(data = dt$test) +
+  geom_point(aes(x = lake_maxdepth_m_predicted,
+    y = lake_maxdepth_m)) +
   geom_abline(aes(slope = 1, intercept = 0))
 
 ## calculate metrics
 gridExtra::grid.arrange(gridExtra::tableGrob(
-bind_rows(yardstick::rmse(dt$test, 
-                          exp(lake_maxdepth_m), exp(lake_maxdepth_m_predicted)), 
-          yardstick::rsq(dt$test,
-                         exp(lake_maxdepth_m),
-                         exp(lake_maxdepth_m_predicted)))))
+  bind_rows(yardstick::rmse(dt$test,
+    exp(lake_maxdepth_m), exp(lake_maxdepth_m_predicted)),
+  yardstick::rsq(dt$test,
+    exp(lake_maxdepth_m),
+    exp(lake_maxdepth_m_predicted)))))
 
 ## replication vs oliver
 # dt$test <- dt$test %>%
 #   left_join(dplyr::select(dplyr::mutate(oliver2015, lagoslakeid = as.character(lagoslakeid)), lagoslakeid,
 #                           lake_maxdepth_m_oliver))
-# ggplot(data = dt$test) + 
-#   geom_point(aes(x = exp(lake_maxdepth_m_predicted), 
+# ggplot(data = dt$test) +
+#   geom_point(aes(x = exp(lake_maxdepth_m_predicted),
 #                  y = lake_maxdepth_m_oliver)) +
 #   geom_abline(aes(slope = 1, intercept = 0))
 
 cowplot::plot_grid(
   ggplot(data = oliver2015) +
     geom_point(aes(x = zmaxpredict, y = zmaxobs)) +
-    geom_abline(aes(slope = 1, intercept = 0)), 
+    geom_abline(aes(slope = 1, intercept = 0)),
   ggplot(data = oliver2015) +
     geom_point(aes(x = log(zmaxpredict), y = log(zmaxobs))) +
     geom_abline(aes(slope = 1, intercept = 0))
