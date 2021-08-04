@@ -143,7 +143,6 @@ tables/02_model_metrics.pdf \
 figures/01_hypsography-1.pdf \
 figures/02_depth_model_grid_resid-1.pdf \
 figures/02_depth_model_importance-1.pdf \
-figures/01_contrasts_depth-1.pdf \
 figures/01_contrasts_tally-1.pdf \
 figures/slope_diagram_new.pdf \
 figures/lake_shape.pdf \
@@ -153,6 +152,7 @@ figures/gg_distance-1.pdf
 	-mv manuscript/figures2.pdf manuscript/figures.pdf
 #	cd figures && make pnglatest
 # figures/01_heatmap-1.pdf
+# figures/01_contrasts_depth-1.pdf 
 
 manuscript/manuscript.pdf: manuscript/agujournaltemplate.tex \
 manuscript/lagosdepth.bib
