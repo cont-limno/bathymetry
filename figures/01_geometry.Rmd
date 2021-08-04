@@ -123,7 +123,7 @@ get_pnt_map <- function(x) {
 #                    )
 ```
 
-```{r slope-compare, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.5}
+```{r slope-compare, echo=FALSE, message=FALSE, eval=FALSE, warning=FALSE, results='hide', fig.height=3.5}
 # compare inlake slope, buffer slope, and online slope
 # setwd("figures")
 bp <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
