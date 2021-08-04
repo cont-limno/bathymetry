@@ -320,7 +320,7 @@ as.data.frame(
 # compare characteristics of bathy lakes versus overall lakes
 
 # load LAGOSUS DEPTH
-lg_raw <- lagosus_load("depth")$depth$depth
+lg_raw <- lagosus_load("depth")$depth$lake_depth
 lg <- lg_raw %>%
   mutate(lagos_effort =
     forcats::fct_collapse(lg_raw$lagos_effort,
