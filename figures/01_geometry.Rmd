@@ -123,7 +123,7 @@ get_pnt_map <- function(x) {
 #                    )
 ```
 
-```{r slope-compare, echo=FALSE, message=FALSE, eval=FALSE, warning=FALSE, results='hide', fig.height=3.5}
+```{r slope-compare, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.5}
 # compare inlake slope, buffer slope, and online slope
 # setwd("figures")
 bp <- readRDS("../data/00_bathy_depth/bathy_pnts.rds")
@@ -136,12 +136,12 @@ dt <- left_join(dt, st_drop_geometry(bp),
 
 slope_dist_str <- "online_mean|slope_pnt|inlake_slope|dist_v|dist_d|dists_|slope_mean"
 # jsta::jheatmap
-jheatmap(
-  dplyr::select(dt,
-    matches(slope_dist_str))
-  # maxdepth,
-  # meandepth)
-)
+# jheatmap(
+#   dplyr::select(dt,
+#     matches(slope_dist_str))
+#   # maxdepth,
+#   # meandepth)
+# )
 
 GGally::ggpairs(dplyr::select(dt,
   inlake_slope_mean, inlake_slope_pnt,
@@ -173,12 +173,17 @@ cowplot::plot_grid(
 ```
 
 ```{r buffer-vs-inlake_slope, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=4}
-lgus_pred <- read.csv("../data/lagosus_depth_predictors.csv", stringsAsFactors = FALSE) %>%
+lgus_pred <- read.csv(
+  "../data/lagosus_depth_predictors.csv",
+  stringsAsFactors = FALSE) %>%
   mutate(lagoslakeid = as.character(lagoslakeid)) %>%
-  dplyr::select(-matches("inlake_slope"),
-    -matches("dist_|dists_"))
+  dplyr::select(
+    -matches("inlake_slope"),
+    -matches("dist_|dists_")
+  )
 test <- left_join(dt, lgus_pred, by = c("llid" = "lagoslakeid")) %>%
   dplyr::filter(!is.na(shape_class)) %>%
+  dplyr::filter(inlake_slope_pnt < 4) %>%
   dplyr::arrange(desc(factor(shape_class,
     levels = c("neither", "concave", "convex"))))
 
