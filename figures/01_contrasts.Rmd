@@ -323,9 +323,9 @@ as.data.frame(
 lg_raw <- lagosus_load("depth")$depth$lake_depth
 lg <- lg_raw %>%
   mutate(lagos_effort =
-    forcats::fct_collapse(lg_raw$lagos_effort,
+    forcats::fct_collapse(lg_raw$lake_depth_effort,
       bathymetry = "bathymetry",
-      other = c("LAGOSNE", "manual", "NLA")))
+      other = c("LAGOSNE", "LAGOSUS", "NLA")))
 
 # library(tigris)
 # urbanareas <- tigris::urban_areas()
@@ -354,16 +354,16 @@ lg$urban_distance <- lg$urban_distance * 0.001 # m to km
 
 theme_opts <- theme(axis.title.x = element_blank())
 cowplot::plot_grid(
-  gg_quantdot(lg, lagos_effort, "lake_maxdepth_m") +
+  gg_quantdot(lg, lake_depth_effort, "lake_maxdepth_m") +
     ylab("Max depth (m) \n") +
     theme_opts +
     theme(axis.text.x = element_blank()),
-  gg_quantdot(lg, lagos_effort, "lake_waterarea_ha") +
+  gg_quantdot(lg, lake_depth_effort, "lake_waterarea_ha") +
     scale_y_log10() +
     ylab("Area (ha)") +
     theme_opts +
     theme(axis.text.x = element_blank()),
-  gg_quantdot(lg, lagos_effort, "urban_distance") +
+  gg_quantdot(lg, lake_depth_effort, "urban_distance") +
     scale_y_log10() +
     ylab("Distance to urban (km)") +
     theme_opts,
