@@ -117,9 +117,6 @@ data/01_depth_model/depth_grid_metrics.rds: scripts/05_depth_model.R \
 data/00_geometry/nearshore.csv data/lagosne_depth_predictors.csv
 	Rscript $<
 
-manuscript/appendix.pdf:
-	cd manuscript && make appendix.pdf
-
 manuscript/combined.pdf: manuscript/figures.pdf manuscript/appendix.pdf
 	cd manuscript && make combined.pdf
 
