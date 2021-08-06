@@ -175,7 +175,7 @@ res <- lapply(seq_len(nrow(slope_distance_alternatives)),
   function(i) {
     # all-predictors model using grid of real and proxy predictors
     # i <- 9
-    print("i")
+    print(paste0("Fitting randomforest model: ", i))
     dt <- data_prep(dt_raw,
       slope_distance_alternatives$inlake_slope[i],
       slope_distance_alternatives$nearshore_slope[i],
