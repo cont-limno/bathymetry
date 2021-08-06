@@ -35,9 +35,9 @@ dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
   mutate(model = gsub("maxdepth_", "", model)) %>%
   mutate(model = gsub("false", "proxy", model)) %>%
   tidyr::separate(model, c("slope", "distance")) %>%
-  dplyr::select(slope, distance, everything(), -.estimator) 
+  dplyr::select(slope, distance, everything(), -.estimator)
 
-options(knitr.kable.NA = '-')
+options(knitr.kable.NA = "-")
 knitr::kable(dt_metrics, digits = 2, format = "markdown")
 
 # clipr::write_clip(
@@ -50,7 +50,7 @@ knitr::kable(dt_metrics, digits = 2, format = "markdown")
 ```{r 02_alternate_metrics, eval=TRUE}
 
 dt_metrics <- read.csv("../data/01_depth_model/alternatives_metrics.csv",
-                       stringsAsFactors = FALSE) %>%
+  stringsAsFactors = FALSE) %>%
   mutate_if(is.numeric, function(x) as.character(round(x, 2))) %>%
   mutate(proxy_proxy_rmse = paste0(
     round(as.numeric(proxy_proxy_rmse), 1), " m")) %>%
@@ -60,10 +60,10 @@ dt_metrics <- read.csv("../data/01_depth_model/alternatives_metrics.csv",
   mutate(inlake_slope = gsub("inlake_", "", inlake_slope)) %>%
   mutate(nearshore_slope = gsub("nearshore_", "", nearshore_slope)) %>%
   arrange(proxy_proxy_rmse) %>%
-  setNames(c("Inlake slope", "Nearshore slope", 
-             "Inlake distance", "RMSE", "$R^2$", "MAPE"))
+  setNames(c("Inlake slope", "Nearshore slope",
+    "Inlake distance", "RMSE", "$R^2$", "MAPE"))
 
-options(knitr.kable.NA = '-')
+options(knitr.kable.NA = "-")
 knitr::kable(dt_metrics, digits = 2, format = "markdown")
 
 # dt_metrics[2,] <- paste0("**", dt_metrics[2,], "**") # highlight row from main text
