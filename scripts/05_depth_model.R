@@ -50,10 +50,14 @@ data_prep <- function(dt_raw,
   # plot(dt_raw$dist_viscenter_norm, dt_raw$dist_deepest)
   # abline(0, 1)
 
-  dt_raw$maxdepth_true_true   <- calc_depth(dt_raw$inlake_slope, dt_raw$dist_deepest)
-  dt_raw$maxdepth_true_false  <- calc_depth(dt_raw$inlake_slope, dt_raw$dist_viscenter_norm)
-  dt_raw$maxdepth_false_true  <- calc_depth(dt_raw$slope_mean_norm, dt_raw$dist_deepest)
-  dt_raw$maxdepth_false_false <- calc_depth(dt_raw$slope_mean_norm, dt_raw$dist_viscenter_norm)
+  dt_raw$maxdepth_true_true   <- calc_depth(
+    dt_raw$inlake_slope, dt_raw$dist_deepest)
+  dt_raw$maxdepth_true_false  <- calc_depth(
+    dt_raw$inlake_slope, dt_raw$dist_viscenter_norm)
+  dt_raw$maxdepth_false_true  <- calc_depth(
+    dt_raw$slope_mean_norm, dt_raw$dist_deepest)
+  dt_raw$maxdepth_false_false <- calc_depth(
+    dt_raw$slope_mean_norm, dt_raw$dist_viscenter_norm)
 
   # plot(dt_raw$maxdepth_true_true, dt_raw$lake_maxdepth_m)
   # plot(dt_raw$maxdepth_true_false, dt_raw$lake_maxdepth_m)
@@ -102,16 +106,19 @@ fit_model <- function(maxdepth, dt_train, dt_test, maxdepth_vec) {
   test_proc <- bake(dt_rec, new_data = dt_test)
   dt_jc     <- juice(dt_rec)
 
-  preds    <- names(dt_jc)[!(names(dt_jc) %in% c("lagoslakeid", "lake_maxdepth_m",
-    pred_exclude))]
-  dt_jc <- dplyr::select(dt_jc, "lake_maxdepth_m", c(all_of(maxdepth), all_of(preds)))
+  preds    <- names(dt_jc)[
+    !(names(dt_jc) %in% c("lagoslakeid", "lake_maxdepth_m",
+      pred_exclude))]
+  dt_jc <- dplyr::select(dt_jc,
+    "lake_maxdepth_m", c(all_of(maxdepth), all_of(preds)))
 
   # fit1 <- linear_reg(penalty = 0.001) %>%
   #   set_engine("glmnet") %>%
   #   fit(lake_maxdepth_m ~ ., data = dt_jc)
 
   fit1 <- rand_forest(mode = "regression") %>%
-    set_engine("ranger", verbose = TRUE, importance = "permutation", scale.permutation.importance = TRUE) %>%
+    set_engine("ranger", verbose = TRUE, importance = "permutation",
+      scale.permutation.importance = TRUE) %>%
     fit(lake_maxdepth_m ~ ., data = dt_jc)
 
   res          <- dt_test %>%
@@ -130,7 +137,8 @@ fit_model <- function(maxdepth, dt_train, dt_test, maxdepth_vec) {
 
 get_metrics <- function(x) {
   # x <- dt_fits[[1]]
-  fit_metrics <- yardstick::metric_set(yardstick::rmse, yardstick::rsq, yardstick::mape)
+  fit_metrics <- yardstick::metric_set(
+    yardstick::rmse, yardstick::rsq, yardstick::mape)
   res <- fit_metrics(x$res, truth = lake_maxdepth_m, estimate = .pred)
   res <- tidyr::pivot_wider(res, names_from = .metric, values_from = .estimate)
   res
@@ -183,7 +191,8 @@ res <- lapply(seq_len(nrow(slope_distance_alternatives)),
       "maxdepth_false_true", "maxdepth_false_false")
 
     dt_fits <- lapply(1:4, function(k)
-      fit_model(maxdepth = maxdepth_vec[k], data_train, data_test, maxdepth_vec))
+      fit_model(maxdepth = maxdepth_vec[k],
+        data_train, data_test, maxdepth_vec))
 
     # importance(dt_fits[[2]]$fit$fit)[
     #   rev(order(importance(dt_fits[[2]]$fit$fit)))]
@@ -231,8 +240,8 @@ slope_distance_alternatives$sensitive_to_slope <- unlist(
 )
 
 # View(slope_distance_alternatives)
-write.csv(slope_distance_alternatives, "data/01_depth_model/alternatives_metrics.csv",
-  row.names = FALSE)
+write.csv(slope_distance_alternatives,
+  "data/01_depth_model/alternatives_metrics.csv", row.names = FALSE)
 
 ## saveRDS(dt_train, "data/01_depth_model/depth_training.rds")
 saveRDS(res[[1]]$dt_fits, "data/01_depth_model/depth_fits.rds")
