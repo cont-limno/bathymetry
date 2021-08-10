@@ -169,56 +169,61 @@ data_splitting <- function(dt) {
     data_test = data_test)
 }
 
-# model_stash_path <- "data/01_depth_model/stash.rds"
-# if(!file.exists(model_stash_path)){
+fit_alternative <- function(i, nl_res = c("Res", "NL"), concave_convex = c("convex", "concave")) {
+  # i <- 1
+  print(paste0("Fitting randomforest model: ", i))
+  dt <- data_prep(dt_raw,
+    slope_distance_alternatives$inlake_slope[i],
+    slope_distance_alternatives$nearshore_slope[i],
+    slope_distance_alternatives$inlake_dist[i])
+
+  # select attributes
+  dt <- dt %>%
+    dplyr::filter(reservoir_class %in% nl_res) %>%
+    dplyr::filter(shape_class %in% concave_convex)
+  # unique(test$reservoir_class)
+  # unique(test$shape_class)
+
+  any(is.na(dt$maxdepth_true_true))
+
+  dt_train_test <- data_splitting(dt)
+  data_train    <- dt_train_test[["data_train"]]
+  data_test     <- dt_train_test[["data_test"]]
+
+  maxdepth_vec <-  c("maxdepth_true_true", "maxdepth_true_false",
+    "maxdepth_false_true", "maxdepth_false_false")
+
+  dt_fits <- lapply(1:4, function(k)
+    fit_model(maxdepth = maxdepth_vec[k],
+      data_train, data_test, maxdepth_vec))
+
+  # importance(dt_fits[[2]]$fit$fit)[
+  #   rev(order(importance(dt_fits[[2]]$fit$fit)))]
+  # importance(dt_fits[[3]]$fit$fit)[
+  #   rev(order(importance(dt_fits[[3]]$fit$fit)))]
+  # importance(dt_fits[[4]]$fit$fit)[
+  #   rev(order(importance(dt_fits[[4]]$fit$fit)))]
+  #
+  # plot(dt_fits[[1]]$res$lake_maxdepth_m, dt_fits[[1]]$res$.pred)
+  # abline(0, 1)
+
+  dt_grid <- bind_rows(lapply(dt_fits, function(x) x$res))
+
+  dt_metrics <-
+    lapply(dt_fits, function(x) get_metrics(x)) %>%
+    bind_rows() %>%
+    bind_cols(data.frame(model = maxdepth_vec))
+
+  list(dt_fits = dt_fits, dt_grid = dt_grid,
+    dt_metrics = dt_metrics)
+}
+
 res <- lapply(seq_len(nrow(slope_distance_alternatives)),
   function(i) {
     # all-predictors model using grid of real and proxy predictors
-    # i <- 9
-    print(paste0("Fitting randomforest model: ", i))
-    dt <- data_prep(dt_raw,
-      slope_distance_alternatives$inlake_slope[i],
-      slope_distance_alternatives$nearshore_slope[i],
-      slope_distance_alternatives$inlake_dist[i])
-
-    any(is.na(dt$maxdepth_true_true))
-
-    dt_train_test <- data_splitting(dt)
-    data_train    <- dt_train_test[["data_train"]]
-    data_test     <- dt_train_test[["data_test"]]
-
-    maxdepth_vec <-  c("maxdepth_true_true", "maxdepth_true_false",
-      "maxdepth_false_true", "maxdepth_false_false")
-
-    dt_fits <- lapply(1:4, function(k)
-      fit_model(maxdepth = maxdepth_vec[k],
-        data_train, data_test, maxdepth_vec))
-
-    # importance(dt_fits[[2]]$fit$fit)[
-    #   rev(order(importance(dt_fits[[2]]$fit$fit)))]
-    # importance(dt_fits[[3]]$fit$fit)[
-    #   rev(order(importance(dt_fits[[3]]$fit$fit)))]
-    # importance(dt_fits[[4]]$fit$fit)[
-    #   rev(order(importance(dt_fits[[4]]$fit$fit)))]
-    #
-    # plot(dt_fits[[1]]$res$lake_maxdepth_m, dt_fits[[1]]$res$.pred)
-    # abline(0, 1)
-
-    dt_grid <- bind_rows(lapply(dt_fits, function(x) x$res))
-
-    dt_metrics <-
-      lapply(dt_fits, function(x) get_metrics(x)) %>%
-      bind_rows() %>%
-      bind_cols(data.frame(model = maxdepth_vec))
-
-    list(dt_fits = dt_fits, dt_grid = dt_grid,
-      dt_metrics = dt_metrics)
+    fit_alternative(i)
   })
 
-#   saveRDS(res, model_stash_path)
-# }else{
-#   res <- readRDS(model_stash_path)
-# }
 
 # lapply res extract proxy_proxy stats and add to slope_distance_alternatives
 slope_distance_alternatives$proxy_proxy_rmse <- unlist(
