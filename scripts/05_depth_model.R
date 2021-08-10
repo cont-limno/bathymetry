@@ -89,7 +89,6 @@ data_prep <- function(dt_raw,
 }
 
 fit_model <- function(maxdepth, dt_train, dt_test, maxdepth_vec) {
-  # browser()
   # maxdepth <- maxdepth_vec[3]
   # dt_train <- data_train
   # dt_test  <- data_test
@@ -160,18 +159,23 @@ slope_distance_alternatives   <- setNames(data.frame(expand.grid(
   stringsAsFactors = FALSE
 )), c("inlake_slope", "nearshore_slope", "inlake_dist"))
 
-data_splitting <- function(dt) {
-  data_split <- initial_split(dt)
-  data_train <- training(data_split)
-  data_test  <- testing(data_split)
+data_splitting <- function(dt,
+                           strata_on = c("reservoir_class",
+                             "shape_class")) {
+  strata <- tidyr::unite(dplyr::select(dt, strata_on), "strata")$strata
+  dt$strata <- strata
+  data_split <- rsample::initial_split(dt, strata = "strata")
+  data_train <- rsample::training(data_split)
+  data_test  <- rsample::testing(data_split)
 
-  list(data_train = data_train,
-    data_test = data_test)
+  list(data_train = dplyr::select(data_train, -strata),
+    data_test = dplyr::select(data_test, -strata))
 }
 
 fit_alternative <- function(i, nl_res = c("Res", "NL"), concave_convex = c("convex", "concave")) {
   # i <- 1
   print(paste0("Fitting randomforest model: ", i))
+
   dt <- data_prep(dt_raw,
     slope_distance_alternatives$inlake_slope[i],
     slope_distance_alternatives$nearshore_slope[i],
@@ -186,7 +190,16 @@ fit_alternative <- function(i, nl_res = c("Res", "NL"), concave_convex = c("conv
 
   any(is.na(dt$maxdepth_true_true))
 
-  dt_train_test <- data_splitting(dt)
+  if (all(c(length(nl_res), length(concave_convex)) == 2)) {
+    dt_train_test <- data_splitting(dt,
+      strata_on = c("reservoir_class", "shape_class"))
+  } else {
+    if (length(nl_res) < 2) {
+      dt_train_test <- data_splitting(dt, strata_on = "shape_class")
+    } else {
+      dt_train_test <- data_splitting(dt, strata_on = "reservoir_class")
+    }
+  }
   data_train    <- dt_train_test[["data_train"]]
   data_test     <- dt_train_test[["data_test"]]
 
@@ -217,6 +230,7 @@ fit_alternative <- function(i, nl_res = c("Res", "NL"), concave_convex = c("conv
   list(dt_fits = dt_fits, dt_grid = dt_grid,
     dt_metrics = dt_metrics)
 }
+# fit_alternative(1)
 
 res <- lapply(seq_len(nrow(slope_distance_alternatives)),
   function(i) {
