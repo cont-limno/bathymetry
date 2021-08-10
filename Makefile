@@ -139,6 +139,7 @@ manuscript/tables.pdf \
 figures/00_map_bathy-1.pdf \
 figures/01_geometry_grid-1.pdf \
 figures/lgnemanual-vs-bathy-depth-1.pdf \
+tables/02_model_sensitivity.pdf \
 tables/02_model_metrics.pdf \
 figures/01_hypsography-1.pdf \
 figures/02_depth_model_grid_resid-1.pdf \
@@ -203,17 +204,24 @@ data/00_bathy_depth/bathy_pnts.rds
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
-tables/02_model_metrics.pdf: tables/02_model_metrics.Rmd \
+tables/02_model_sensitivity.pdf: tables/02_model_metrics.Rmd \
 data/01_depth_model/depth_grid_metrics.rds tables/02_alternate_metrics.pdf
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
-	pdftk $@ cat 1 output temp.pdf
+	pdftk tables/02_model_metrics.pdf cat 2 output temp.pdf
 	mv temp.pdf $@
 	pdfcrop $@ $@
 
 tables/02_alternate_metrics.pdf: tables/02_model_metrics.Rmd \
 data/01_depth_model/depth_grid_metrics.rds
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
-	pdftk tables/02_model_metrics.pdf cat 2 output temp.pdf
+	pdftk tables/02_model_metrics.pdf cat 3 output temp.pdf
+	mv temp.pdf $@
+	pdfcrop $@ $@
+
+tables/02_model_metrics.pdf: tables/02_model_metrics.Rmd \
+data/01_depth_model/depth_grid_metrics.rds tables/02_alternate_metrics.pdf tables/02_model_sensitivity.pdf
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdftk $@ cat 1 output temp.pdf
 	mv temp.pdf $@
 	pdfcrop $@ $@
 

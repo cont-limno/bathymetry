@@ -13,7 +13,7 @@ source("../scripts/99_utils.R")
 ```
 
 ```{r depth_model_metrics, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=2.6, fig.width=4}
-dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
+dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds")[[1]] %>%
   mutate_if(is.numeric, function(x) as.character(round(x, 2))) %>%
   mutate(rsq = as.numeric(rsq)) %>%
   mutate(rsq = case_when(

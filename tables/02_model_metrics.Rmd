@@ -18,24 +18,30 @@ suppressMessages(library(dplyr))
 library(magrittr)
 library(stringr)
 
-dt_metrics <- readRDS("../data/01_depth_model/depth_grid_metrics.rds") %>%
-  mutate_if(is.numeric, function(x) as.character(round(x, 2))) %>%
-  mutate(rsq = as.numeric(rsq)) %>%
-  mutate(rsq = case_when(
-    as.character(model) == "maxdepth_true_true" ~ NA_real_,
-    TRUE ~ rsq)) %>%
-  mutate(rmse = round(as.numeric(rmse), 1)) %>%
-  mutate(rmse = case_when(
-    as.character(model) == "maxdepth_true_true" ~ NA_character_,
-    TRUE ~ paste0(rmse, " m"))) %>%
-  mutate(mape = as.numeric(mape)) %>%
-  mutate(mape = case_when(
-    as.character(model) == "maxdepth_true_true" ~ NA_character_,
-    TRUE ~ paste0(round(mape, 0), " %"))) %>%
-  mutate(model = gsub("maxdepth_", "", model)) %>%
-  mutate(model = gsub("false", "proxy", model)) %>%
-  tidyr::separate(model, c("slope", "distance")) %>%
-  dplyr::select(slope, distance, everything(), -.estimator)
+tidy_grid_metrics <- function(x) {
+  res <- x %>%
+    mutate_if(is.numeric, function(x) as.character(round(x, 2))) %>%
+    mutate(rsq = as.numeric(rsq)) %>%
+    mutate(rsq = case_when(
+      as.character(model) == "maxdepth_true_true" ~ NA_real_,
+      TRUE ~ rsq)) %>%
+    mutate(rmse = round(as.numeric(rmse), 1)) %>%
+    mutate(rmse = case_when(
+      as.character(model) == "maxdepth_true_true" ~ NA_character_,
+      TRUE ~ paste0(rmse, " m"))) %>%
+    mutate(mape = as.numeric(mape)) %>%
+    mutate(mape = case_when(
+      as.character(model) == "maxdepth_true_true" ~ NA_character_,
+      TRUE ~ paste0(round(mape, 0), " %"))) %>%
+    mutate(model = gsub("maxdepth_", "", model)) %>%
+    mutate(model = gsub("false", "proxy", model)) %>%
+    tidyr::separate(model, c("slope", "distance")) %>%
+    dplyr::select(slope, distance, everything(), -.estimator)
+  res
+}
+
+dt_metrics <- tidy_grid_metrics(
+  readRDS("../data/01_depth_model/depth_grid_metrics.rds")[[1]])
 
 options(knitr.kable.NA = "-")
 knitr::kable(dt_metrics, digits = 2, format = "markdown")
@@ -43,6 +49,27 @@ knitr::kable(dt_metrics, digits = 2, format = "markdown")
 # clipr::write_clip(
 #   knitr::kable(dt_metrics, format = 'latex', align = c("llll"),
 # escape = TRUE))
+```
+
+\clearpage
+
+```{r 02_model_sensitivity, eval=TRUE}
+dt_metrics_sensitivity <- lapply(
+  readRDS("../data/01_depth_model/depth_grid_metrics.rds"), function(x)
+    tidy_grid_metrics(x))
+
+labels <- c("All", "Res only", "NL only", "convex only", "concave only")
+dt_metrics_sensitivity <- lapply(
+  seq_len(length(dt_metrics_sensitivity)), function(i) {
+    res <- dplyr::mutate(dt_metrics_sensitivity[[i]], label = labels[i]) %>%
+      dplyr::relocate(label)
+    res$label[2:4] <- NA
+    res
+  })
+
+options(knitr.kable.NA = "-")
+knitr::kable(do.call("rbind", dt_metrics_sensitivity),
+  digits = 2, format = "markdown")
 ```
 
 \clearpage

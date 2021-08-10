@@ -225,11 +225,16 @@ res <- lapply(seq_len(nrow(slope_distance_alternatives)),
   })
 
 # add shape_class and reservoir_class sensitivity for Table 1
-test <- res
-test <- c(test, list(fit_alternative(1, nl_res = "Res")))
-test <- c(test, list(fit_alternative(1, nl_res = "NL")))
-test <- c(test, list(fit_alternative(1, concave_convex = "convex")))
-test <- c(test, list(fit_alternative(1, concave_convex = "concave")))
+# test <- res
+shape_reservoir_sensitivity <- c(
+  res[1],
+  list(fit_alternative(1, nl_res = "Res")),
+  list(fit_alternative(1, nl_res = "NL")),
+  list(fit_alternative(1, concave_convex = "convex")),
+  list(fit_alternative(1, concave_convex = "concave"))
+)
+depth_grid_metrics <- lapply(shape_reservoir_sensitivity,
+  function(x) x$dt_metrics)
 
 # lapply res extract proxy_proxy stats and add to slope_distance_alternatives
 slope_distance_alternatives$proxy_proxy_rmse <- unlist(
@@ -258,7 +263,7 @@ write.csv(slope_distance_alternatives,
 saveRDS(res[[1]]$dt_fits, "data/01_depth_model/depth_fits.rds")
 saveRDS(res[[1]]$dt_grid,
   "data/01_depth_model/depth_grid.rds")
-saveRDS(res[[1]]$dt_metrics,
+saveRDS(depth_grid_metrics,
   "data/01_depth_model/depth_grid_metrics.rds")
 saveRDS(res[[17]]$dt_metrics,
   "data/01_depth_model/runner_up_metrics.rds")
