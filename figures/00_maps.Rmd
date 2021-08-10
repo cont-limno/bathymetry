@@ -16,38 +16,38 @@ dt            <- st_read("../data/gis.gpkg", "dt", quiet = TRUE)
 max_depth <- dt$lake_maxdepth_m
 dt <- dt %>%
   mutate(lake_maxdepth_m = round(lake_maxdepth_m, 2)) %>%
-  mutate(maxdepth_class = 
-           smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, max(max_depth)), 
-                     brackets = NULL, sep = " - ")
-         ) %>% # unique(dt$maxdepth_class)
+  mutate(maxdepth_class =
+    smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, max(max_depth)),
+      brackets = NULL, sep = " - ")
+  ) %>% # unique(dt$maxdepth_class)
   dplyr::filter(!is.na(maxdepth_class))
 states_all    <- st_read("../data/gis.gpkg", "states_all", quiet = TRUE)
 states_focal  <- st_read("../data/gis.gpkg", "states_focal", quiet = TRUE)
 # hu4_focal     <- st_read("../data/gis.gpkg", "hu4s_focal_simple", quiet = TRUE)
 # hu4_focal     <- st_crop(st_transform(
-#   lwgeom::st_make_valid(hu4_focal), st_crs(study_bbox)), 
+#   lwgeom::st_make_valid(hu4_focal), st_crs(study_bbox)),
 #   study_bbox)
 
 dt_notsf <- cbind(st_drop_geometry(dt), st_coordinates(dt))
 
-gg_states <- 
-  ggplot() + 
-    geom_sf(data = study_bbox[1,], alpha = 1, size = 0.6, 
-          color = "black", fill = "#1D9DCF") +
-    geom_sf(data = states_all, fill = "gray", color = "black", size = 0.3) +
+gg_states <-
+  ggplot() +
+  geom_sf(data = study_bbox[1, ], alpha = 1, size = 0.6,
+    color = "black", fill = "#1D9DCF") +
+  geom_sf(data = states_all, fill = "gray", color = "black", size = 0.3) +
   # geom_sf(data = outline, color = "black", alpha = 0, size = 0.8) +
   # geom_sf(data = hu4, fill = "grey") +
-    geom_sf(data = states_focal, fill = "white", color = "black", size = 0.4) + 
-    geom_point_rast(data = dt_notsf, aes(x = X, y = Y, color = maxdepth_class), 
-                    alpha = 0) +
-    scale_color_manual(values = viridisLite::viridis(5)) +
-    geom_point_rast(data = dplyr::filter(dt_notsf, lake_maxdepth_m < 10), 
-            aes(x = X, y = Y, color = maxdepth_class), size = 0.2, alpha = 0.8) +
-    geom_point_rast(data = dplyr::filter(dt_notsf, lake_maxdepth_m > 10), 
-            aes(x = X, y = Y, color = maxdepth_class), size = 0.2, alpha = 0.8) +
-    labs(color = "Max depth (m)") +
-    coord_sf(datum =  NA) +
-    theme_void()
+  geom_sf(data = states_focal, fill = "white", color = "black", size = 0.4) +
+  geom_point_rast(data = dt_notsf, aes(x = X, y = Y, color = maxdepth_class),
+    alpha = 0) +
+  scale_color_manual(values = viridisLite::viridis(5)) +
+  geom_point_rast(data = dplyr::filter(dt_notsf, lake_maxdepth_m < 10),
+    aes(x = X, y = Y, color = maxdepth_class), size = 0.2, alpha = 0.8) +
+  geom_point_rast(data = dplyr::filter(dt_notsf, lake_maxdepth_m > 10),
+    aes(x = X, y = Y, color = maxdepth_class), size = 0.2, alpha = 0.8) +
+  labs(color = "Max depth (m)") +
+  coord_sf(datum =  NA) +
+  theme_void()
 
 gg_states
 ```
@@ -57,8 +57,8 @@ gg_states
 lg <- lagosus_load("locus")
 dt <- read.csv("../data/lagosus_depth.csv", stringsAsFactors = FALSE)
 
-us_states <-dplyr::filter(
-    dplyr::select(states_all, postal, iso_a2), iso_a2 == "US")
+us_states <- dplyr::filter(
+  dplyr::select(states_all, postal, iso_a2), iso_a2 == "US")
 dt_plot <- dt %>%
   distinct(lagoslakeid, .keep_all = TRUE) %>%
   dplyr::filter(lake_waterarea_ha >= 4) %>%
@@ -70,12 +70,12 @@ dt_plot <- dt_plot %>%
   dplyr::filter(!is.na(prop_maxdepth)) %>%
   distinct(lake_state, .keep_all = TRUE)
 st_geometry(dt_plot) <- dt_plot$geom
-  
-ggplot() + 
-  geom_sf(data = dt_plot, aes(fill = prop_maxdepth)) + 
-  geom_sf_text(data = dt_plot, 
-               aes(label = round(prop_maxdepth, 2)), 
-               size = 2.5) +
+
+ggplot() +
+  geom_sf(data = dt_plot, aes(fill = prop_maxdepth)) +
+  geom_sf_text(data = dt_plot,
+    aes(label = round(prop_maxdepth, 2)),
+    size = 2.5) +
   labs(fill = "") +
   coord_sf(datum = NA) + theme_void()
 
@@ -88,17 +88,17 @@ dt_plot <- dt %>%
   summarize(prop_maxdepth = round(mean(!is.na(lake_maxdepth_m)), 2)) %>%
   arrange(desc(prop_maxdepth)) %>%
   left_join(dplyr::filter(
-    dplyr::select(states_all, postal, iso_a2), iso_a2 == "US"), 
-            by = c("lake_state" = "postal")) %>%
+    dplyr::select(states_all, postal, iso_a2), iso_a2 == "US"),
+  by = c("lake_state" = "postal")) %>%
   dplyr::filter(!is.na(prop_maxdepth)) %>%
   distinct(lake_state, .keep_all = TRUE)
 st_geometry(dt_plot) <- dt_plot$geom
 
-ggplot() + 
-  geom_sf(data = dt_plot, aes(fill = prop_maxdepth)) + 
+ggplot() +
+  geom_sf(data = dt_plot, aes(fill = prop_maxdepth)) +
   geom_sf_text(data = dt_plot,
-               aes(label = prop_maxdepth),
-               size = 2.5) +
+    aes(label = prop_maxdepth),
+    size = 2.5) +
   labs(fill = "") +
   coord_sf(datum = NA) + theme_void()
 ```
@@ -111,35 +111,35 @@ states_all    <- st_read("../data/gis.gpkg", "states_all", quiet = TRUE)
 states_focal  <- st_read("../data/gis.gpkg", "states_focal", quiet = TRUE)
 dt <- dt %>%
   mutate(lake_maxdepth_m = round(lake_maxdepth_m, 2)) %>%
-  mutate(maxdepth_class = 
-           smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, max(max_depth)), 
-                     brackets = NULL, sep = " - ")
-         ) %>% # unique(dt$maxdepth_class)
+  mutate(maxdepth_class =
+    smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, max(max_depth)),
+      brackets = NULL, sep = " - ")
+  ) %>% # unique(dt$maxdepth_class)
   dplyr::filter(!is.na(maxdepth_class))
 
-dt_bathy <- st_drop_geometry(bathy_pnts) %>% 
+dt_bathy <- st_drop_geometry(bathy_pnts) %>%
   left_join(
-    dplyr::distinct(dplyr::mutate(dplyr::select(dt, lagoslakeid, maxdepth_class, 
-                                                has_limno, lake_waterarea_ha),
-                  lagoslakeid = as.character(lagoslakeid)), lagoslakeid, .keep_all = TRUE),
-            by = c("llid" = "lagoslakeid"))
+    dplyr::distinct(dplyr::mutate(dplyr::select(dt, lagoslakeid, maxdepth_class,
+      has_limno, lake_waterarea_ha),
+    lagoslakeid = as.character(lagoslakeid)), lagoslakeid, .keep_all = TRUE),
+    by = c("llid" = "lagoslakeid"))
 
 dt_bathy <- st_sf(dt_bathy, geometry = dt_bathy$geom)
-dt_bathy <- mutate(dt_bathy, maxdepth_class = droplevels(dt_bathy$maxdepth_class)) 
+dt_bathy <- mutate(dt_bathy, maxdepth_class = droplevels(dt_bathy$maxdepth_class))
 dt_bathy <- dplyr::filter(dt_bathy, !is.na(maxdepth_class))
 
-gg_bathy <- 
-  ggplot() + 
-    geom_sf(data = st_as_sfc(st_bbox(dt_bathy)), alpha = 1, size = 0.6, 
-          color = "black", fill = "#1D9DCF") +
-    geom_sf(data = st_crop(states_all, st_as_sfc(st_bbox(dt_bathy))), fill = "gray", color = "black", size = 0.3) +
-    geom_sf(data = st_crop(states_focal, st_as_sfc(st_bbox(dt_bathy))), fill = "white", color = "black", size = 0.4) + 
-    geom_sf(data = dt_bathy, aes(color = maxdepth_class), 
-                    size = 0.2, alpha = 0.8) +
-    scale_color_manual(values = viridisLite::viridis(4)) +
-    labs(color = "Max depth (m)  ") +
-    coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
-    theme_void()
+gg_bathy <-
+  ggplot() +
+  geom_sf(data = st_as_sfc(st_bbox(dt_bathy)), alpha = 1, size = 0.6,
+    color = "black", fill = "#1D9DCF") +
+  geom_sf(data = st_crop(states_all, st_as_sfc(st_bbox(dt_bathy))), fill = "gray", color = "black", size = 0.3) +
+  geom_sf(data = st_crop(states_focal, st_as_sfc(st_bbox(dt_bathy))), fill = "white", color = "black", size = 0.4) +
+  geom_sf(data = dt_bathy, aes(color = maxdepth_class),
+    size = 0.2, alpha = 0.8) +
+  scale_color_manual(values = viridisLite::viridis(4)) +
+  labs(color = "Max depth (m)  ") +
+  coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
+  theme_void()
 
 gg_bathy
 ```
@@ -148,31 +148,31 @@ gg_bathy
 is_colocated <- read.csv("../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
   dplyr::filter(
     lagos_effort %in% c("LAGOSNE", "bathymetry", "manual") &
-    !is.na(lake_maxdepth_m) &
-    !(lagoslakeid %in% c(456169))) %>% # remove llids with duplicate manual depth)
+      !is.na(lake_maxdepth_m) &
+      !(lagoslakeid %in% c(456169))) %>% # remove llids with duplicate manual depth)
   dplyr::select(lagoslakeid, lake_state, lagos_effort, lake_maxdepth_m) %>%
-  tidyr::pivot_wider(names_from = lagos_effort, 
-                     values_from = c(lake_maxdepth_m)) %>%
+  tidyr::pivot_wider(names_from = lagos_effort,
+    values_from = c(lake_maxdepth_m)) %>%
   dplyr::filter(!is.na(bathymetry)) %>%
   mutate(combined = coalesce(manual, LAGOSNE)) %>%
   dplyr::filter(!is.na(combined)) %>%
   dplyr::filter(!is.na(bathymetry) & !is.na(combined)) %>%
   pull(lagoslakeid)
 
-dt_bathy <- mutate(dt_bathy, 
-               colocated = case_when(llid %in% is_colocated ~ "colocated", 
-                                     TRUE ~ "bathymetry only")) %>%
+dt_bathy <- mutate(dt_bathy,
+  colocated = case_when(llid %in% is_colocated ~ "colocated",
+    TRUE ~ "bathymetry only")) %>%
   arrange(desc(colocated))
 
-gg_colocated <- ggplot() + 
-    geom_sf(data = st_as_sfc(st_bbox(dt_bathy)), alpha = 1, size = 0.6, 
-          color = "black", fill = "#1D9DCF") +
-    geom_sf(data = st_crop(states_all, st_as_sfc(st_bbox(dt_bathy))), fill = "gray", color = "black", size = 0.3) +
-    geom_sf(data = st_crop(states_focal, st_as_sfc(st_bbox(dt_bathy))), fill = "white", color = "black", size = 0.4) + 
-    geom_sf(data = dt_bathy, aes(color = colocated),
-                    size = 0.2, alpha = 0.8) +
-    coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
-    theme_void()
+gg_colocated <- ggplot() +
+  geom_sf(data = st_as_sfc(st_bbox(dt_bathy)), alpha = 1, size = 0.6,
+    color = "black", fill = "#1D9DCF") +
+  geom_sf(data = st_crop(states_all, st_as_sfc(st_bbox(dt_bathy))), fill = "gray", color = "black", size = 0.3) +
+  geom_sf(data = st_crop(states_focal, st_as_sfc(st_bbox(dt_bathy))), fill = "white", color = "black", size = 0.4) +
+  geom_sf(data = dt_bathy, aes(color = colocated),
+    size = 0.2, alpha = 0.8) +
+  coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
+  theme_void()
 
 gg_colocated
 ```
@@ -181,26 +181,26 @@ gg_colocated
 dt           <- st_read("../data/gis.gpkg", "dt", quiet = TRUE) %>%
   mutate(lagoslakeid = as.character(lagoslakeid)) %>%
   distinct(lagoslakeid, .keep_all = TRUE)
-dt_withshape <- read.csv("../data/lagosus_depth_predictors.csv", 
-               stringsAsFactors = FALSE) %>%
+dt_withshape <- read.csv("../data/lagosus_depth_predictors.csv",
+  stringsAsFactors = FALSE) %>%
   dplyr::distinct(lagoslakeid, shape_class) %>%
   dplyr::filter(!is.na(shape_class) & shape_class != "neither") %>%
   mutate(lagoslakeid = as.character(lagoslakeid))
 dt           <- inner_join(dt, dt_withshape) %>%
   arrange(desc(shape_class))
 
-gg_shapeclass <- ggplot() + 
-    geom_sf(data = st_as_sfc(st_bbox(dt_bathy)), alpha = 1, size = 0.6, 
-          color = "black", fill = "#1D9DCF") +
-    geom_sf(data = st_crop(states_all, st_as_sfc(st_bbox(dt_bathy))), fill = "gray", color = "black", size = 0.3) +
-    geom_sf(data = st_crop(states_focal, st_as_sfc(st_bbox(dt_bathy))), fill = "white", color = "black", size = 0.4) + 
-    geom_sf(data = dplyr::filter(dt, shape_class == "convex"), aes(color = shape_class),
-                    size = 0.03, alpha = 0.3) +
-    geom_sf(data = dplyr::filter(dt, shape_class != "convex"), aes(color = shape_class),
-                    size = 0.07, alpha = 0.8) +
-    labs(color = "Shape class     ") +
-    coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
-    theme_void()
+gg_shapeclass <- ggplot() +
+  geom_sf(data = st_as_sfc(st_bbox(dt_bathy)), alpha = 1, size = 0.6,
+    color = "black", fill = "#1D9DCF") +
+  geom_sf(data = st_crop(states_all, st_as_sfc(st_bbox(dt_bathy))), fill = "gray", color = "black", size = 0.3) +
+  geom_sf(data = st_crop(states_focal, st_as_sfc(st_bbox(dt_bathy))), fill = "white", color = "black", size = 0.4) +
+  geom_sf(data = dplyr::filter(dt, shape_class == "convex"), aes(color = shape_class),
+    size = 0.03, alpha = 0.3) +
+  geom_sf(data = dplyr::filter(dt, shape_class != "convex"), aes(color = shape_class),
+    size = 0.07, alpha = 0.8) +
+  labs(color = "Shape class     ") +
+  coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
+  theme_void()
 
 gg_shapeclass
 
@@ -215,25 +215,25 @@ gg_shapeclass
 dt           <- st_read("../data/gis.gpkg", "dt", quiet = TRUE) %>%
   mutate(lagoslakeid = as.character(lagoslakeid)) %>%
   distinct(lagoslakeid, .keep_all = TRUE)
-dt_withres <- read.csv("../data/lagosus_depth_predictors.csv", 
-               stringsAsFactors = FALSE) %>%
+dt_withres <- read.csv("../data/lagosus_depth_predictors.csv",
+  stringsAsFactors = FALSE) %>%
   dplyr::filter(!is.na(shape_class)) %>%
   dplyr::distinct(lagoslakeid, reservoir_class) %>%
   mutate(lagoslakeid = as.character(lagoslakeid))
 dt           <- inner_join(dt, dt_withres) %>%
   arrange(desc(reservoir_class))
 
-gg_reservoir <- 
-  ggplot() + 
-    geom_sf(data = st_as_sfc(st_bbox(dt_bathy)), alpha = 1, size = 0.6, 
-          color = "black", fill = "#1D9DCF") +
-    geom_sf(data = st_crop(states_all, st_as_sfc(st_bbox(dt_bathy))), fill = "gray", color = "black", size = 0.3) +
-    geom_sf(data = st_crop(states_focal, st_as_sfc(st_bbox(dt_bathy))), fill = "white", color = "black", size = 0.4) + 
-    geom_sf(data = dplyr::filter(dt, !is.na(reservoir_class)), 
-            aes(color = reservoir_class), size = 0.03, alpha = 0.3) +
-    labs(color = "Reservoir class") +
-    coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
-    theme_void()
+gg_reservoir <-
+  ggplot() +
+  geom_sf(data = st_as_sfc(st_bbox(dt_bathy)), alpha = 1, size = 0.6,
+    color = "black", fill = "#1D9DCF") +
+  geom_sf(data = st_crop(states_all, st_as_sfc(st_bbox(dt_bathy))), fill = "gray", color = "black", size = 0.3) +
+  geom_sf(data = st_crop(states_focal, st_as_sfc(st_bbox(dt_bathy))), fill = "white", color = "black", size = 0.4) +
+  geom_sf(data = dplyr::filter(dt, !is.na(reservoir_class)),
+    aes(color = reservoir_class), size = 0.03, alpha = 0.3) +
+  labs(color = "Reservoir class") +
+  coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
+  theme_void()
 
 gg_reservoir
 ```
@@ -241,8 +241,8 @@ gg_reservoir
 ```{r 00_map_bathy, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=6.5}
 theme_opts <- guides(color = guide_legend(
   override.aes = list(size = 2)))
-cowplot::plot_grid(gg_bathy + theme_opts, 
-                   gg_shapeclass + theme_opts,
-                   gg_reservoir + theme_opts,
-                   ncol = 1)
+cowplot::plot_grid(gg_bathy + theme_opts,
+  gg_shapeclass + theme_opts,
+  gg_reservoir + theme_opts,
+  ncol = 1)
 ```
