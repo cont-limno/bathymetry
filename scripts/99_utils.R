@@ -3,6 +3,7 @@ library(tidyselect) # >= 0.2.99.9000
 library(googledrive)
 suppressMessages(library(LAGOSNE))
 suppressMessages(library(sf))
+sf::sf_use_s2(FALSE)
 library(assertr)
 library(readr)
 library(nlaR)
