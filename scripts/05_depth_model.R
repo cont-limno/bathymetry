@@ -224,6 +224,12 @@ res <- lapply(seq_len(nrow(slope_distance_alternatives)),
     fit_alternative(i)
   })
 
+# add shape_class and reservoir_class sensitivity for Table 1
+test <- res
+test <- c(test, list(fit_alternative(1, nl_res = "Res")))
+test <- c(test, list(fit_alternative(1, nl_res = "NL")))
+test <- c(test, list(fit_alternative(1, concave_convex = "convex")))
+test <- c(test, list(fit_alternative(1, concave_convex = "concave")))
 
 # lapply res extract proxy_proxy stats and add to slope_distance_alternatives
 slope_distance_alternatives$proxy_proxy_rmse <- unlist(
