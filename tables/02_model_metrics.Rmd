@@ -49,6 +49,7 @@ knitr::kable(dt_metrics, digits = 2, format = "markdown")
 # clipr::write_clip(
 #   knitr::kable(dt_metrics, format = 'latex', align = c("llll"),
 # escape = TRUE))
+# flextable::save_as_docx(flextable::flextable(dt_metrics), path = "../manuscript/inland_waters/table2.docx")
 ```
 
 \clearpage

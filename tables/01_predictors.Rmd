@@ -195,4 +195,8 @@ if(interactive()){
        booktabs = TRUE, linesep = "", align = c("l"), escape = FALSE)))))))
      )
 }
+
+# ---- Word output ----
+
+# flextable::save_as_docx(flextable::flextable(dt), path = "../manuscript/inland_waters/table1.docx")
 ```
