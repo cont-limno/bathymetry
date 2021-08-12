@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 Code and data
 for:
 
-**Stachelek et al. In prep**. Geometric models overestimate lake depth due to imperfect slope measurement
+**Stachelek et al. In prep**. Imperfect slope measurements drive overestimation in standard cone model of lake depth
 
 ### Products
 
@@ -56,4 +56,24 @@ dt       <- read.csv("data/00_bathy_depth/00_bathy_depth.csv",
   select(`column name`, variable, description)
 
 knitr::kable(dt)
+```
+
+### Reproducibility
+
+```shell
+# local
+make -t data/00_hypso/hypso.csv
+make -t data/00_bathy_depth/bathy_pnts.rds
+make -t data/00_bathy_depth/00_bathy_depth.csv
+make -t data/00_bathy_depth/bathy_geometry.csv
+make -t data/00_hypso/hypso_classes.csv
+make -t data/00_reservoir_classification/reservoir_classes_clean.csv
+make -t data/lagosus_depth_predictors.csv
+make -t data/lagosne_depth_predictors.csv
+make -t data/00_geometry/nearshore.csv
+```
+
+```shell
+# docker
+
 ```

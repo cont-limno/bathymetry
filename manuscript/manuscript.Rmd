@@ -1,5 +1,5 @@
 ---
-title: Geometric models overestimate lake depth due to imperfect slope measurement
+title: Imperfect slope measurements drive overestimation in standard cone model of lake depth
 
 # Use letters for affiliations
 author:

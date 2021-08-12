@@ -10,8 +10,8 @@ Build](https://img.shields.io/badge/Docker%20Image-jsta/bathymetry-green.svg)](h
 
 Code and data for:
 
-**Stachelek et al. In prep**. Geometric models overestimate lake depth
-due to imperfect slope measurement
+**Stachelek et al. In prep**. Imperfect slope measurements drive
+overestimation in standard cone model of lake depth
 
 ### Products
 
@@ -20,7 +20,7 @@ Figures: [manuscript/combined.pdf](manuscript/combined.pdf)
 Data: [bathymetry derived depth predictors](data/depth_predictors.csv)
 
 | column name              | variable                   | description                                                                                                                                                                                                   |
-| :----------------------- | :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|:-------------------------|:---------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | lagoslakeid              | \-                         | unique lake identifier developed for LAGOS-US                                                                                                                                                                 |
 | lake\_maxdepth\_m        | Max depth (m)              | lake maximum depth in meters                                                                                                                                                                                  |
 | maxdepth\_true\_true     | \-                         | lake maximum depth calculated from inlake\_slope and dist\_deepest in meters                                                                                                                                  |
@@ -43,7 +43,7 @@ Data: [bathymetry derived lake
 depth](data/00_bathy_depth/00_bathy_depth.csv)
 
 | column name                   | variable       | description                                                                                                                                                                                                                                                                 |
-| :---------------------------- | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|:------------------------------|:---------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | llid                          | \-             | unique lake identifier developed for LAGOS-US                                                                                                                                                                                                                               |
 | state                         | State          | abbreviation of the state used to search for a lake’s depth                                                                                                                                                                                                                 |
 | max\_depth\_m                 | Max depth (m)  | lake maximum depth in meters                                                                                                                                                                                                                                                |
@@ -55,3 +55,22 @@ depth](data/00_bathy_depth/00_bathy_depth.csv)
 | lake\_lon\_decdeg             | \-             | the longitude of the lake center point (NAD83) from the LAGOS-US Locus module                                                                                                                                                                                               |
 | lat                           | \-             | the latitude of the lake center point                                                                                                                                                                                                                                       |
 | long                          | \-             | the longitude of the lake center point                                                                                                                                                                                                                                      |
+
+### Reproducibility
+
+``` shell
+# local
+make -t data/00_hypso/hypso.csv
+make -t data/00_bathy_depth/bathy_pnts.rds
+make -t data/00_bathy_depth/00_bathy_depth.csv
+make -t data/00_bathy_depth/bathy_geometry.csv
+make -t data/00_hypso/hypso_classes.csv
+make -t data/00_reservoir_classification/reservoir_classes_clean.csv
+make -t data/lagosus_depth_predictors.csv
+make -t data/lagosne_depth_predictors.csv
+make -t data/00_geometry/nearshore.csv
+```
+
+``` shell
+# docker
+```
