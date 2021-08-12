@@ -39,7 +39,7 @@ knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 \captionsetup[figure]{name=Table}
 \captionsetup[figure]{labelformat=empty}
 \captionsetup[figure]{labelformat=empty}
-```{r depth_model_metrics, fig.cap = "Table 1: Summary of lake characteristics for the present study (and for lakes in the contiguous United States). Predictor variables for computing random forest offsets (Equation 2) are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States from the National Hydrography Dataset. The total number lakes is reported as n.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+```{r predictors, fig.cap = "Table 1: Summary of lake characteristics for the present study (and for lakes in the contiguous United States). Predictor variables for computing random forest offsets (Equation 2) are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States from the National Hydrography Dataset. The total number lakes is reported as n.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 # see tables/02_model_metrics.Rmd
 knitr::include_graphics("../tables/01_predictors.pdf")
 ```
@@ -62,5 +62,5 @@ knitr::include_graphics("../figures/02_depth_model_grid_resid-1.pdf")
 ```
 
 ```{r depth_mode_importance, fig.cap="Importance plot for random forest variables showing increase in mean square error. Higher values indicate greater importance to model predictions. See Equation 1 for a definition of geometric max depth. HUC4 ID is a 'dummy' variable of geographic (hydrologic subbasin) location.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
-knitr::include_graphics("../figures/02_depth_model_importance-1")
+knitr::include_graphics("../figures/02_depth_model_importance-1.pdf")
 ```
