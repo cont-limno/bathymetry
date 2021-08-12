@@ -38,7 +38,13 @@ knitr::include_graphics("../figures/00_map_bathy-1.pdf")
 
 \captionsetup[figure]{name=Table}
 \captionsetup[figure]{labelformat=empty}
-```{r depth_model_metrics, fig.cap = "Table 1: Model fit and predictive accuracy metrics (RMSE = root mean square error, R2 = coefficient of determination) for all combinations of true (in-lake slope, distance to the deepest point of the lake) and proxy (nearshore land slope, distance to lake center) metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+\captionsetup[figure]{labelformat=empty}
+```{r depth_model_metrics, fig.cap = "Table 1: Summary of lake characteristics for the present study (and for lakes in the contiguous United States). Predictor variables for computing random forest offsets (Equation 2) are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States from the National Hydrography Dataset. The total number lakes is reported as n.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
+# see tables/02_model_metrics.Rmd
+knitr::include_graphics("../tables/01_predictors.pdf")
+```
+
+```{r depth_model_metrics, fig.cap = "Table 2: Model fit and predictive accuracy metrics (RMSE = root mean square error, R2 = coefficient of determination) for all combinations of true (in-lake slope, distance to the deepest point of the lake) and proxy (nearshore land slope, distance to lake center) metrics.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra='', fig.align='center'}
 # see tables/02_model_metrics.Rmd
 knitr::include_graphics("../tables/02_model_metrics.pdf")
 ```
@@ -53,4 +59,8 @@ knitr::include_graphics("../figures/01_geometry_base-1.pdf")
 ```{r depth_model_grid_resid, fig.cap = "Depth model residuals (residual  = observed - predicted) in meters by cross-section shape and reservoir class indicating overprediction of concave and reservoir lakes.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
 # see 02_depth_model.Rmd
 knitr::include_graphics("../figures/02_depth_model_grid_resid-1.pdf")
+```
+
+```{r depth_mode_importance, fig.cap="Importance plot for random forest variables showing increase in mean square error. Higher values indicate greater importance to model predictions. See Equation 1 for a definition of geometric max depth. HUC4 ID is a 'dummy' variable of geographic (hydrologic subbasin) location.", warning=FALSE, echo = FALSE, eval=TRUE, out.extra=''}
+knitr::include_graphics("../figures/02_depth_model_importance-1")
 ```

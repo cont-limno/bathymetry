@@ -199,17 +199,13 @@
 
             \item \textbf{Figure S5:} Effect of calculation technique on in-lake/nearshore slope comparison.
 
-            \item \textbf{Figure S6:} Importance plot for random forest variables
+            \item \textbf{Figure S6:} Characteristics of lakes with bathymetry versus non-bathymetry lakes
 
-            \item \textbf{Figure S7:} Characteristics of lakes with bathymetry versus non-bathymetry lakes
+            \item \textbf{Figure S7:} Lake characteristics comparison among shape and reservoir classes
 
-            \item \textbf{Figure S8:} Lake characteristics comparison among shape and reservoir classes
+            \item \textbf{Figure S8:} Comparison between reported depth and bathymetry depth
 
-            \item \textbf{Figure S9:} Comparison between reported depth and bathymetry depth
-
-            \item \textbf{Table S1:} Summary of lake characteristics for the present study
-
-            \item \textbf{Table S2:} Effect of calculation technique on depth model fit and accuracy.
+            \item \textbf{Table S1:} Effect of calculation technique on depth model fit and accuracy.
 
                   %if Tables are larger than 1 page, upload as separate excel file
       \end{enumerate}
@@ -346,10 +342,10 @@
 \end{figure}
 \clearpage
 
-\begin{figure}
-      \noindent\includegraphics[width=0.85\textwidth]{../figures/02_depth_model_importance-1}
-      \caption{Importance plot for random forest variables showing increase in mean square error. Higher values indicate greater importance to model predictions. See Equation 1 for a definition of geometric max depth. HUC4 ID is a 'dummy' variable of geographic (hydrologic subbasin) location.}\label{figS7}
-\end{figure}
+% \begin{figure}
+%       \noindent\includegraphics[width=0.85\textwidth]{../figures/02_depth_model_importance-1}
+%       \caption{Importance plot for random forest variables showing increase in mean square error. Higher values indicate greater importance to model predictions. See Equation 1 for a definition of geometric max depth. HUC4 ID is a 'dummy' variable of geographic (hydrologic subbasin) location.}\label{figS7}
+% \end{figure}
 
 \begin{figure}
       \begin{center}\includegraphics[width=0.45\textwidth]{../figures/gg_effort-1}\end{center}
@@ -371,36 +367,36 @@
 
 \clearpage
 
-% source at tables/01_predictors.Rmd
-\begin{table}
-      \caption{Summary of lake characteristics for the present study (and for lakes in the contiguous United States). Predictor variables for computing random forest offsets (Equation 2) are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States from the National Hydrography Dataset. The total number lakes is reported as n.} \label{tableS1}
-      \centering
-      \setlength\tabcolsep{1.5pt} % default value: 6pt
-      \begin{tabular}{lllll}
-            \hline
-            Variable                            & Median      & Q25         & Q75          & n            \\
-            \hline
-            Max depth (m)                       & 8.2 (7)     & 4.6 (3.7)   & 14 (12)      & 4820 (17700) \\
-            \textbf{Area (ha)}                  & 55 (33)     & 21 (11)     & 140 (100)    & 4820 (17700) \\
-            \textbf{Island area (ha)}           & 0 (0)       & 0 (0)       & 0.18 (0.076) & 4820 (17700) \\
-            \textbf{Perimeter (m)}              & 4400 (3500) & 2500 (1800) & 8100 (7300)  & 4820 (17700) \\
-            \textbf{Shoreline development}      & 1.7 (1.7)   & 1.4 (1.4)   & 2.1 (2.2)    & 4820 (17700) \\
-            \textbf{Elevation (m)}              & 300 (340)   & 180 (210)   & 400 (460)    & 4820 (17700) \\
-            \textbf{Watershed-lake ratio}       & 7.8 (10)    & 3.8 (4.4)   & 17 (29)      & 4820 (17700) \\
-            \textbf{Deepest point distance (m)} & 180 (-)     & 110 (-)     & 290 (-)      & 4820 (-)     \\
-            Mean deepest point distance (m)     & 140 (-)     & 87 (-)      & 230 (-)      & 4820 (-)     \\
-            \textbf{Visual center distance (m)} & 240 (-)     & 160 (-)     & 390 (-)      & 4820 (-)     \\
-            Inlake slope (m/m)                  & 0.05 (-)    & 0.02 (-)    & 0.08 (-)     & 4820 (-)     \\
-            Inlake slope online (m/m)           & 0.06 (-)    & 0.03 (-)    & 0.14 (-)     & 4800 (-)     \\
-            Inlake slopes (m/m)                 & 0.06 (-)    & 0.03 (-)    & 0.1 (-)      & 4820 (-)     \\
-            Inlake slopes online (m/m)          & 0.07 (-)    & 0.03 (-)    & 0.15 (-)     & 4800 (-)     \\
-            Mean inlake slope (m/m)             & 0.04 (-)    & 0.02 (-)    & 0.09 (-)     & 4820 (-)     \\
-            Nearshore mean slope (m/m)          & 0.08 (-)    & 0.05 (-)    & 0.11 (-)     & 4820 (-)     \\
-            Nearshore slope online (m/m)        & 0.08 (-)    & 0.04 (-)    & 0.13 (-)     & 4590 (-)     \\
-            Nearshore slopes online (m/m)       & 0.08 (-)    & 0.04 (-)    & 0.13 (-)     & 4540 (-)     \\
-            \hline
-      \end{tabular}
-\end{table}
+% % source at tables/01_predictors.Rmd
+% \begin{table}
+%       \caption{Summary of lake characteristics for the present study (and for lakes in the contiguous United States). Predictor variables for computing random forest offsets (Equation 2) are printed in bold face. Dashes (-) indicate an identical sample size among this study and that of the contiguous United States from the National Hydrography Dataset. The total number lakes is reported as n.} \label{tableS1}
+%       \centering
+%       \setlength\tabcolsep{1.5pt} % default value: 6pt
+%       \begin{tabular}{lllll}
+%             \hline
+%             Variable                            & Median      & Q25         & Q75          & n            \\
+%             \hline
+%             Max depth (m)                       & 8.2 (7)     & 4.6 (3.7)   & 14 (12)      & 4820 (17700) \\
+%             \textbf{Area (ha)}                  & 55 (33)     & 21 (11)     & 140 (100)    & 4820 (17700) \\
+%             \textbf{Island area (ha)}           & 0 (0)       & 0 (0)       & 0.18 (0.076) & 4820 (17700) \\
+%             \textbf{Perimeter (m)}              & 4400 (3500) & 2500 (1800) & 8100 (7300)  & 4820 (17700) \\
+%             \textbf{Shoreline development}      & 1.7 (1.7)   & 1.4 (1.4)   & 2.1 (2.2)    & 4820 (17700) \\
+%             \textbf{Elevation (m)}              & 300 (340)   & 180 (210)   & 400 (460)    & 4820 (17700) \\
+%             \textbf{Watershed-lake ratio}       & 7.8 (10)    & 3.8 (4.4)   & 17 (29)      & 4820 (17700) \\
+%             \textbf{Deepest point distance (m)} & 180 (-)     & 110 (-)     & 290 (-)      & 4820 (-)     \\
+%             Mean deepest point distance (m)     & 140 (-)     & 87 (-)      & 230 (-)      & 4820 (-)     \\
+%             \textbf{Visual center distance (m)} & 240 (-)     & 160 (-)     & 390 (-)      & 4820 (-)     \\
+%             Inlake slope (m/m)                  & 0.05 (-)    & 0.02 (-)    & 0.08 (-)     & 4820 (-)     \\
+%             Inlake slope online (m/m)           & 0.06 (-)    & 0.03 (-)    & 0.14 (-)     & 4800 (-)     \\
+%             Inlake slopes (m/m)                 & 0.06 (-)    & 0.03 (-)    & 0.1 (-)      & 4820 (-)     \\
+%             Inlake slopes online (m/m)          & 0.07 (-)    & 0.03 (-)    & 0.15 (-)     & 4800 (-)     \\
+%             Mean inlake slope (m/m)             & 0.04 (-)    & 0.02 (-)    & 0.09 (-)     & 4820 (-)     \\
+%             Nearshore mean slope (m/m)          & 0.08 (-)    & 0.05 (-)    & 0.11 (-)     & 4820 (-)     \\
+%             Nearshore slope online (m/m)        & 0.08 (-)    & 0.04 (-)    & 0.13 (-)     & 4590 (-)     \\
+%             Nearshore slopes online (m/m)       & 0.08 (-)    & 0.04 (-)    & 0.13 (-)     & 4540 (-)     \\
+%             \hline
+%       \end{tabular}
+% \end{table}
 
 \begin{table}
       \caption{Model fit and predictive accuracy metrics (RMSE = root mean square error, $R^2$ = coefficient of determination, MAPE = mean absolute percent error) for the proxy - proxy combination of geometry metrics (see main text Table 1). Each row shows model metrics when proxy and "true" measures are calculated with slight differences from the default (bolded) used in the main text. \texttt{slope\_mean} is the mean slope of all inlake or nearshore buffer points. \texttt{slope\_pnts} is the average slope (i.e. \texttt{slope\_pnt}) of all points at maximum depth. \texttt{slope\_online\_mean} is the mean pixel-to-pixel slope of each pixel lying on a straight line either from the single deepest point to the lake shoreline (in the case of inlake slope) or from the lake shoreline point extending to the buffer exterior (in the case of nearshore slope). \texttt{slopes\_online\_mean} is the same as \texttt{slope\_online\_mean} except it uses all inlake points at maximum depth. \texttt{dists\_deepest} is the same as \texttt{dist\_deepest} except distance is calculated for all points at maximum depth.}  \label{tableS2}
