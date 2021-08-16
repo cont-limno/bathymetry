@@ -259,3 +259,41 @@ cowplot::plot_grid(gg_bathy + theme_opts,
   gg_reservoir + theme_opts,
   ncol = 1)
 ```
+
+```{r 00_map_resid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=6.5}
+dt_sf <- st_read("../data/gis.gpkg", "dt", quiet = TRUE) %>%
+  mutate(lagoslakeid = as.character(lagoslakeid))
+dt   <- readRDS("../data/01_depth_model/depth_grid.rds") %>% # 05_depth_model.R
+  mutate(lagoslakeid = as.character(lagoslakeid)) %>%
+  mutate(resid = case_when(maxdepth == "maxdepth_true_true" ~ NA_real_,
+    TRUE ~ resid)) %>%
+  mutate(maxdepth = factor(maxdepth, levels = c(
+    "maxdepth_true_true", "maxdepth_true_false",
+    "maxdepth_false_true", "maxdepth_false_false"))) %>%
+  left_join(dt_sf, by = "lagoslakeid") %>%
+  st_as_sf()
+dt <- cbind(dt, st_coordinates(dt))
+
+dt <- dt %>% mutate(resid_class =
+  smart_cut(resid, c(-20, -10, 0, 10, 20, max(resid)),
+    brackets = NULL, sep = " - ")
+)
+
+# ----
+
+gg_resid <-
+  ggplot() +
+  geom_sf(data = st_as_sfc(st_bbox(dt)), alpha = 1, size = 0.6,
+    color = "black", fill = "#1D9DCF") +
+  geom_sf(data = st_crop(states_all, st_as_sfc(st_bbox(dt))),
+    fill = "gray", color = "black", size = 0.3) +
+  geom_sf(data = st_crop(states_focal, st_as_sfc(st_bbox(dt))),
+    fill = "white", color = "black", size = 0.4) +
+  geom_sf(data = dplyr::filter(dt, !is.na(resid)),
+    aes(color = resid_class), size = 0.03, alpha = 0.7) +
+  labs(color = "Residual") +
+  coord_sf(xlim = c(-103.81483, -67.10548), ylim = c(37.5, 48.72102)) +
+  theme_void()
+
+gg_resid
+```
