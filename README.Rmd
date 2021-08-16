@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 Code and data
 for:
 
-**Stachelek et al. In prep**. Imperfect slope measurements drive overestimation in standard cone model of lake depth
+**Stachelek et al. In prep**. Imperfect slope measurements drive overestimation in geometric cone model of lake depth
 
 ### Products
 
@@ -27,19 +27,19 @@ Data: [bathymetry derived depth predictors](data/depth_predictors.csv)
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 library(dplyr)
-taxonomy <- read.csv("data/taxonomy.csv", 
-                     stringsAsFactors = FALSE)
+taxonomy <- read.csv("data/taxonomy.csv",
+  stringsAsFactors = FALSE)
 
 # see scripts/99_make_taxonomy.R
-dt <- read.csv("data/depth_predictors.csv", 
-               stringsAsFactors = FALSE) %>% 
+dt <- read.csv("data/depth_predictors.csv",
+  stringsAsFactors = FALSE) %>%
   names() %>%  as.data.frame() %>%  setNames("col_name") %>%
   left_join(taxonomy) %>% data.frame() %>%
   dplyr::filter(!is.na(description)) %>%
   setNames(c("column name", "description", "variable")) %>%
   select(`column name`, variable, description)
 
-options(knitr.kable.NA = '-')
+options(knitr.kable.NA = "-")
 knitr::kable(dt)
 ```
 
@@ -47,8 +47,8 @@ Data: [bathymetry derived lake depth](data/00_bathy_depth/00_bathy_depth.csv)
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # see scripts/99_make_taxonomy.R
-dt       <- read.csv("data/00_bathy_depth/00_bathy_depth.csv", 
-               stringsAsFactors = FALSE) %>%
+dt       <- read.csv("data/00_bathy_depth/00_bathy_depth.csv",
+  stringsAsFactors = FALSE) %>%
   names() %>%  as.data.frame() %>%  setNames("col_name") %>%
   left_join(taxonomy) %>% data.frame() %>%
   dplyr::filter(!is.na(description)) %>%

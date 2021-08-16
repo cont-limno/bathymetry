@@ -11,7 +11,7 @@ Build](https://img.shields.io/badge/Docker%20Image-jsta/bathymetry-green.svg)](h
 Code and data for:
 
 **Stachelek et al. In prep**. Imperfect slope measurements drive
-overestimation in standard cone model of lake depth
+overestimation in geometric cone model of lake depth
 
 ### Products
 
