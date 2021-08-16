@@ -40,8 +40,14 @@ tidy_grid_metrics <- function(x) {
   res
 }
 
-dt_metrics <- tidy_grid_metrics(
-  readRDS("../data/01_depth_model/depth_grid_metrics.rds")[[1]])
+dt_raw <- readRDS("../data/01_depth_model/depth_grid_metrics.rds")
+dt_metrics <- lapply(dt_raw, tidy_grid_metrics)
+dt_metrics <- do.call("rbind", dt_metrics)
+dt_metrics$filter <- ""
+dt_metrics$filter[c(1, 5, 9, 13, 17)] <- c("all", "reservoir", "natural lake", "convex", "concave")
+# dt_metrics$filter <- c(rep("all", 4), rep("reservoir", 4),
+#   rep("natural lake", 4), rep("convex", 4), rep("concave", 4))
+dt_metrics <- dplyr::relocate(dt_metrics, filter)
 
 options(knitr.kable.NA = "-")
 knitr::kable(dt_metrics, digits = 2, format = "markdown")
