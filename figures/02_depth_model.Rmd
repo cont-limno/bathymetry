@@ -217,6 +217,30 @@ gg_reservoir <- cowplot::plot_grid(gg_reservoir[[1]],
 cowplot::plot_grid(gg_shape, gg_reservoir, ncol = 2, rel_widths = c(1, 0.9))
 ```
 
+```{r 02_depth_model_fitted_allproxy, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
+
+dt <- readRDS("../data/01_depth_model/depth_grid.rds") %>%
+  dplyr::filter(maxdepth == "maxdepth_false_false")
+
+rsq <- round(broom::glance(lm(.pred ~ lake_maxdepth_m, data = dt))$r.squared, 2)
+
+ggplot(data = dt, aes(x = lake_maxdepth_m, y = .pred)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  annotate("text", x = 42, y = 3,
+    label = paste0("R^2 == ", rsq),
+    parse = TRUE) +
+  annotate("label", x = 25, y = 3,
+    label = get_formula(
+      lm(.pred ~ lake_maxdepth_m, data = dt)),
+    size = 4, fill = "white", label.size = NA) +
+  ylab("lake_maxdepth_m (predicted)") +
+  # geom_abline() +
+  scale_x_continuous(expand = c(0, 0), limits = c(1.5, 50)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(1.5, NA)) +
+  cowplot::theme_cowplot()
+```
+
 ```{r 02_depth_model_fitted, echo=FALSE, message=FALSE, eval=FALSE, warning=FALSE, results='hide'}
 dt <- readRDS("../data/01_depth_model/depth_model.rds")
 
