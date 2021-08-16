@@ -330,18 +330,25 @@ gg_dists_base <- dt %>%
 cowplot::plot_grid(gg_dist_base, gg_dists_base)
 ```
 
-```{r 01_slope_compare, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=6.2, fig.height=5.3}
+```{r 01_slope_compare, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.width=6.4, fig.height=5.3}
 # fig 2B (slope) alternatives
 #   gg_slope_base <- nearshore_slope_mean ~ inlake_slope_pnt
 #   gg_slope_* <- nearshore_slope* ~ inlake_slope*
 
-inlake_slope_alternatives     <- c("inlake_slope_pnt", "inlake_slope_pnts",
+inlake_slope_alternatives     <- c(
+  "inlake_slope_pnt",
+  "inlake_slope_pnts",
   "inlake_slope_mean",
   "inlake_slope_online_mean",
-  "inlake_slopes_online_mean")
-nearshore_slope_alternatives  <- c("nearshore_slope_mean",
+  "inlake_slopes_online_mean",
+  "inlake_slope_median"
+)
+nearshore_slope_alternatives  <- c(
+  "nearshore_slope_mean",
   "nearshore_slope_online_mean",
-  "nearshore_slopes_online_mean")
+  "nearshore_slopes_online_mean",
+  "nearshore_slope_median"
+)
 slope_alternatives   <- setNames(data.frame(expand.grid(
   inlake_slope_alternatives,
   nearshore_slope_alternatives,
@@ -374,7 +381,10 @@ gg_slope_alternative <- function(nearshore_var, inlake_var, dt) {
     xlim(c(0, 0.6)) + ylim(0, 0.6) +
     labs(color = "") +
     theme_opts +
-    theme(axis.title = element_text(family = "mono", size = 8))
+    # theme(axis.title = element_blank()) + ##
+    theme(axis.title = element_text(
+      family = "mono",
+      size = 8))
 
   res
 }
@@ -392,36 +402,39 @@ gg_slope_list <- lapply(seq_len(nrow(slope_alternatives)), function(i)
 gg_slope_list[[1]] <- gg_slope_list[[1]] +
   theme(axis.title.y = element_text(face = "bold"))
 
-gg_slope_list[[5]] <- gg_slope_list[[5]] +
+gg_slope_list[[6]] <- gg_slope_list[[6]] +
   theme(axis.title.x = element_text(face = "bold"))
 
-gg_slope_list[c(1:5)] <- lapply(
-  gg_slope_list[c(1:5)], function(x) x +
+gg_slope_list[c(1:6)] <- lapply(
+  gg_slope_list[c(1:6)], function(x) x +
     theme(
       # axis.title.y = element_blank(),
       axis.title.y = element_text(angle = 0)))
 
-gg_slope_list[c(1:4, 6:9, 11:14)] <- lapply(
-  gg_slope_list[c(1:4, 6:9, 11:14)], function(x) x +
+gg_slope_list[c(1:5, 7:11, 13:17, 19:23)] <- lapply(
+  gg_slope_list[c(1:5, 7:11, 13:17, 19:23)], function(x) x +
     theme(axis.title.x = element_blank(),
       axis.text.x = element_blank()))
 
-gg_slope_list[c(6:15)] <- lapply(
-  gg_slope_list[c(6:15)], function(x) x +
+gg_slope_list[c(7:24)] <- lapply(
+  gg_slope_list[c(7:24)], function(x) x +
     theme(axis.title.y = element_blank(),
       axis.text.y = element_blank()))
+
+gg_slope_inner <-
+  cowplot::plot_grid(plotlist = gg_slope_list,
+    nrow = 6, byrow = FALSE,
+    rel_heights = c(rep(0.75, 5), 1),
+    rel_widths = c(rep(1, 1),
+      rep(0.41, 3))
+  )
 
 xlab <- ggdraw() + draw_label("nearshore")
 ylab <- ggdraw() + draw_label("inlake", angle = 90)
 cowplot::plot_grid(
   ylab,
   cowplot::plot_grid(
-    cowplot::plot_grid(plotlist = gg_slope_list,
-      nrow = 5, byrow = FALSE,
-      rel_heights = c(rep(0.75, 4), 1),
-      rel_widths = c(rep(1, 1),
-        rep(0.48, 2))
-    ),
+    gg_slope_inner,
     xlab, ncol = 1, rel_heights = c(1, 0.1)),
   ncol = 2, rel_widths = c(0.1, 1))
 ```
