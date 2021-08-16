@@ -89,3 +89,29 @@ dt <- read.csv("data/lagosus_depth_predictors.csv", stringsAsFactors = FALSE) %>
 
 range(dt$lake_waterarea_ha)
 # 4 - 18500 ha
+
+# --- the percentage of lakes in Maine with a lake shape of neither ----
+dt <- read.csv("data/lagosus_depth_predictors.csv", stringsAsFactors = FALSE) %>%
+dplyr::filter(lake_state == "ME" & !is.na(shape_class))
+nrow(dplyr::filter(dt, shape_class == "neither")) / 
+nrow(dt) * 100
+
+# --- what are the natural lakes in Southern Iowa?----
+dt         <- readRDS("data/00_bathy_depth/bathy_pnts.rds") %>%
+dplyr::select(llid, pnt_deepest, state)
+hypso_pred <- read.csv("data/00_hypso/hypso_predictors.csv", 
+                       stringsAsFactors = FALSE) %>%
+  mutate(lagoslakeid = as.character(lagoslakeid))
+dt <- left_join(dt, dplyr::select(hypso_pred, lagoslakeid, reservoir_class, shape_class), 
+                                  by = c("llid" = "lagoslakeid"))
+dt <- dplyr::filter(dt, state == "IA", reservoir_class == "NL")
+
+mapview::mapview(dt)
+
+
+
+# --- the percentage of glacial/non-glacial lakes ----
+
+
+# --- the percentage of lakes situated in different "landforms" ----
+
