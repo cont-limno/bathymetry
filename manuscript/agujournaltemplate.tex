@@ -78,8 +78,7 @@
 
 % Example: \title{This is a test title}
 
-\title{Geometric models overestimate lake depth due to imperfect slope
-measurement}
+\title{Imperfect slope measurements drive overestimation in geometric cone model of lake and reservoir depth}
 
 %% ------------------------------------------------------------------------ %%
 %
@@ -103,7 +102,7 @@ measurement}
 \authors{J. Stachelek\affil{1}, P. J. Hanly\affil{1}, and P. A. Soranno\affil{1}}
 
 \affiliation{1}{Department of Fisheries and Wildlife, Michigan State University, 480
-Wilson Rd., East Lansing, MI 48824, USA}
+      Wilson Rd., East Lansing, MI 48824, USA}
 % \affiliation{2}{Second Affiliation}
 % \affiliation{3}{Third Affiliation}
 % \affiliation{4}{Fourth Affiliation}
@@ -137,9 +136,9 @@ Wilson Rd., East Lansing, MI 48824, USA}
 % \end{keypoints}
 
 \begin{keypoints}
-\item Geometric models to predict lake depth, which require in-lake slope, assume that nearshore land slope is a good proxy for in-lake slope.
-\item Using data from thousands of lakes, we show that nearshore land slope is a poor proxy for in-lake slope and increases prediction error.
-\item Systematic overprediction of depth in concave and reservoir lakes highlights potential areas for improved depth prediction.
+      \item Geometric models to predict lake depth, which require in-lake slope, assume that nearshore land slope is a good proxy for in-lake slope.
+      \item Using data from thousands of lakes, we show that nearshore land slope is a poor proxy for in-lake slope and increases prediction error.
+      \item Systematic overprediction of depth in concave and reservoir lakes highlights potential areas for improved depth prediction.
 \end{keypoints}
 
 %% ------------------------------------------------------------------------ %%
@@ -163,7 +162,7 @@ Wilson Rd., East Lansing, MI 48824, USA}
 %TC:endignore
 %% \begin{abstract} starts the second page
 \begin{abstract}
-Lake depth is a critical characteristic that influences many important ecological processes in lakes. Unfortunately, lake depth measurements are labor-intensive to gather and are only available for a tiny fraction of lakes globally. Therefore, scientists have tried to predict lake depth from characteristics that are easily obtained for all lakes such as lake surface area or the slope of the land surrounding a lake. One approach for predicting lake depth simulates lake basins using a geometric model where nearshore land slope is assumed to be a representative proxy for in-lake slope and the distance to the center of the lake is assumed to be a representative proxy for the distance to the deepest point of the lake. However, these assumptions have rarely been tested in a broad range of lakes. We used bathymetry data from approximately 5,000 lakes and reservoirs to test these assumptions and to examine whether differences in lake type or shape influences depth prediction error. We found that nearshore land slope was not representative of in-lake slope and using it for prediction increases error substantially relative to models using true in-lake slope. We also found that models using nearshore land slope as a proxy systematically overpredict lake depth in concave lakes (i.e. bowl-shaped; up to 18\% of lakes in the study population) and reservoir lakes (up to 30\% of lakes in the study population), suggesting caution in using geometric models for depth prediction in unsampled lakes.
+      Lake depth is a critical characteristic that influences many important ecological processes in lakes. Unfortunately, lake depth measurements are labor-intensive to gather and are only available for a tiny fraction of lakes globally. Therefore, scientists have tried to predict lake depth from characteristics that are easily obtained for all lakes such as lake surface area or the slope of the land surrounding a lake. One approach for predicting lake depth simulates lake basins using a geometric model where nearshore land slope is assumed to be a representative proxy for in-lake slope and the distance to the center of the lake is assumed to be a representative proxy for the distance to the deepest point of the lake. However, these assumptions have rarely been tested in a broad range of lakes. We used bathymetry data from approximately 5,000 lakes and reservoirs to test these assumptions and to examine whether differences in lake type or shape influences depth prediction error. We found that nearshore land slope was not representative of in-lake slope and using it for prediction increases error substantially relative to models using true in-lake slope. We also found that models using nearshore land slope as a proxy systematically overpredict lake depth in concave lakes (i.e. bowl-shaped; up to 18\% of lakes in the study population) and reservoir lakes (up to 30\% of lakes in the study population), suggesting caution in using geometric models for depth prediction in unsampled lakes.
 \end{abstract}
 
 %% ------------------------------------------------------------------------ %%
@@ -205,17 +204,17 @@ Given the limited prediction accuracy of prior depth prediction efforts ($\pm$ 6
 One intuitive approach for predicting lake depth involves using a geometric model that assumes lake basins correspond to an idealized shape such as a cone, bowl, or an elliptic sinusoid \cite{getiranaDerivingThreeDimensional2018, hollisterPredictingMaximumLake2011, neumannMaximumDepthAverage1959, yigzawNewGlobalStorage2018}. All such geometric models for lake depth prediction involve implicit assumptions about the terms of geometric formulae. In the simplest case, where lakes basins are treated as cones (Equation \ref{eq1}, Figure \ref{fig1}), two assumptions are required to make depth predictions for all lakes: 1) that nearshore land slope is a representative proxy for in-lake slope and 2) that the distance to the center of the lake is a representative proxy for the distance to the deepest point of the lake (Figure \ref{fig1}). This cone model imposes the following fixed (i.e. geometric) relationship between slope and horizontal distance:
 
 \begin{linenomath*}
-\begin{equation}
-      depth_{geometric} = tan(slope) * distance \label{eq1}
-\end{equation}
+      \begin{equation}
+            depth_{geometric} = tan(slope) * distance \label{eq1}
+      \end{equation}
 \end{linenomath*}
 
 \noindent
 where the product of slope and horizontal distance yields an exact geometric depth estimate ($depth_{geometric}$).
 
 \begin{figure}
-\noindent\includegraphics[width=0.74\textwidth]{slope_diagram_new}
-\caption{Diagram showing the relations between true (black) and proxy (orange) metrics of lake geometry. Geometric depth calculated via Equation \ref{eq1} requires a single distance and slope metric.}\label{fig1}
+      \noindent\includegraphics[width=0.74\textwidth]{slope_diagram_new}
+      \caption{Diagram showing the relations between true (black) and proxy (orange) metrics of lake geometry. Geometric depth calculated via Equation \ref{eq1} requires a single distance and slope metric.}\label{fig1}
 \end{figure}
 
 The assumptions of the cone model (as well as other geometric models) can be tested by comparing proxy measures of lake geometry against corresponding “true” (i.e. in-lake) values derived from bathymetric maps and by evaluating how lake cross-section shapes differ from that of an idealized cone \cite{johanssonNewApproachesModelling2007}. For instance, lake cross-section shapes have been shown to vary from narrow "convex" forms to outstretched "concave" forms \cite{hakansonLakeFormLake1977}. Because tests of geometric model assumptions require bathymetric map data, which is only available for a tiny fraction of lakes (including about 15\% of all lakes in our study footprint), existing evidence may not be applicable to all lakes. The few studies that have tested these assumptions have been limited to individual studies of very large ($>$ 500 ha) lakes or studies on small numbers ($<$ 100) of lakes \cite{johanssonNewApproachesModelling2007}. Studies focused specifically on reservoirs (as opposed to the more typical case where reservoirs and natural lakes are combined), have been even more restricted to that of extremely large lakes $>$ 1000 ha \cite{lehnerHighresolutionMappingWorld2011, messagerEstimatingVolumeAge2016}.
@@ -235,7 +234,7 @@ We compiled bathymetry data on approximately 5,000 lakes in the Northeastern and
 \begin{figure}
       \begin{center}\includegraphics[width=0.65\textwidth]{00_map_bathy-1}\end{center}
       \caption{Map of study lakes showing A) lake maximum depth measurements, B) cross-section shape class, and C) reservoir classification.}\label{fig2}
-      \end{figure}
+\end{figure}
 
 All lake bathymetry was specifically calculated relative to high-resolution (1:24,000 scale) National Hydrography Dataset \cite{usgsNationalHydrographyDataset2019} waterbodies such that source data and bathymetry surface outputs were clipped to the area of each lake polygon. We restricted the lakes in our study to those with an area of at least 4 ha and a maximum depth of at least 0.3 m (1 ft). The purpose of these restrictions was to ensure that lakes had enough contours (or points, or polygons) to generate adequately smooth interpolations with which to calculate in-lake geometry metrics.
 
@@ -252,7 +251,7 @@ Covariates used in random forest modeling (Table S1, Equation \ref{eq3}) for lak
       \begin{equation}
             shoreline_{devel} = perimeter / (2 * \sqrt{(\pi * waterarea * 10000)}) \label{eq2}
       \end{equation}
-      \end{linenomath*}
+\end{linenomath*}
 
 \noindent
 where sinuous lakes have larger values of shoreline development and circular lakes have smaller values of shoreline development. Watershed to lake area ratio is an approximation of water residence time and is defined as watershed area divided by lake area \cite{timmsGeomorphologyLakeBasins2009}.
@@ -274,7 +273,7 @@ Prior studies using geometric models to predict lake depth include a statistical
       \begin{equation}
             depth_{observed} \sim depth_{geometric} + covariates \label{eq3}
       \end{equation}
-      \end{linenomath*}
+\end{linenomath*}
 
 \noindent
 Neither cross-section shape nor reservoir class was used as a covariate in any random forest models. We used the random forest algorithm because it makes no assumptions about the distribution of model residuals, allows for non-linearity, and is insensitive to interactions (i.e. multicollinearity) among covariates \cite{prasadNewerClassificationRegression2006}.
@@ -296,10 +295,10 @@ Although proxy distance to lake center was often larger in magnitude compared to
 In addition to overall differences between slope and distance measures, we found differences in these relationships among lake shape classes. For example, in-lake slope and distance to the deepest point of the lake metrics were consistently larger in magnitude for convex lakes as compared to concave lakes (Figure S3). We found evidence that this difference was at least partly explained by the fact that convex lakes are deeper than concave lakes (Figure S8). There were not similar differences among slope and distance metrics for natural lakes versus reservoirs.
 
 \begin{figure}
-  \begin{center}
-    \includegraphics[width=0.75\textwidth,keepaspectratio]{01_geometry_base-1}
-  \end{center}
-  \caption{Comparison among proxy and true values of lake geometry for A) distance to deepest point versus distance distance to lake center and B) nearshore land slope versus in-lake slope. A best-fit line and coefficient of determination is shown to illustrate representativeness.}\label{fig3}
+      \begin{center}
+            \includegraphics[width=0.75\textwidth,keepaspectratio]{01_geometry_base-1}
+      \end{center}
+      \caption{Comparison among proxy and true values of lake geometry for A) distance to deepest point versus distance distance to lake center and B) nearshore land slope versus in-lake slope. A best-fit line and coefficient of determination is shown to illustrate representativeness.}\label{fig3}
 \end{figure}
 
 Offset model fit and prediction error differed depending on the technique used to calculate in-lake and nearshore geometry metrics (Table S2). We found that the best model fit and lowest model error occurred when in-lake slope was calculated as the average point-wise slope of all points at maximum lake depth rather than at single point of maximum depth. However, given the small difference in the fit of models using either of these techniques and the significant cost in terms of computational load and complexity, we limit our discussion hereafter to the simpler case involving only a single deepest point.
@@ -307,28 +306,28 @@ Offset model fit and prediction error differed depending on the technique used t
 The use of proxy nearshore land slope had a larger effect on model fit and prediction error than the use of proxy distance to lake center (Table \ref{table1}). More specifically, the true slope - proxy distance model had a better fit ($R^2$ = 0.7) and lower prediction error (RMSE = 4.4m, MAPE = 29\%) compared to the proxy slope - true distance model ($R^2$ = 0.32, RMSE = 6.6m, MAPE = 60\%). Furthermore, analysis of model residuals showed overestimation of lake depth for concave lakes when models included a proxy slope measure (Figure \ref{fig4}). We observed similar but smaller overestimation depending on if a lake was classified as a reservoir rather than a natural lake (Figure \ref{fig4}).
 
 \begin{table}[h]
-  \caption{Model fit and predictive accuracy metrics (RMSE = root mean square error, $R^2$ = coefficient of determination, MAPE = mean absolute percent error) for all combinations of true (in-lake slope, distance to the deepest point of the lake) and proxy (nearshore land slope, distance to lake center) metrics.} \label{table1}
-  \centering
-  % scripts/05_depth_model.R
-  % data/01_depth_model/depth_grid_metrics.rds
-  % tables/02_model_metrics.Rmd
-\begin{tabular}{lllll}
-  \hline
-  slope & distance & RMSE & $R^2$ & MAPE\\
-  \hline
-  true & true & - & - & -\\
-  true & proxy & 4.4 m & 0.70 & 29 \%\\
-  proxy & true & 6.6 m & 0.32 & 60 \%\\
-  proxy & proxy & 6.4 m & 0.35 & 59 \%\\
-  \hline
-\end{tabular}
+      \caption{Model fit and predictive accuracy metrics (RMSE = root mean square error, $R^2$ = coefficient of determination, MAPE = mean absolute percent error) for all combinations of true (in-lake slope, distance to the deepest point of the lake) and proxy (nearshore land slope, distance to lake center) metrics.} \label{table1}
+      \centering
+      % scripts/05_depth_model.R
+      % data/01_depth_model/depth_grid_metrics.rds
+      % tables/02_model_metrics.Rmd
+      \begin{tabular}{lllll}
+            \hline
+            slope & distance & RMSE  & $R^2$ & MAPE  \\
+            \hline
+            true  & true     & -     & -     & -     \\
+            true  & proxy    & 4.4 m & 0.70  & 29 \% \\
+            proxy & true     & 6.6 m & 0.32  & 60 \% \\
+            proxy & proxy    & 6.4 m & 0.35  & 59 \% \\
+            \hline
+      \end{tabular}
 \end{table}
 
 \begin{figure}
-  \begin{center}
-    \includegraphics[width=\textwidth,keepaspectratio]{02_depth_model_grid_resid-1}
-  \end{center}
-  \caption{Depth model residuals (residual  = observed - predicted) in meters by cross-section shape and reservoir class indicating overprediction of concave and reservoir lakes.}\label{fig4}
+      \begin{center}
+            \includegraphics[width=\textwidth,keepaspectratio]{02_depth_model_grid_resid-1}
+      \end{center}
+      \caption{Depth model residuals (residual  = observed - predicted) in meters by cross-section shape and reservoir class indicating overprediction of concave and reservoir lakes.}\label{fig4}
 \end{figure}
 
 The most important covariates in these models were those relating to spatial location, lake area, and perimeter (Figure S6). Conversely, watershed metrics and lake elevation had little contribution to random forest model fit. The spatial location (i.e. HUC4) covariate was notably less importance in the true slope model compared to the two proxy slope models. Model importance calculations indicated that omitting a geometric max depth measure results in a 130\%, 60\%, or 50\% increase in mean square error depending on the formulation of geometric max depth in Equation \ref{eq1} (Figure S6).
@@ -645,24 +644,24 @@ More Information and Advice:
 % Equation arrays will appear left-aligned.
 
 Math coded inside display math mode \[ ...\]
- will not be numbered, e.g.,:
- \[ x^2=y^2 + z^2\]
+will not be numbered, e.g.,:
+\[ x^2=y^2 + z^2\]
 
- Math coded inside \begin{equation} and \end{equation} will
- be automatically numbered, e.g.,:
- \begin{equation}
- x^2=y^2 + z^2
- \end{equation}
+Math coded inside \begin{equation} and \end{equation} will
+be automatically numbered, e.g.,:
+\begin{equation}
+      x^2=y^2 + z^2
+\end{equation}
 
 
 % To create multiline equations, use the
 % \begin{eqnarray} and \end{eqnarray} environment
 % as demonstrated below.
 \begin{eqnarray}
-  x_{1} & = & (x - x_{0}) \cos \Theta \nonumber \\
-        && + (y - y_{0}) \sin \Theta  \nonumber \\
-  y_{1} & = & -(x - x_{0}) \sin \Theta \nonumber \\
-        && + (y - y_{0}) \cos \Theta.
+      x_{1} & = & (x - x_{0}) \cos \Theta \nonumber \\
+      && + (y - y_{0}) \sin \Theta  \nonumber \\
+      y_{1} & = & -(x - x_{0}) \sin \Theta \nonumber \\
+      && + (y - y_{0}) \cos \Theta.
 \end{eqnarray}
 
 %If you don't want an equation number, use the star form:

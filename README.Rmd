@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 Code and data
 for:
 
-**Stachelek et al. In prep**. Imperfect slope measurements drive overestimation in geometric cone model of lake depth
+**Stachelek et al. In prep**. Imperfect slope measurements drive overestimation in geometric cone model of lake and reservoir depth
 
 ### Products
 
