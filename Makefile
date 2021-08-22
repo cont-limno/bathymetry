@@ -3,7 +3,6 @@ all: manuscript/figures.pdf \
 manuscript/appendix.pdf \
 manuscript/combined.pdf \
 manuscript/manuscript.pdf \
-manuscript/diff.pdf \
 README.md
 
 # data/gis.gpkg
