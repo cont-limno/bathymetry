@@ -12,6 +12,9 @@ sync_figures:
 	cp ../figures/02_depth_model_grid_resid-1.pdf inland_waters/Figure_4.pdf
 	cp ../figures/02_depth_model_importance-1.pdf inland_waters/Figure_5.pdf
 
+jpeg_figures: to_tiff.R
+	Rscript $<
+
 reviewer_comments.pdf: reviewer_comments.md
 	pandoc $< -H quote_setup.tex -o $@
 
