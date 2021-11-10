@@ -116,6 +116,12 @@ data/01_depth_model/depth_grid_metrics.rds: scripts/05_depth_model.R \
 data/00_geometry/nearshore.csv data/lagosne_depth_predictors.csv
 	Rscript $<
 
+data/01_depth_model/depth_grid.rds: scripts/05_depth_model.R
+	Rscript $<
+
+data/01_depth_model/depth_fits.rds: scripts/05_depth_model.R
+	Rscript $<
+
 manuscript/combined.pdf: manuscript/figures.pdf manuscript/appendix.pdf
 	cd manuscript && make combined.pdf
 
@@ -147,7 +153,7 @@ figures/01_contrasts_tally-1.pdf \
 figures/slope_diagram_new.pdf \
 figures/lake_shape.pdf \
 figures/gg_distance-1.pdf
-	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	cd manuscript && Rscript -e "rmarkdown::render('$(notdir $<)', output_format = 'pdf_document')"
 	-pdftk manuscript/figures.pdf cat 2-end output manuscript/figures2.pdf
 	-mv manuscript/figures2.pdf manuscript/figures.pdf
 #	cd figures && make pnglatest

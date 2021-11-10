@@ -1,4 +1,4 @@
-all: manuscript.pdf appendix.pdf diff.pdf combined.pdf submission.pdf
+all: manuscript.pdf appendix.pdf diff.pdf combined.pdf submission.pdf figures.pdf
 
 sync_figures:
 	cp ../figures/slope_diagram_new.pdf slope_diagram_new.pdf
