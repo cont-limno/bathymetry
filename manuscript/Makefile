@@ -5,6 +5,12 @@ sync_figures:
 	cp ../figures/00_map_bathy-1.pdf 00_map_bathy-1.pdf
 	cp ../figures/01_geometry_base-1.pdf 01_geometry_base-1.pdf
 	cp ../figures/02_depth_model_grid_resid-1.pdf 02_depth_model_grid_resid-1.pdf
+	cp ../figures/02_depth_model_importance-1.pdf 02_depth_model_importance-1.pdf
+	cp ../figures/slope_diagram_new.pdf inland_waters/Figure_1.pdf
+	cp ../figures/00_map_bathy-1.pdf inland_waters/Figure_2.pdf
+	cp ../figures/01_geometry_base-1.pdf inland_waters/Figure_3.pdf
+	cp ../figures/02_depth_model_grid_resid-1.pdf inland_waters/Figure_4.pdf
+	cp ../figures/02_depth_model_importance-1.pdf inland_waters/Figure_5.pdf
 
 reviewer_comments.pdf: reviewer_comments.md
 	pandoc $< -H quote_setup.tex -o $@
