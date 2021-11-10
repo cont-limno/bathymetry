@@ -18,12 +18,12 @@ dt <- read.csv("../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
   add_tally() %>%
   dplyr::filter(n > 1) %>%
   # dplyr::filter(lagoslakeid == 5426)
-  summarize(# lake_maxdepth_std = sd(lake_maxdepth_m), 
-         lake_maxdepth_range = range(lake_maxdepth_m)[2] - 
-           range(lake_maxdepth_m)[1], 
-         lake_maxdepth_prop = lake_maxdepth_range / range(lake_maxdepth_m)[2]) %>%
-  setNames(c("lagoslakeid", 
-             "Range", "Range / largest"))
+  summarize( # lake_maxdepth_std = sd(lake_maxdepth_m),
+    lake_maxdepth_range = range(lake_maxdepth_m)[2] -
+      range(lake_maxdepth_m)[1],
+    lake_maxdepth_prop = lake_maxdepth_range / range(lake_maxdepth_m)[2]) %>%
+  setNames(c("lagoslakeid",
+    "Range", "Range / largest"))
 # View(dplyr::arrange(dt, desc(Range)))
 # plot(dt$Range, dt$`Range / largest`)
 
@@ -39,20 +39,20 @@ dt <- read.csv("../data/lagosus_depth.csv", stringsAsFactors = FALSE)
 dt_sub <- dt %>%
   dplyr::filter(
     lagos_effort %in% c("LAGOSNE", "bathymetry", "manual") &
-    !is.na(lake_meandepth_m)) %>%
+      !is.na(lake_meandepth_m)) %>%
   dplyr::select(lagoslakeid, lake_state, lagos_effort, lake_meandepth_m) %>%
-  tidyr::pivot_wider(names_from = lagos_effort, 
-                     values_from = c(lake_meandepth_m)) %>%
+  tidyr::pivot_wider(names_from = lagos_effort,
+    values_from = c(lake_meandepth_m)) %>%
   dplyr::filter(!is.na(bathymetry)) %>%
   mutate(combined = coalesce(manual, LAGOSNE)) %>%
   dplyr::filter(!is.na(combined))
 
 gg_mean <- ggplot() +
-  geom_point(data = dt_sub, 
-             aes(x = bathymetry, y = combined, color = lake_state), 
-             alpha = 0.6) +
-  geom_point(data = dplyr::filter(dt_sub, !(lake_state %in% c("ME"))), 
-             aes(x = bathymetry, y = combined, color = lake_state)) +
+  geom_point(data = dt_sub,
+    aes(x = bathymetry, y = combined, color = lake_state),
+    alpha = 0.6) +
+  geom_point(data = dplyr::filter(dt_sub, !(lake_state %in% c("ME"))),
+    aes(x = bathymetry, y = combined, color = lake_state)) +
   geom_abline(aes(intercept = 0, slope = 1)) +
   labs(color = "") +
   xlab("Calculated (m)") + ylab("Reported (m)") +
@@ -63,17 +63,17 @@ gg_mean <- ggplot() +
 dt_sub <- dt %>%
   dplyr::filter(
     lagos_effort %in% c("LAGOSNE", "bathymetry", "manual") &
-    !is.na(lake_maxdepth_m) &
-    !(lagoslakeid %in% c(456169))) %>% # remove llids with duplicate manual depth
+      !is.na(lake_maxdepth_m) &
+      !(lagoslakeid %in% c(456169))) %>% # remove llids with duplicate manual depth
   dplyr::select(lagoslakeid, lake_state, lagos_effort, lake_maxdepth_m) %>%
-  tidyr::pivot_wider(names_from = lagos_effort, 
-                     values_from = c(lake_maxdepth_m)) %>%
+  tidyr::pivot_wider(names_from = lagos_effort,
+    values_from = c(lake_maxdepth_m)) %>%
   dplyr::filter(!is.na(bathymetry)) %>%
   mutate(combined = coalesce(manual, LAGOSNE)) %>%
   dplyr::filter(!is.na(combined))
 
 gg_max <- ggplot(data = dt_sub) +
-  # geom_text(aes(x = bathymetry, y = combined, color = lake_state, 
+  # geom_text(aes(x = bathymetry, y = combined, color = lake_state,
   #                label = lagoslakeid)) +
   geom_point(aes(x = bathymetry, y = combined, color = lake_state)) +
   geom_abline(aes(intercept = 0, slope = 1)) +
@@ -81,10 +81,10 @@ gg_max <- ggplot(data = dt_sub) +
   ggtitle("Max Depth")
 
 cowplot::plot_grid(gg_max + cowplot::theme_cowplot() +
-                     theme(legend.position = "none"), 
-                   gg_mean + cowplot::theme_cowplot() + 
-                     theme(axis.title.y = element_blank()), 
-                   rel_widths = c(0.8, 1))
+  theme(legend.position = "none"),
+gg_mean + cowplot::theme_cowplot() +
+  theme(axis.title.y = element_blank()),
+rel_widths = c(0.8, 1))
 ```
 
 ```{r lgne-area_vs_lgus-area, eval=FALSE}
@@ -92,20 +92,20 @@ lg    <- lagosus_load("locus")
 lg_ne <- lagosne_load()
 dt    <- read.csv("../data/lagosus_depth.csv", stringsAsFactors = FALSE)
 
-res <- dt %>% 
+res <- dt %>%
   left_join(
     dplyr::select(lg$locus$locus_link, lagoslakeid, lagosne_lagoslakeid)) %>%
   left_join(
-    dplyr::select(lg$locus$locus_characteristics, 
-                  lagoslakeid, lake_totalarea_ha)) %>%
+    dplyr::select(lg$locus$locus_characteristics,
+      lagoslakeid, lake_totalarea_ha)) %>%
   dplyr::filter(!is.na(lagosne_lagoslakeid)) %>%
   dplyr::filter(lagoslakeid == lagosne_lagoslakeid) %>%
   dplyr::filter(!is.na(lake_maxdepth_m)) %>%
   distinct(lagoslakeid, .keep_all = TRUE) %>%
-  dplyr::select(lagoslakeid, lagosne_lagoslakeid, lake_waterarea_ha, 
-                lake_totalarea_ha, lake_maxdepth_m) %>%
-  left_join(dplyr::select(lg_ne$locus, lagosne_lagoslakeid = lagoslakeid, 
-                          lake_area_ha)) %>%
+  dplyr::select(lagoslakeid, lagosne_lagoslakeid, lake_waterarea_ha,
+    lake_totalarea_ha, lake_maxdepth_m) %>%
+  left_join(dplyr::select(lg_ne$locus, lagosne_lagoslakeid = lagoslakeid,
+    lake_area_ha)) %>%
   mutate(diff = lake_area_ha - lake_waterarea_ha) %>%
   arrange(desc(diff))
 
@@ -126,109 +126,5 @@ dplyr::filter(lg_ne$locus, lagoslakeid == 14794)
     "LAGOS_NE_All_Lakes_4ha", "lagoslakeid", res3$lagoslakeid[i]))
 
 mapview(LAGOSNEgis::query_gis(
-    "LAGOS_NE_All_Lakes_4ha", "lagoslakeid", 61727))
-
-```
-
-```{r misc, echo=FALSE, message=FALSE, eval=FALSE, warning=FALSE, results='hide'}
-threshold <- 5
-
-dt <- read.csv("../data/lagosus_depth.csv", stringsAsFactors = FALSE) %>%
-  dplyr::filter(!is.na(lake_maxdepth_m)) %>%
-  group_by(lagoslakeid) %>%
-  add_tally() %>%
-  dplyr::filter(n >= 2) %>%
-  mutate(diff = (max(lake_maxdepth_m) - min(lake_maxdepth_m)) / 
-           max(lake_maxdepth_m)) %>%
-  arrange(desc(diff))
-
-%>%
-  dplyr::filter(!(lagos_effort == "NLA" & diff > threshold)) %>%
-  dplyr::filter(!(lagos_effort == "LAGOSNE" & diff > threshold))
-  
-
-dt %>% View()
-distinct(dt, lagoslakeid, diff) %>%
-  pull(diff) %>% hist(n = 100)
-
-mapview(LAGOSUSgis::query_lake_poly(365518))
-
-
-r <- raster("../data/nh_bathy/5787.tif")
-
-ggplot() + geom_blank() + 
-  theme(panel.background = element_blank())
-LAGOSNE::lake_info(c(5592, 5787)) %>%
-  dplyr::select(lagoslakeid, lagosname1, maxdepth, gnis_name, 
-                lake_area_ha) %>%
-  t() %>%
-  gridExtra::grid.table()
-
-
-
-
-hist(dt$diff, xlim = c(0, 10), n = 100)
-median(dt$diff, na.rm = TRUE)
-
-res_all <- read.csv("../data/00_bathy_depth/bathy_geometry.csv",
-                    stringsAsFactors = FALSE)
-dt_raw_ne <- read.csv("../data/lagosne_depth_predictors.csv",
-                      stringsAsFactors = FALSE) %>%
-  mutate(llid = as.character(lagoslakeid))
-test      <- left_join(res_all, dt_raw_ne) %>%
-  data.frame()
-
-test$calc_depth_lgne <- calc_depth(test$buffer100m_slope_max, test$dist_deepest,
-                                  grain = 10)
-test$calc_depth_lgus <- calc_depth(test$inlake_slope, test$dist_deepest)
-plot(test$maxdepth, test$calc_depth_lgus)
-# plot(test$lake_maxdepth_m, test$calc_depth_lgus)
-# abline(0, 1)
-#
-# ggplot(data = test) +
-#   geom_point(aes(x = lake_maxdepth_m, y = calc_depth_lgus)) +
-#   geom_abline(aes(slope = 1, intercept = 0)) +
-#   facet_wrap(~state)
-
-# plotly::ggplotly())
-
-#
-# hist(test$inlake_slope)
-# hist(test$dist_deepest)
-# hist(test$calc_depth_lgus)
-#
-# plot(test$calc_depth_lgne, test$calc_depth_lgus)
-# plot(test$lake_maxdepth_m, test$calc_depth_lgne)
-
-#
-# # 2654
-#
-#
-#
-# arrange(res, desc(dist_between)) %>%
-#   View()
-#
-# hist(res$dist_between)
-# plot(res$dist_deepest, res$dist_viscenter)
-# abline(0, 1)
-
-# pnt_surface  <- st_point_on_surface(dt_poly)
-## point furthest from shore
-# test <- as_Spatial(dt_poly)
-# r <- rasterize(SpatialPolygons(test@polygons), dt)
-# r[is.na(r)] <- 0
-# r[r == 1] <- NA
-# test2 <- distance(r)
-# which.max(test2)
-# xy           <- xyFromCell(dt, which.max(test2[]))
-# pnt_furthest  <- st_sfc(st_multipoint(xy), crs = st_crs(dt))
-# pnt_centroid <- st_centroid(dt_poly)
-
-# dt           <- raster("data/mn_bathy/2419.tif")
-# compare_deepest_center(dt)
-# mapview::mapview(dt_poly) +
-#   mapview::mapview(pnt_viscenter) +
-# mapview::mapview(r) +
-#   mapview::mapview(pnt_deepest)
-
+  "LAGOS_NE_All_Lakes_4ha", "lagoslakeid", 61727))
 ```

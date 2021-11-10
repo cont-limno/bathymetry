@@ -1,4 +1,4 @@
-all: manuscript.pdf appendix.pdf diff.pdf combined.pdf submission.pdf figures.pdf
+all: manuscript.pdf appendix.pdf combined.pdf figures.pdf
 
 sync_figures:
 	cp ../figures/slope_diagram_new.pdf slope_diagram_new.pdf
@@ -18,9 +18,6 @@ jpeg_figures: to_tiff.R
 reviewer_comments.pdf: reviewer_comments.md
 	pandoc $< -H quote_setup.tex -o $@
 
-# Rscript -e 'rmarkdown::render("/home/jemma/Documents/Science/JournalSubmissions/bathymetry/manuscript/manuscript.Rmd", output_dir = ".", clean=FALSE)'
-# @echo wordcount:
-# @~/.TinyTeX/bin/x86_64-linux/texcount manuscript.tex -sum -sub=section
 manuscript.pdf: manuscript.Rmd appendix.pdf lagosdepth.bib
 	Rscript -e "rmarkdown::render('manuscript.Rmd')"
 	pdftk manuscript.pdf appendix.pdf cat output manuscript2.pdf
@@ -41,11 +38,6 @@ si_template_2019.pdf: figures.pdf si_template_2019.tex apacite.bst
 	pdflatex si_template_2019
 	-bibtex si_template_2019
 	-pdflatex si_template_2019
-
-diff.pdf: agujournaltemplate.tex agujournaltemplate.pdf
-	latexdiff agujournaltemplate_0.1.tex agujournaltemplate.tex > diff.tex --flatten --append-safecmd=doi --allow-spaces --disable-citation-markup
-	latexdiff agujournaltemplate_0.1.bbl agujournaltemplate.bbl > diff.bbl --flatten --append-safecmd=doi --allow-spaces --disable-citation-markup
-	pdflatex diff.tex
 
 clean:
 	-@rm manuscript.pdf

@@ -26,20 +26,3 @@ res <- lg$locus$locus_link %>%
 
 write.csv(res, "data/00_lagosne/00_lagosne_xwalk.csv",
   row.names = FALSE)
-# res <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv", stringsAsFactors = FALSE)
-
-# plot(res$lake_waterarea_ha, res$lake_area_ha)
-
-# are there lakes that were combined (instead of split)?
-# test <- ungroup(res) %>% group_by(lagoslakeid) %>%
-#   add_tally() %>% arrange(desc(n))
-
-# are there lakes with a 1 to 1 relationship that have a different id?
-# test <- lg$locus$locus_link %>%
-#   distinct(lagoslakeid, .keep_all = TRUE) %>%
-#   dplyr::filter(!is.na(lagosne_lagoslakeid)) %>%
-#   group_by(lagosne_lagoslakeid) %>%
-#   add_tally() %>% arrange(desc(n)) %>%
-#   dplyr::filter(n == 1)
-#
-# which(test$lagoslakeid != test$lagosne_lagoslakeid)
