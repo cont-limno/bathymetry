@@ -15,10 +15,11 @@ sync_figures:
 reviewer_comments.pdf: reviewer_comments.md
 	pandoc $< -H quote_setup.tex -o $@
 
-manuscript.pdf: manuscript.Rmd
-	Rscript -e "rmarkdown::render('$<')"
-	@echo wordcount:
-	@~/.TinyTeX/bin/x86_64-linux/texcount manuscript.tex -sum -sub=section
+# Rscript -e 'rmarkdown::render("/home/jemma/Documents/Science/JournalSubmissions/bathymetry/manuscript/manuscript.Rmd", output_dir = ".", clean=FALSE)'
+# @echo wordcount:
+# @~/.TinyTeX/bin/x86_64-linux/texcount manuscript.tex -sum -sub=section
+manuscript.pdf: manuscript.Rmd	
+	Rscript -e "rmarkdown::render('manuscript.Rmd')"	
 
 agujournaltemplate.pdf: agujournaltemplate.tex lagosdepth.bib
 	pdflatex agujournaltemplate
@@ -50,4 +51,5 @@ diff.pdf: agujournaltemplate.tex agujournaltemplate.pdf
 	pdflatex diff.tex
 
 clean:
+	-@rm manuscript.pdf
 	-@rm *.nav *.aux *.snm *.toc *.out *.log *.cpc 2>/dev/null || true
