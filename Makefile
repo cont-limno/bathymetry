@@ -143,6 +143,7 @@ manuscript/figures.pdf: manuscript/figures.Rmd \
 manuscript/tables.pdf \
 figures/00_map_bathy-1.pdf \
 figures/01_geometry_grid-1.pdf \
+figures/01_geometry_base-1.pdf \
 figures/lgnemanual-vs-bathy-depth-1.pdf \
 tables/02_model_sensitivity.pdf \
 tables/02_model_metrics.pdf \
@@ -197,6 +198,13 @@ data/00_hypso/hypso_predictors.csv
 figures/01_contrasts_tally-1.pdf: figures/01_contrasts.Rmd \
 data/00_hypso/hypso_predictors.csv \
 data/lagosus_depth.csv
+	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
+	pdfcrop $@ $@
+
+figures/01_geometry_base-1.pdf: figures/01_geometry.Rmd \
+data/00_bathy_depth/bathy_pnts.rds \
+data/00_hypso/hypso_predictors.csv \
+data/00_geometry/nearshore.csv
 	Rscript -e "rmarkdown::render('$<', output_format = 'pdf_document')"
 	pdfcrop $@ $@
 
