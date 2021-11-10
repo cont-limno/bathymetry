@@ -1,5 +1,5 @@
 ---
-title: Imperfect slope measurements drive overestimation in geometric cone model of lake and reservoir depth
+title: Imperfect slope measurements drive overestimation in geometric cone model of waterbody depth
 
 # Use letters for affiliations
 author:

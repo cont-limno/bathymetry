@@ -161,7 +161,7 @@ figures/gg_distance-1.pdf
 # figures/01_heatmap-1.pdf
 # figures/01_contrasts_depth-1.pdf 
 
-manuscript/manuscript.pdf: manuscript/agujournaltemplate.tex \
+manuscript/manuscript.pdf: manuscript/manuscript.Rmd \
 manuscript/lagosdepth.bib
 	cd manuscript && make manuscript.pdf
 

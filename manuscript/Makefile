@@ -15,10 +15,10 @@ sync_figures:
 reviewer_comments.pdf: reviewer_comments.md
 	pandoc $< -H quote_setup.tex -o $@
 
-manuscript.pdf: agujournaltemplate.pdf
-	cp agujournaltemplate.pdf manuscript.pdf
+manuscript.pdf: manuscript.Rmd
+	Rscript -e "rmarkdown::render('$<')"
 	@echo wordcount:
-	@~/.TinyTeX/bin/x86_64-linux/texcount agujournaltemplate.tex -sum -sub=section
+	@~/.TinyTeX/bin/x86_64-linux/texcount manuscript.tex -sum -sub=section
 
 agujournaltemplate.pdf: agujournaltemplate.tex lagosdepth.bib
 	pdflatex agujournaltemplate
