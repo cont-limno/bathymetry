@@ -21,7 +21,7 @@ reviewer_comments.pdf: reviewer_comments.md
 # Rscript -e 'rmarkdown::render("/home/jemma/Documents/Science/JournalSubmissions/bathymetry/manuscript/manuscript.Rmd", output_dir = ".", clean=FALSE)'
 # @echo wordcount:
 # @~/.TinyTeX/bin/x86_64-linux/texcount manuscript.tex -sum -sub=section
-manuscript.pdf: manuscript.Rmd appendix.pdf
+manuscript.pdf: manuscript.Rmd appendix.pdf lagosdepth.bib
 	Rscript -e "rmarkdown::render('manuscript.Rmd')"
 	pdftk manuscript.pdf appendix.pdf cat output manuscript2.pdf
 	mv manuscript2.pdf manuscript.pdf

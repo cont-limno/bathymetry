@@ -283,9 +283,9 @@ FUNCTION {format.issn}
 }
 
 FUNCTION {format.url}
-{ url empty$
+{ URL empty$
     { "" }
-    { new.block "\url{" url * "}" * }
+    { new.block "\url{" URL * "}" * }
   if$
 }
 
@@ -835,7 +835,8 @@ FUNCTION {incollection}
       format.chapter.pages output
     }
   if$
-  format.doi output  
+  format.doi output
+  format.url output
   new.block
   note output
   fin.entry
@@ -973,14 +974,14 @@ FUNCTION {proceedings}
 FUNCTION {techreport}
 { output.bibitem
   format.authors "author" output.check
-  format.date "year" output.check
   author format.key output
   new.block
   format.title "title" output.check
   new.block
   format.tr.number output.nonnull
   institution "institution" output.check
-  address output  
+  address output
+  format.date "year" output.check
   format.url output
   new.block
   note output
