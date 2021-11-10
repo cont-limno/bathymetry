@@ -17,11 +17,9 @@ knitr::opts_chunk$set(
 Code and data
 for:
 
-**Stachelek J.**, P. J. Hanly, P. A., Soranno, Accepted, Imperfect slope measurements drive overestimation in geometric cone model of lake and reservoir depth. Inland Waters.
+**Stachelek J.**, P. J. Hanly, P. A., Soranno. Accepted. Imperfect slope measurements drive overestimation in geometric cone model of lake and reservoir depth. Inland Waters.
 
 ### Products
-
-Figures: [manuscript/combined.pdf](manuscript/combined.pdf)
 
 Data: [bathymetry derived depth predictors](data/depth_predictors.csv)
 
