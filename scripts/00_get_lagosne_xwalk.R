@@ -12,20 +12,20 @@ res <- lg$locus$locus_link %>%
   add_tally() %>% arrange(desc(n)) %>%
   dplyr::filter(n == 1) %>%
   ungroup() %>% distinct(lagosne_lagoslakeid, lagoslakeid) %>%
-#   2) drop any lakes with a > 10% area change
+  #   2) drop any lakes with a > 10% area change
   left_join(dplyr::select(lg_ne$locus,
-                  lagosne_lagoslakeid = lagoslakeid, lake_area_ha)) %>%
+    lagosne_lagoslakeid = lagoslakeid, lake_area_ha)) %>%
   left_join(dplyr::select(lg$locus$locus_characteristics,
-                          lagoslakeid, lake_waterarea_ha)) %>%
+    lagoslakeid, lake_waterarea_ha)) %>%
   left_join(dplyr::select(lg$locus$locus_information,
-                          lagoslakeid, lake_centroidstate)) %>%
+    lagoslakeid, lake_centroidstate)) %>%
   mutate(diff = abs(lake_area_ha - lake_waterarea_ha) / lake_waterarea_ha) %>%
   arrange(desc(diff)) %>%
   dplyr::filter(diff <= 0.1) %>%
   dplyr::select(-diff)
 
 write.csv(res, "data/00_lagosne/00_lagosne_xwalk.csv",
-          row.names = FALSE)
+  row.names = FALSE)
 # res <- read.csv("data/00_lagosne/00_lagosne_xwalk.csv", stringsAsFactors = FALSE)
 
 # plot(res$lake_waterarea_ha, res$lake_area_ha)
