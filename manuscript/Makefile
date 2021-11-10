@@ -21,16 +21,10 @@ reviewer_comments.pdf: reviewer_comments.md
 # Rscript -e 'rmarkdown::render("/home/jemma/Documents/Science/JournalSubmissions/bathymetry/manuscript/manuscript.Rmd", output_dir = ".", clean=FALSE)'
 # @echo wordcount:
 # @~/.TinyTeX/bin/x86_64-linux/texcount manuscript.tex -sum -sub=section
-manuscript.pdf: manuscript.Rmd	
-	Rscript -e "rmarkdown::render('manuscript.Rmd')"	
-
-agujournaltemplate.pdf: agujournaltemplate.tex lagosdepth.bib
-	pdflatex agujournaltemplate
-	bibtex agujournaltemplate
-	pdflatex agujournaltemplate
-
-submission.pdf: agujournaltemplate.pdf appendix.pdf
-	pdftk agujournaltemplate.pdf si_template_2019.pdf cat output submission.pdf
+manuscript.pdf: manuscript.Rmd appendix.pdf
+	Rscript -e "rmarkdown::render('manuscript.Rmd')"
+	pdftk manuscript.pdf appendix.pdf cat output manuscript2.pdf
+	mv manuscript2.pdf manuscript.pdf
 
 combined.pdf: figures.pdf appendix.pdf
 	pdftk figures.pdf appendix.pdf output combined.pdf
