@@ -20,7 +20,7 @@ log_raw <- read.csv("data/depth_log_all.csv", stringsAsFactors = FALSE)
 dt <- log_raw %>%
   dplyr::filter(state %in% c("FL", "NY")) %>%
   dplyr::filter(Linked_lagoslakeid %in%
-                  c(lakewatch$Linked_lagoslakeid, ny_llids)) %>%
+    c(lakewatch$Linked_lagoslakeid, ny_llids)) %>%
   arrange(Linked_lagoslakeid) %>%
   pull(Linked_lagoslakeid)
 
@@ -28,8 +28,8 @@ dt <- log_raw %>%
 # length(ny_llids)
 
 clipr::write_clip(
-  paste0('=FILTER(A:O, NOT(REGEXMATCH(TO_TEXT(A:A),"',paste0('^',dt, '$', collapse = "|"),'")))')
-  )
+  paste0('=FILTER(A:O, NOT(REGEXMATCH(TO_TEXT(A:A),"', paste0("^", dt, "$", collapse = "|"), '")))')
+)
 
 #### Does LAGOSNE have NH lake depths?
 dt <- read.csv("data/depth_log_all.csv", stringsAsFactors = FALSE) %>%
@@ -47,10 +47,3 @@ lg2 <- lg$lakes_limno %>%
 dplyr::filter(dt, !(Linked_lagoslakeid %in% lg2$lagoslakeid)) %>%
   arrange(Linked_lagoslakeid) %>%
   pull(Linked_lagoslakeid)
-
-
-
-
-
-
-
