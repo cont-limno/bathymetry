@@ -7,8 +7,8 @@ DOI](https://img.shields.io/badge/Paper-DOI-blue.svg)](https://doi.org)
 DOI](https://img.shields.io/badge/Code-DOI-blue.svg)](https://doi.org/)
 [![Data
 DOI](https://img.shields.io/badge/Data-10.6084/m9.figshare.12722246-blue.svg)](https://doi.org/10.6084/m9.figshare.12722246)
-[![Docker
-Build](https://img.shields.io/badge/Docker%20Image-jsta/bathymetry-green.svg)](https://cloud.docker.com/repository/docker/jsta/bathymetry)
+
+<!--- [![Docker Build](https://img.shields.io/badge/Docker%20Image-jsta/bathymetry-green.svg)](https://cloud.docker.com/repository/docker/jsta/bathymetry) --->
 
 Code and data for:
 
@@ -17,6 +17,8 @@ measurements drive overestimation in geometric cone model of lake and
 reservoir depth. Inland Waters.
 
 ### Products
+
+Paper: [manuscript/manuscript.pdf](manuscript/manuscript.pdf)
 
 Data: [bathymetry derived depth predictors](data/depth_predictors.csv)
 
@@ -73,6 +75,6 @@ make -t data/00_geometry/nearshore.csv
 make all
 ```
 
-``` shell
-# docker
-```
+<!--- ```shell --->
+<!--- # TODO: docker --->
+<!--- ``` --->
