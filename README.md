@@ -4,7 +4,7 @@
 [![Paper
 DOI](https://img.shields.io/badge/Paper-DOI-blue.svg)](https://doi.org)
 [![Code
-DOI](https://img.shields.io/badge/Code-DOI-blue.svg)](https://doi.org/)
+DOI](https://img.shields.io/badge/Code-10.5281/zenodo.5672711-blue.svg)](https://doi.org/10.5281/zenodo.5672711)
 [![Data
 DOI](https://img.shields.io/badge/Data-10.6084/m9.figshare.12722246-blue.svg)](https://doi.org/10.6084/m9.figshare.12722246)
 

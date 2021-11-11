@@ -184,7 +184,7 @@ We categorized waterbodies based on their cross-section shape and reservoir clas
 
 We further categorized waterbodies using the output of a deep convolutional neural network model trained on satellite images labelled according to whether there was visual evidence of a water control structure significantly impacting flow \citep{polus2020}. This model had an overall validation accuracy of 81% and produced a probability for each waterbody as to whether it is a reservoir or a natural lake. For our purposes, we set a conservative classification probability threshold of 0.75 to determine whether a waterbody would be considered a reservoir. For example, if the \citet{polus2020} dataset classified a particular waterbody as a reservoir with a probability of 0.74 we categorized it as a natural lake but if the probability was greater than 0.75 we categorized it as a reservoir. Note that our reservoir classification defines reservoirs as any permanent waterbody that has a water control structure likely to significantly impact flow or pool water. It makes no distinction between different dam types, heights, or uses/purposes because the \citet{polus2020} dataset is only based on visual interpretation of waterbody images (via deep convolutional neural network models). However, the \citet{polus2020} dataset is unique in that it provides data using a standardized approach at broad spatial extents for waterbodies > 4 ha.
 
-Covariates used in random forest modeling (Table \ref{table1}, Equation 3, see Random Forests Model sub-section below) for waterbody elevation, area, island area, perimeter, shoreline development, watershed to waterbody area ratio, and hydrologic subbasin (i.e. HUC4s), were obtained from the LAGOS-US LOCUS database. One such measure, that of shoreline development, is a measure of waterbody perimeter shape defined as:
+Covariates used in random forest modeling (Table \ref{table1}, Equation \ref{eq3}, see Random Forests Model sub-section below) for waterbody elevation, area, island area, perimeter, shoreline development, watershed to waterbody area ratio, and hydrologic subbasin (i.e. HUC4s), were obtained from the LAGOS-US LOCUS database. One such measure, that of shoreline development, is a measure of waterbody perimeter shape defined as:
 
 \begin{align}
 shoreline_{devel} = perimeter / (2 * \sqrt{(\pi * waterarea * 10000)}) \label{eq2}
@@ -318,4 +318,4 @@ Only our models using a true measure of in-lake slope had greater accuracy than 
 
 ## Data availability
 
-All data used in the study is available at \citet{stachelekjemmaBathymetryData0002021}. All code for data processing, model fitting, and model evaluation is available at [Zenodo DOI].
+All data used in the study is available at \citet{stachelekjemmaBathymetryData0002021}. All code for data processing, model fitting, and model evaluation is available at \citet{jemstachelekContlimnoBathymetryAccepted2021}.
