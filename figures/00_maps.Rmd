@@ -257,6 +257,7 @@ theme_opts <- guides(color = guide_legend(
 cowplot::plot_grid(gg_bathy + theme_opts,
   gg_shapeclass + theme_opts,
   gg_reservoir + theme_opts,
+  labels = c("a", "b", "c")
   ncol = 1)
 ```
 
