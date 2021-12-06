@@ -115,7 +115,7 @@ dt <- dt %>%
   mutate(lake_maxdepth_m = round(lake_maxdepth_m, 2)) %>%
   mutate(maxdepth_class =
     smart_cut(lake_maxdepth_m, c(10, 30, 70, 200, max(max_depth)),
-      brackets = NULL, sep = " - ")
+      brackets = NULL, sep = "-")
   ) %>% # unique(dt$maxdepth_class)
   dplyr::filter(!is.na(maxdepth_class))
 
@@ -257,7 +257,8 @@ theme_opts <- guides(color = guide_legend(
 cowplot::plot_grid(gg_bathy + theme_opts,
   gg_shapeclass + theme_opts,
   gg_reservoir + theme_opts,
-  labels = c("a", "b", "c")
+  labels = c("a", "b", "c"),
+  label_x = 0.16,
   ncol = 1)
 ```
 
