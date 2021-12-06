@@ -171,7 +171,7 @@ We compiled bathymetry data on approximately 5,000 waterbodies in the Northeaste
   \begin{center}
     \includegraphics[width=0.45\textwidth,keepaspectratio]{../figures/00_map_bathy-1.pdf}
   \end{center}
-  \caption{Map of study lakes showing A) lake e maximum depth measurements, B) cross-section shape class, and C) reservoir classification. The distribution of lake depths from panel A is reported in Figure S4.}\label{fig2}
+  \caption{Map of study waterbodies showing A) maximum depth measurements, B) cross-section shape class, and C) reservoir classification. The distribution of lake depths from panel A is reported in Figure S4.}\label{fig2}
 \end{figure}
 
 The original data came in a variety of formats including pre-interpolated rasters (Minnesota), contour lines (Nebraska, Michigan, Massachusetts, Kansas, Iowa), contour polygons (New Hampshire, Connecticut), or point depth soundings (Maine). For the Minnesota data, we simply clipped the raster for each waterbody to its outline. For data from the remaining States, we processed each waterbody by converting its original representation to a point layer (if necessary), rasterizing these points, and creating an interpolated bathymetry “surface” using a simple moving window average in the \texttt{raster} R package \citep{hijmansRasterGeographicData2019}. The size of the moving window was adjusted iteratively to ensure that each bathymetry raster contained no missing data.
