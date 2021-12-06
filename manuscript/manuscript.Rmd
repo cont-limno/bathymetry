@@ -22,7 +22,7 @@ address:
 # Could be used, for example, to mention the bibliographic info in a post-print.
 # If not specified, defaults to "This version was compiled on \today"
 date_subtitle: > 
-  This is an Accepted Manuscript of an article to be published by Taylor & Francis in Inland Waters.
+  This is an Accepted Manuscript of an article published by Taylor & Francis in Inland Waters, available online: \href{https://doi.org/10.1080/20442041.2021.2006553}{doi:10.1080/20442041.2021.2006553}
   
 
 
