@@ -240,7 +240,7 @@ gg_dist_base <- st_drop_geometry(dt) %>%
   geom_point(size = 1) +
   geom_smooth(method = "lm", se = FALSE) +
   geom_abline(intercept = 0, slope = 1, linetype = 2, color = "darkgreen", size = 1) +
-  annotate("text", x = 2550, y = 430, label = paste0("R^2 == ", rsq), # higher y is up
+  annotate("text", x = 2550, y = 430, label = paste0("italic(R^2) == ", rsq), # higher y is up
     parse = TRUE, size = text_size - 0.7) +
   annotate("label", x = 1900, y = 150, # 1800
     label = get_formula(
@@ -277,7 +277,7 @@ gg_slope_base <- ggplot(data = test) +
   geom_abline(intercept = 0, slope = 1, linetype = 2, color = "darkgreen", size = 1) +
   geom_rect(xmin = 0.28, xmax = 0.42, ymin = 0, ymax = 0.05,
     alpha = 1, fill = "white") +
-  annotate("text", x = 0.34, y = 0.05, label = paste0("R^2 == ", rsq),
+  annotate("text", x = 0.34, y = 0.05, label = paste0("italic(R^2) == ", rsq),
     parse = TRUE, size = text_size - 0.7) +
   annotate("label", x = 0.22, y = 0.01,
     label = get_formula(
@@ -298,7 +298,9 @@ cowplot::plot_grid(
     cowplot::plot_grid(
       gg_dist_base,
       gg_slope_base,
-      rel_widths = c(1, 0.9)
+      rel_widths = c(1, 0.9),
+      labels = c("a", "b"),
+      label_x = c(0.08, 0)
     ),
     ggdraw() +
       draw_label("Proxy measures", x = 0.45, hjust = 0, size = 12, fontface = "bold"),
