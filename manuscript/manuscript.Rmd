@@ -274,7 +274,7 @@ Furthermore, analysis of model residuals showed overestimation of waterbody dept
   \begin{center}
     \includegraphics[width=0.75\textwidth,keepaspectratio]{../figures/02_depth_model_grid_resid-1}
   \end{center}
-  \caption{Depth model residuals (residual  = observed - predicted) in meters by cross-section shape and reservoir class indicating overprediction of concave and reservoir lakes.}\label{fig4}
+  \caption{Depth model residuals (residual  = observed - predicted) in meters by (a) cross-section shape and (b) reservoir class indicating overprediction of concave and reservoir lakes.}\label{fig4}
 \end{figure*}
 
 The most important covariates in these models were those relating to spatial location, waterbody area, and perimeter (Fig. \ref{fig5}). Conversely, watershed metrics and waterbody elevation had little contribution to random forest model fit. The spatial location (i.e. HUC4, hydrologic subbasin) covariate was notably less important in the true slope model compared to the two proxy slope models. To evaluate the contribution of our “offset” models relative to the “base” geometric model, we can look at model importance calculations for the geometric max depth input to the random forest model (Fig. \ref{fig5}). These calculations indicate that omitting a geometric max depth term results in a 130%, 60%, or 50% increase in mean square error depending on the formulation of geometric max depth in Eq. \ref{eq1}.
