@@ -96,7 +96,7 @@ ggplot() +
     axis.text = element_text(family = "sans", size = 9,
       color = "black"),
     legend.key = element_blank()) +
-  ylab("") + xlab("Percent Increase in Mean Square Error")
+  ylab("") + xlab("Percent increase in mean square error")
 ```
 
 ```{r 02_depth_model_grid_resid, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide', fig.height=3.5, fig.width=8}
