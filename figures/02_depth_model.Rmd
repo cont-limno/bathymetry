@@ -138,7 +138,7 @@ theme_opts     <- function(x) x + theme(legend.position = "none",
   axis.title = element_blank())
 rm_legend     <- function(x) x + theme(legend.position = "none")
 gg_shape      <- lapply(gg_shape, rm_legend)
-gg_shape[[2]] <- gg_shape[[2]] + theme(axis.text = element_blank(),
+gg_shape[[2]] <- gg_shape[[2]] + theme( # axis.text = element_blank(),
   axis.title = element_blank())
 gg_shape[[3]] <- gg_shape[[3]] + theme(axis.title = element_blank())
 gg_shape[[4]] <- gg_shape[[4]] + theme(axis.text.y = element_blank(),
@@ -147,12 +147,12 @@ gg_shape[[4]] <- gg_shape[[4]] + theme(axis.text.y = element_blank(),
 gg_shape <- cowplot::plot_grid(gg_shape[[1]],
   cowplot::plot_grid(
     cowplot::plot_grid(gg_shape[[1]], gg_shape[[2]],
-      rel_widths = c(1, 0.85)),
+      rel_widths = c(0.92, 1)),
     cowplot::plot_grid(gg_shape[[3]], gg_shape[[4]],
       rel_widths = c(1, 0.85)),
     ggdraw() + draw_label("Residual (m)", size = 10, y = 0.6),
     leg,
-    nrow = 4, rel_heights = c(0.85, 1, 0.1, 0.15)),
+    nrow = 4, rel_heights = c(1, 1, 0.1, 0.15)),
 
   ncol = 2, rel_widths = c(0.1, 1)) %>%
   ggdraw() +
@@ -188,7 +188,7 @@ theme_opts     <- function(x) x + theme(legend.position = "none",
   axis.title = element_blank())
 rm_legend     <- function(x) x + theme(legend.position = "none")
 gg_reservoir      <- lapply(gg_reservoir, rm_legend)
-gg_reservoir[[2]] <- gg_reservoir[[2]] + theme(axis.text = element_blank(),
+gg_reservoir[[2]] <- gg_reservoir[[2]] + theme( # axis.text = element_blank(),
   axis.title = element_blank())
 gg_reservoir[[3]] <- gg_reservoir[[3]] + theme(axis.title = element_blank())
 gg_reservoir[[4]] <- gg_reservoir[[4]] + theme(axis.text.y = element_blank(),
@@ -197,12 +197,12 @@ gg_reservoir[[4]] <- gg_reservoir[[4]] + theme(axis.text.y = element_blank(),
 gg_reservoir <- cowplot::plot_grid(gg_reservoir[[1]],
   cowplot::plot_grid(
     cowplot::plot_grid(gg_reservoir[[1]], gg_reservoir[[2]],
-      rel_widths = c(1, 0.85)),
+      rel_widths = c(0.87, 1)),
     cowplot::plot_grid(gg_reservoir[[3]], gg_reservoir[[4]],
       rel_widths = c(1, 0.85)),
     ggdraw() + draw_label("Residual (m)", size = 10, y = 0.6),
     leg,
-    nrow = 4, rel_heights = c(0.85, 1, 0.1, 0.15)),
+    nrow = 4, rel_heights = c(1, 1, 0.1, 0.15)),
   ncol = 2, rel_widths = c(0.1, 1)) %>%
   ggdraw() +
   # draw_label("proxy", x = 0.06, y = 0.32, angle = 90, size = 10) +
@@ -214,7 +214,7 @@ gg_reservoir <- cowplot::plot_grid(gg_reservoir[[1]],
 # draw_label("Residual distribution",
 #            x = 0.55, y = 0.99, size = 10, fontface = "bold")
 
-cowplot::plot_grid(gg_shape, gg_reservoir, ncol = 2, rel_widths = c(1, 0.9))
+cowplot::plot_grid(gg_shape, gg_reservoir, ncol = 2, rel_widths = c(1, 0.9), labels = c("a", "b"))
 ```
 
 ```{r 02_depth_model_fitted_allproxy, echo=FALSE, message=FALSE, eval=TRUE, warning=FALSE, results='hide'}
