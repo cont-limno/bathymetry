@@ -6,7 +6,7 @@ out_paths <- paste0("inland_waters/", fig_list, ".jpeg")
 
 make_jpeg <- function(in_path, out_path) {
   bitmap <- pdf_render_page(in_path, page = 1, dpi = 600)
-  jpeg::writeJPEG(bitmap, out_path)
+  jpeg::writeJPEG(bitmap, out_path, quality = 1)
 }
 
 lapply(seq_len(length(fig_list)),
