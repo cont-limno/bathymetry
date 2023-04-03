@@ -13,7 +13,7 @@ DOI](https://img.shields.io/badge/Data-10.6084/m9.figshare.12722246-blue.svg)](h
 Code and data for:
 
 **Stachelek, J.**, Hanly, P.J., Soranno, P.A., 2022. Imperfect slope
-measurements drive overesti- mation in geometric cone model of lake and
+measurements drive overestimation in geometric cone model of lake and
 reservoir depth. Inland Waters, 12(2), 283-293.
 10.1080/20442041.2021.2006553
 
