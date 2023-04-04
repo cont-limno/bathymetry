@@ -1,4 +1,6 @@
 
+<meta name="citation_author" content="Stachelek, Jemma">
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 [![Paper
