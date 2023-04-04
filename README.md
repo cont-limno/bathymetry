@@ -1,6 +1,12 @@
 
 <meta name="citation_author" content="Stachelek, Jemma">
 
+<meta name="citation_publication_date" content="2022">
+
+<meta name="citation_title" content="Imperfect slope measurements drive overestimation in geometric cone model of lake and reservoir depth">
+
+<meta name="citation_pdf_url" content="https://github.com/cont-limno/bathymetry/raw/master/manuscript/manuscript.pdf">
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 [![Paper
